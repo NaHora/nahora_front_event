@@ -1,8 +1,13 @@
-import './index.css';
-import AppRoutes from './routes';
+import AppRoutes from "./routes";
+import GlobalStyle from "./styles/styledGlobal";
 
 function App() {
-  return <AppRoutes />;
+  return (
+    <>
+      <AppRoutes />
+      <GlobalStyle />
+    </>
+  );
 }
 
 export default App;

@@ -1,99 +1,154 @@
-import { Container, CategoryTitle, TableContainer, Table, Tr, Th, Td } from './styles';
-import { useTable } from 'react-table';
-import React from 'react';
+import {
+  Container,
+  CategoryTitle,
+  TableContainer,
+  Table,
+  Tr,
+  Th,
+  Td,
+  EventImage,
+  Content,
+  Tbody,
+  Thead,
+  Position,
+  PairName,
+  CompetitorsName,
+  FlexRow,
+  FlexColumn,
+  WorkoutName,
+  Point,
+  FlexColumnAlignStart,
+  Total,
+} from "./styles";
+import EventLogo from "../../assets/event-logo.png";
+import React from "react";
 
 export const Ranking = () => {
   const resultado = [
     {
       colocacao: 1,
-      nomeDupla: 'Dupla 1',
-      competidores: 'Competidor 1 e Competidor 2',
-      resultados: '100, 200, 10, 90, 80',
+      nomeDupla: "Dupla 1",
+      competidores: "Competidor 1 e Competidor 2",
+      resultados: "100, 200, 10, 90, 80",
       total: 100,
     },
     {
       colocacao: 2,
-      nomeDupla: 'Dupla 1',
-      competidores: 'Competidor 1 e Competidor 2',
-      resultados: '100, 200, 10, 90, 80',
+      nomeDupla: "Dupla 1",
+      competidores: "Competidor 1 e Competidor 2",
+      resultados: "100, 200, 10, 90, 80",
       total: 200,
     },
     {
       colocacao: 3,
-      nomeDupla: 'Dupla 1',
-      competidores: 'Competidor 1 e Competidor 2',
-      resultados: '100, 200, 10, 90, 80',
+      nomeDupla: "Dupla 1",
+      competidores: "Competidor 1 e Competidor 2",
+      resultados: "100, 200, 10, 90, 80",
       total: 300,
     },
     {
       colocacao: 4,
-      nomeDupla: 'Dupla 1',
-      competidores: 'Competidor 1 e Competidor 2',
-      resultados: '100, 200, 10, 90, 80',
+      nomeDupla: "Dupla 1",
+      competidores: "Competidor 1 e Competidor 2",
+      resultados: "100, 200, 10, 90, 80",
       total: 400,
     },
     {
       colocacao: 5,
-      nomeDupla: 'Dupla 1',
-      competidores: 'Competidor 1 e Competidor 2',
-      resultados: '100, 200, 10, 90, 80',
+      nomeDupla: "Dupla 1",
+      competidores: "Competidor 1 e Competidor 2",
+      resultados: "100, 200, 10, 90, 80",
       total: 100,
     },
     {
       colocacao: 6,
-      nomeDupla: 'Dupla 1',
-      competidores: 'Competidor 1 e Competidor 2',
-      resultados: '100, 200, 10, 90, 80',
+      nomeDupla: "Dupla 1",
+      competidores: "Competidor 1 e Competidor 2",
+      resultados: "100, 200, 10, 90, 80",
       total: 100,
     },
     {
       colocacao: 7,
-      nomeDupla: 'Dupla 1',
-      competidores: 'Competidor 1 e Competidor 2',
-      resultados: '100, 200, 10, 90, 80',
+      nomeDupla: "Dupla 1",
+      competidores: "Competidor 1 e Competidor 2",
+      resultados: "100, 200, 10, 90, 80",
       total: 100,
     },
     {
       colocacao: 8,
-      nomeDupla: 'Dupla 1',
-      competidores: 'Competidor 1 e Competidor 2',
-      resultados: '100, 200, 10, 90, 80',
+      nomeDupla: "Dupla 1",
+      competidores: "Competidor 1 e Competidor 2",
+      resultados: "100, 200, 10, 90, 80",
       total: 100,
     },
   ];
 
   const data = React.useMemo(() => resultado, []);
-  const columns = React.useMemo(
-    () => [
-      { Header: 'Posição', accessor: 'colocacao' },
-      { Header: 'Equipe', accessor: 'nomeDupla' },
-      { Header: 'Workouts', accessor: 'resultados' },
-      { Header: 'Pontuação', accessor: 'total' },
-    ],
-    []
-  );
+  const columns = React.useMemo(() => ["", "", "", ""], []);
 
   return (
     <Container>
-      <CategoryTitle>RX - MASCULINO</CategoryTitle>
-      <TableContainer>
+      <EventImage src={EventLogo} alt="event logo" />
+      <Content>
+        <CategoryTitle>RX - MASCULINO</CategoryTitle>
         <Table>
-          <Tr>
-            {columns.map((column) => (
-              <Th>{column.Header}</Th>
-            ))}
-          </Tr>
-
-          {data.map((row) => (
+          <Thead>
             <Tr>
-              <Td>{row.colocacao}</Td>
-              <Td>{row.competidores}</Td>
-              <Td>{row.resultados}</Td>
-              <Td>{row.total}</Td>
+              <Th>Posição</Th>
+              <Th style={{ textAlign: "left" }}>Equipe</Th>
+              <Th>Workouts</Th>
+              <Th>Pontuação</Th>
             </Tr>
-          ))}
+          </Thead>
+
+          <Tbody>
+            {data.map((row) => (
+              <Tr style={{ transform: "skew(-10deg)" }} key={row.colocacao}>
+                <Td style={{ textAlign: "center" }}>
+                  <Position>{row.colocacao}</Position>
+                </Td>
+                <Td>
+                  <FlexColumnAlignStart>
+                    <PairName>Nome da dupla</PairName>
+                    <CompetitorsName>
+                      Competidor 1 / Competidor 2
+                    </CompetitorsName>
+                  </FlexColumnAlignStart>
+                </Td>
+                <Td>
+                  <FlexRow>
+                    <FlexColumn>
+                      <WorkoutName>1</WorkoutName>
+                      <Point>00</Point>
+                    </FlexColumn>
+                    <FlexColumn>
+                      <WorkoutName>2.1</WorkoutName>
+                      <Point>00</Point>
+                    </FlexColumn>
+                    <FlexColumn>
+                      <WorkoutName>2.2</WorkoutName>
+                      <Point>00</Point>
+                    </FlexColumn>
+                    <FlexColumn>
+                      <WorkoutName>2.3</WorkoutName>
+                      <Point>00</Point>
+                    </FlexColumn>
+                    <FlexColumn>
+                      <WorkoutName>3</WorkoutName>
+                      <Point>00</Point>
+                    </FlexColumn>
+                  </FlexRow>
+                </Td>
+                <Td>
+                  <FlexRow>
+                    <Total>{row.total}</Total>
+                  </FlexRow>
+                </Td>
+              </Tr>
+            ))}
+          </Tbody>
         </Table>
-      </TableContainer>
+      </Content>
     </Container>
   );
 };
