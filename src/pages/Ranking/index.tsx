@@ -21,7 +21,8 @@ import {
   Total,
 } from "./styles";
 import EventLogo from "../../assets/event-logo.png";
-import React from "react";
+import React, { useEffect, useState } from "react";
+import api from "../../services/api";
 
 export const Ranking = () => {
   const resultado = [
@@ -82,9 +83,18 @@ export const Ranking = () => {
       total: 100,
     },
   ];
+  const [categories, setCategories] = useState([]);
 
   const data = React.useMemo(() => resultado, []);
-  const columns = React.useMemo(() => ["", "", "", ""], []);
+
+  async function getCategories() {
+    const response = await api.get("/category");
+    setCategories(response.data);
+  }
+
+  useEffect(() => {
+    getCategories();
+  }, []);
 
   return (
     <Container>
