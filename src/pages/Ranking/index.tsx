@@ -1,4 +1,4 @@
-import { Container, TableContainer, Table, Tr, Th, Td } from './styles';
+import { Container, CategoryTitle, TableContainer, Table, Tr, Th, Td } from './styles';
 import { useTable } from 'react-table';
 import React from 'react';
 
@@ -75,6 +75,7 @@ export const Ranking = () => {
 
   return (
     <Container>
+      <CategoryTitle>RX - MASCULINO</CategoryTitle>
       <TableContainer>
         <Table>
           <Tr>
