@@ -83,17 +83,17 @@ export const Ranking = () => {
       total: 100,
     },
   ];
-  const [categories, setCategories] = useState([]);
+  const [rankGeral, setRankGeral] = useState([]);
 
   const data = React.useMemo(() => resultado, []);
 
-  async function getCategories() {
-    const response = await api.get("/category");
-    setCategories(response.data);
+  async function getRankGeral() {
+    const response = await api.get("/score/rank/total");
+    setRankGeral(response.data);
   }
 
   useEffect(() => {
-    getCategories();
+    getRankGeral();
   }, []);
 
   return (
