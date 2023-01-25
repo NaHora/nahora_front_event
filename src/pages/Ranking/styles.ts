@@ -5,9 +5,7 @@ const fadeOut = keyframes`
     opacity: 1;
   }
  
-  80% {
-    opacity: 0.9;
-  }
+
   100% {
     opacity: 0;
   }
@@ -34,11 +32,9 @@ export const Content = styled.div`
   flex-direction: column;
   align-items: center;
 
-  .show {
-    animation: ${fadeOut} 5.1s ease-out;
-  }
-
   .hide {
+    animation: ${fadeOut} 100ms linear;
+    opacity: 0;
   }
 `;
 
@@ -68,18 +64,27 @@ export const Tr = styled.tr`
   background-color: #313037;
   box-shadow: 0px 4px 9px #121214, inset 0px -17px 32px #121214,
     inset 0px 17px 32px #121214;
+
+  @media only screen and (max-width: 768px) {
+    th:nth-child(3) {
+      display: none;
+    }
+    td:nth-child(3) {
+      display: none;
+    }
+  }
 `;
 
 export const Th = styled.th`
   background-color: #121214;
-  padding: 16px 0;
+  padding: 16px 8px;
   font-weight: 700;
 
   font-size: 16px;
 `;
 
 export const Td = styled.td`
-  padding: 16px 0;
+  padding: 8px 8px;
   transform: skew(10deg);
 `;
 

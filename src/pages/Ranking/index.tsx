@@ -35,39 +35,79 @@ type Rank = {
 
 export const Ranking = () => {
   const [rankGeral, setRankGeral] = useState<Rank[][]>();
+  const [currentRankGeral, setCurrentRankGeral] = useState<Rank[]>();
   const [currentCategory, setCurrentCategory] = useState(0);
-  const [currentOpacity, setCurrentOpacity] = useState(false);
+  const [changeCategory, setChangeCategory] = useState(false);
+  const [currentItems, setCurrentItems] = useState<number[]>([]);
 
   async function getRankGeral() {
     const response = await api.get("/score/rank/total");
     setRankGeral(response.data);
+    setCurrentRankGeral(response.data[0]);
+    const rankSize = response.data[0].length;
+
+    const eachItemFromRank = Array.from(
+      { length: rankSize },
+      (_, index) => index
+    );
+    setCurrentItems(eachItemFromRank);
   }
 
   useEffect(() => {
     getRankGeral();
   }, []);
 
-  const MINUTE_MS = 5000;
-
   useEffect(() => {
-    console.log(currentOpacity);
-    setCurrentOpacity(!currentOpacity);
+    // setCurrentOpacity(!currentOpacity);
     if (Array.isArray(rankGeral) && rankGeral.length > 0) {
-      const interval = setInterval(() => {
-        setCurrentOpacity(!currentOpacity);
-        let newCategory = currentCategory + 1;
-        if (newCategory === rankGeral.length) {
-          newCategory = 0;
-        }
+      const MINUTE_MS = 10000 - rankGeral.length * 200;
 
-        setCurrentCategory(newCategory);
+      const interval = setInterval(() => {
+        setChangeCategory(true);
       }, MINUTE_MS);
 
       return () => clearInterval(interval); // This represents the unmount function, in which you need to clear your interval to prevent memory leaks.
     }
   }, [currentCategory, rankGeral]);
 
-  useEffect(() => {}, [currentCategory]);
+  useEffect(() => {
+    if (
+      Array.isArray(currentItems) &&
+      currentItems.length > 0 &&
+      changeCategory
+    ) {
+      const interval = setInterval(() => {
+        const currentItemsCopied = [...currentItems];
+        const rankSize = [...currentItemsCopied].length;
+
+        currentItemsCopied.pop();
+
+        if (Array.isArray(rankGeral) && rankGeral.length > 0) {
+          if (rankSize === 1) {
+            let newCategory = currentCategory + 1;
+            if (newCategory === rankGeral.length) {
+              newCategory = 0;
+            }
+
+            setCurrentCategory(newCategory);
+            setCurrentRankGeral(rankGeral[newCategory]);
+            const rankSize = rankGeral[newCategory].length;
+
+            const eachItemFromRank = Array.from(
+              { length: rankSize },
+              (_, index) => index
+            );
+            setCurrentItems(eachItemFromRank);
+            setChangeCategory(false);
+          } else {
+            setCurrentItems(currentItemsCopied);
+          }
+        }
+      }, 200);
+
+      return () => clearInterval(interval); // This represents the unmount function, in which you need to clear your interval to prevent memory leaks.
+    }
+  }, [currentItems, currentCategory, changeCategory]);
 
   function getWorkoutPoint(index: number) {
     switch (index) {
@@ -95,10 +135,10 @@ export const Ranking = () => {
   return (
     <Container>
       <EventImage src={EventLogo} alt="event logo" />
-      {Array.isArray(rankGeral) && rankGeral.length > 0 ? (
+      {Array.isArray(currentRankGeral) && currentRankGeral.length > 0 ? (
         <Content>
-          <CategoryTitle className={currentOpacity ? "show" : "hide"}>
-            {rankGeral[currentCategory][0]?.category}
+          <CategoryTitle className={!currentItems.includes(1) ? "hide" : ""}>
+            {currentRankGeral[0]?.category}
           </CategoryTitle>
           <Table>
             <Thead>
@@ -110,9 +150,13 @@ export const Ranking = () => {
               </Tr>
             </Thead>
 
-            <Tbody className={currentOpacity ? "show" : "hide"}>
-              {rankGeral[currentCategory].map((row) => (
-                <Tr style={{ transform: "skew(-10deg)" }} key={row.pairName}>
+            <Tbody>
+              {currentRankGeral.map((row, index) => (
+                <Tr
+                  className={!currentItems.includes(index) ? "hide" : ""}
+                  style={{ transform: "skew(-10deg)" }}
+                  key={row.pairName}
+                >
                   <Td style={{ textAlign: "center" }}>
                     <Position>{row.position}</Position>
                   </Td>
@@ -145,7 +189,7 @@ export const Ranking = () => {
           </Table>
         </Content>
       ) : (
-        <span>Carregando</span>
+        <span>Carregando...</span>
       )}
     </Container>
   );
