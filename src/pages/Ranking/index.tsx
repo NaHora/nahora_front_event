@@ -19,10 +19,14 @@ import {
   Point,
   FlexColumnAlignStart,
   Total,
-} from './styles';
-import EventLogo from '../../assets/event-logo.png';
-import React, { useEffect, useState } from 'react';
-import api from '../../services/api';
+
+} from "./styles";
+import EventLogo from "../../assets/event-logo.png";
+import React, { useEffect, useState } from "react";
+import api from "../../services/api";
+import MilitaryTechIcon from "@mui/icons-material/MilitaryTech";
+import { useMediaQuery } from "@mui/material";
+import { theme } from "../../styles/global";
 
 type Rank = {
   category: string;
@@ -39,6 +43,7 @@ export const Ranking = () => {
   const [currentCategory, setCurrentCategory] = useState(0);
   const [changeCategory, setChangeCategory] = useState(false);
   const [currentItems, setCurrentItems] = useState<number[]>([]);
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
   async function getRankGeral() {
     const response = await api.get('/score/rank/total');
@@ -147,7 +152,20 @@ export const Ranking = () => {
                   style={{ transform: 'skew(-10deg)' }}
                   key={row.pairName}
                 >
-                  <Td style={{ textAlign: 'center' }}>
+
+                  <Td style={{ textAlign: "center" }}>
+                    {row.position === 1 && (
+                      <MilitaryTechIcon
+                        style={{
+                          color: "#F50057",
+                          fontSize: 60,
+                          position: "absolute",
+                          left: isMobile ? -20 : 0,
+                          top: 0,
+                        }}
+                      />
+                    )}
+
                     <Position>{row.position}</Position>
                   </Td>
                   <Td>
