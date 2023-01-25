@@ -1,28 +1,35 @@
-import {
-  Container,
-  CategoryTitle,
-  TableContainer,
-  Table,
-  Tr,
-  Th,
-  Td,
-  EventImage,
-  Content,
-  Tbody,
-  Thead,
-  Position,
-  PairName,
-  CompetitorsName,
-  FlexRow,
-  FlexColumn,
-  WorkoutName,
-  Point,
-  FlexColumnAlignStart,
-  Total,
-} from './styles';
+import { useEffect, useState } from 'react';
 import EventLogo from '../../assets/event-logo.png';
-import React, { useEffect, useState } from 'react';
 import api from '../../services/api';
+import {
+  CompetitorsName,
+  Container,
+  Content,
+  EventImage,
+  FlexColumn,
+  FlexColumnAlignStart,
+  FlexRow,
+  PairName,
+  Point,
+  Position,
+  SelectDiv,
+  Select,
+  SelectOption,
+  SelectContainer,
+  SelectTitle,
+  WorkoutDiv,
+  WorkoutTitle,
+  WourkoutTime,
+  WorkoutDescription,
+  Table,
+  Tbody,
+  Td,
+  Th,
+  Thead,
+  Total,
+  Tr,
+  WorkoutName,
+} from './styles';
 
 type Rank = {
   category: string;
@@ -33,7 +40,7 @@ type Rank = {
   workouts: number[];
 };
 
-export const Ranking = () => {
+export const Filter = () => {
   const [rankGeral, setRankGeral] = useState<Rank[][]>();
   const [currentRankGeral, setCurrentRankGeral] = useState<Rank[]>();
   const [currentCategory, setCurrentCategory] = useState(0);
@@ -67,38 +74,6 @@ export const Ranking = () => {
     }
   }, [currentCategory, rankGeral]);
 
-  useEffect(() => {
-    if (Array.isArray(currentItems) && currentItems.length > 0 && changeCategory) {
-      const interval = setInterval(() => {
-        const currentItemsCopied = [...currentItems];
-        const rankSize = [...currentItemsCopied].length;
-
-        currentItemsCopied.pop();
-
-        if (Array.isArray(rankGeral) && rankGeral.length > 0) {
-          if (rankSize === 1) {
-            let newCategory = currentCategory + 1;
-            if (newCategory === rankGeral.length) {
-              newCategory = 0;
-            }
-
-            setCurrentCategory(newCategory);
-            setCurrentRankGeral(rankGeral[newCategory]);
-            const rankSize = rankGeral[newCategory].length;
-
-            const eachItemFromRank = Array.from({ length: rankSize }, (_, index) => index);
-            setCurrentItems(eachItemFromRank);
-            setChangeCategory(false);
-          } else {
-            setCurrentItems(currentItemsCopied);
-          }
-        }
-      }, 200);
-
-      return () => clearInterval(interval); // This represents the unmount function, in which you need to clear your interval to prevent memory leaks.
-    }
-  }, [currentItems, currentCategory, changeCategory]);
-
   function getWorkoutPoint(index: number) {
     switch (index) {
       case 0:
@@ -127,9 +102,39 @@ export const Ranking = () => {
       <EventImage src={EventLogo} alt="event logo" />
       {Array.isArray(currentRankGeral) && currentRankGeral.length > 0 ? (
         <Content>
-          <CategoryTitle className={!currentItems.includes(1) ? 'hide' : ''}>
-            {currentRankGeral[0]?.category}
-          </CategoryTitle>
+          <SelectContainer>
+            <SelectTitle>Workout:</SelectTitle>
+            <SelectDiv>
+              <Select placeholder="Selecione">
+                <SelectOption></SelectOption>
+                <SelectOption>1</SelectOption>
+                <SelectOption>2.1</SelectOption>
+                <SelectOption>2.2</SelectOption>
+                <SelectOption>2.3</SelectOption>
+                <SelectOption>5</SelectOption>
+              </Select>
+            </SelectDiv>
+          </SelectContainer>
+
+          <SelectContainer>
+            <SelectTitle>Categorias:</SelectTitle>
+            <SelectDiv>
+              <Select placeholder="Selecione">
+                <SelectOption>Selecione</SelectOption>
+                <SelectOption>Primeira</SelectOption>
+                <SelectOption>Segunda</SelectOption>
+                <SelectOption>Terceira</SelectOption>
+              </Select>
+            </SelectDiv>
+          </SelectContainer>
+
+          <WorkoutDiv>
+            <WorkoutTitle>WORKOUT 1 - WAR MASCULINO</WorkoutTitle>
+            <WourkoutTime>09:00</WourkoutTime>
+            <WorkoutDescription>100m run</WorkoutDescription>
+            <WorkoutDescription>200 box jump</WorkoutDescription>
+          </WorkoutDiv>
+
           <Table>
             <Thead>
               <Tr>
