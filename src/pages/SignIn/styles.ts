@@ -11,3 +11,16 @@ export const Container = styled.div`
 `;
 
 export const EventImage = styled.img``;
+
+export const Content = styled.div`
+  background: #29282e;
+  padding: 125px 96px;
+
+  flex-direction: column;
+  align-items: flex-start;
+`;
+
+export const LoginTitle = styled.h1`
+  color: #f5f5f5;
+  font-size: 25px;
+`;
