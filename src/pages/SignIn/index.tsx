@@ -1,8 +1,17 @@
-import { Button, TextField } from "@mui/material";
-import { Container, Content, EventImage, LoginTitle } from "./styles";
+import { Button, InputAdornment, TextField } from "@mui/material";
+import {
+  Container,
+  Content,
+  EventImage,
+  LoginTitle,
+  LoginEmail,
+  LoginPassword,
+} from "./styles";
 import { useNavigate } from "react-router-dom";
-import EventLogo from "../../assets/event-logo.png";
-import { Box, height } from "@mui/system";
+import EventLogo from "../../assets/event-logo-login.png";
+import { Box } from "@mui/system";
+import EmailSharpIcon from "@mui/icons-material/EmailSharp";
+import LockSharpIcon from "@mui/icons-material/LockSharp";
 
 export const SignIn = () => {
   const navigate = useNavigate();
@@ -18,6 +27,7 @@ export const SignIn = () => {
       >
         <Content>
           <LoginTitle>Login</LoginTitle>
+          <LoginEmail>E-mail</LoginEmail>
           <TextField
             id="outlined-basic"
             label=""
@@ -25,22 +35,34 @@ export const SignIn = () => {
             type={"email"}
             sx={{
               width: "100%",
-              marginTop: "71px",
               backgroundColor: "#121214",
               borderRadius: "4px",
             }}
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <EmailSharpIcon sx={{ fontSize: 24, color: "#29282E4D" }} />
+                </InputAdornment>
+              ),
+            }}
           />
+          <LoginPassword>Senha</LoginPassword>
           <TextField
             id="outlined-basic"
             label=""
             variant="outlined"
             sx={{
               width: "100%",
-              marginTop: "60px",
-              borderColor: "#fff",
-              color: "#fff",
               backgroundColor: "#121214",
               borderRadius: "4px",
+              color: "#fff",
+            }}
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <LockSharpIcon sx={{ fontSize: 24, color: "#29282E4D" }} />
+                </InputAdornment>
+              ),
             }}
           />
           <Button
@@ -51,6 +73,7 @@ export const SignIn = () => {
               height: "58px",
               marginTop: "70px",
             }}
+            onClick={() => navigate("/signup")}
           >
             Login
           </Button>

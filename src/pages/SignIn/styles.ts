@@ -14,7 +14,7 @@ export const EventImage = styled.img``;
 
 export const Content = styled.div`
   background: #29282e;
-  padding: 125px 96px;
+  padding: 128px 96px;
 
   flex-direction: column;
   align-items: flex-start;
@@ -22,5 +22,17 @@ export const Content = styled.div`
 
 export const LoginTitle = styled.h1`
   color: #f5f5f5;
-  font-size: 25px;
+  font-size: 40px;
+`;
+
+export const LoginEmail = styled.h2`
+  color: #f5f5f5;
+  font-size: 20px;
+  margin-top: 70px;
+`;
+
+export const LoginPassword = styled.h2`
+  color: #f5f5f5;
+  font-size: 20px;
+  margin-top: 38px;
 `;
