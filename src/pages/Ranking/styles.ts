@@ -1,9 +1,20 @@
-import styled from "styled-components";
+import styled, { keyframes } from "styled-components";
+
+const fadeOut = keyframes`
+  0% {
+    opacity: 1;
+  }
+ 
+  80% {
+    opacity: 0.9;
+  }
+  100% {
+    opacity: 0;
+  }
+`;
 
 export const Container = styled.div`
-  min-height: 100vh;
   padding: 0 16px;
-  width: 100vw;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -22,6 +33,13 @@ export const Content = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
+
+  .show {
+    animation: ${fadeOut} 5.1s ease-out;
+  }
+
+  .hide {
+  }
 `;
 
 export const CategoryTitle = styled.h1`
