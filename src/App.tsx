@@ -1,10 +1,12 @@
-import AppRoutes from './routes';
+import AppRoutes from "./routes";
+import GlobalStyle from "./styles/styledGlobal";
 
 function App() {
   return (
-    <div className="App">
+    <>
       <AppRoutes />
-    </div>
+      <GlobalStyle />
+    </>
   );
 }
 

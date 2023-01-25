@@ -6,7 +6,7 @@ export const SignUp = () => {
   const navigate = useNavigate();
   return (
     <Container>
-      <Button onClick={() => navigate('/signin')}>SignUp</Button>
+      <Button onClick={() => navigate('/signin')}>Ranking</Button>
     </Container>
   );
 };
