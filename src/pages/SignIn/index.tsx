@@ -84,15 +84,18 @@ export const SignIn = () => {
           size="small"
           onChange={(e) => setValues({ ...values, email: e.target.value })}
           value={values.email}
-          error={errors.email}
+          error={!!errors.email}
+          helperText={errors.email}
           variant="outlined"
           type={"email"}
           sx={{
             width: "100%",
-            backgroundColor: "#121214",
             borderRadius: "4px",
           }}
           InputProps={{
+            style: {
+              backgroundColor: "#121214",
+            },
             startAdornment: (
               <InputAdornment position="start">
                 <EmailSharpIcon sx={{ fontSize: 24, color: "#29282E4D" }} />
@@ -109,14 +112,17 @@ export const SignIn = () => {
           type={"password"}
           sx={{
             width: "100%",
-            backgroundColor: "#121214",
             borderRadius: "4px",
             color: "#fff",
           }}
           onChange={(e) => setValues({ ...values, password: e.target.value })}
           value={values.password}
-          error={errors.password}
+          error={!!errors.password}
+          helperText={errors.password}
           InputProps={{
+            style: {
+              backgroundColor: "#121214",
+            },
             startAdornment: (
               <InputAdornment position="start">
                 <LockSharpIcon sx={{ fontSize: 24, color: "#29282E4D" }} />
@@ -126,7 +132,7 @@ export const SignIn = () => {
         />
         <Button
           variant="contained"
-          size="small"
+          size="medium"
           sx={{
             backgroundColor: "#EF144D",
             width: "100%",

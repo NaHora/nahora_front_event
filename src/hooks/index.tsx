@@ -1,7 +1,7 @@
-import React from "react";
+import React, { ReactNode } from "react";
 import { AuthProvider } from "./auth";
 
-const AppProvider = ({ children }) => {
+const AppProvider = ({ children }: { children: ReactNode }) => {
   return <AuthProvider>{children}</AuthProvider>;
 };
 

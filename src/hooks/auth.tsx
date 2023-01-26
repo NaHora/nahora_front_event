@@ -1,4 +1,10 @@
-import React, { createContext, useCallback, useState, useContext } from "react";
+import React, {
+  createContext,
+  useCallback,
+  useState,
+  useContext,
+  ReactNode,
+} from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../services/api";
 
@@ -35,13 +41,12 @@ interface SignInCredentialsSocial {
 interface AuthContextData {
   user: User;
   signIn(credentials: SignInCredentials): Promise<void>;
-
   signOut(): void;
 }
 
 const AuthContext = createContext<AuthContextData>({} as AuthContextData);
 
-export const AuthProvider: React.FC = ({ children }) => {
+export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const navigate = useNavigate();
   const [data, setData] = useState<AuthState>(() => {
     const refresh_token = localStorage.getItem("@NaHora:refresh_token");
@@ -57,7 +62,7 @@ export const AuthProvider: React.FC = ({ children }) => {
     return {} as AuthState;
   });
 
-  const signIn = useCallback(async ({ email, password }) => {
+  const signIn = useCallback(async ({ email, password }: SignInCredentials) => {
     const response = await api.post("sessions", {
       email,
       password,

@@ -57,6 +57,13 @@ type RankGeral = {
   workouts: number[];
 };
 
+type Pair = {
+  id: string;
+  name: string;
+  first_member: string;
+  second_member: string;
+};
+
 type Rank = {
   id: string;
   score: number;
@@ -65,6 +72,7 @@ type Rank = {
   workout_id: string;
   point: number;
   position: number;
+  pair: Pair;
 };
 
 type WorkoutDescription = {
@@ -80,7 +88,7 @@ export const Filter = () => {
   const [currentCategory, setCurrentCategory] = useState<string>("");
   const [workouts, setWorkouts] = useState<Workout[]>();
   const [currentWorkout, setCurrentWorkout] = useState<string>("todos");
-  const [rank, setRank] = useState<Rank>([]);
+  const [rank, setRank] = useState<Rank[]>([] as Rank[]);
   const [rankGeral, setRankGeral] = useState<RankGeral[]>();
   const [workoutsDescription, setWorkoutsDescription] =
     useState<WorkoutDescription[]>();
@@ -243,8 +251,8 @@ export const Filter = () => {
                   </Td>
                 </Tr>
               ) : (
-                rank?.map((row, index) => (
-                  <Tr style={{ transform: "skew(-10deg)" }} key={row.pairName}>
+                rank?.map((row) => (
+                  <Tr style={{ transform: "skew(-10deg)" }} key={row.id}>
                     <Td style={{ textAlign: "center" }}>
                       {row.position === 1 && (
                         <MilitaryTechIcon
