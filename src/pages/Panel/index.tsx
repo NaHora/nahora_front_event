@@ -104,11 +104,7 @@ interface StateProps {
 export const Panel = () => {
   const [workoutFiltered, setWorkoutFiltered] = useState("");
   const [categoryFiltered, setCategoryFiltered] = useState("");
-  const [pairSelected, setPairSelected] = useState("");
-  const [workoutSelected, setWorkoutSelected] = useState("");
   const [categorySelected, setCategorySelected] = useState("");
-  const [score, setScore] = useState("");
-  const [tieBreak, setTieBreak] = useState("");
   const [loading, setLoading] = useState(false);
   const [workoutList, setWorkoutList] = useState<WorkoutDTO[]>([]);
   const [categoryList, setCategoryList] = useState<SelectPropsDTO[]>([]);
@@ -117,7 +113,7 @@ export const Panel = () => {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [errors, setErrors] = useState<StateProps>({} as StateProps);
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
-  const [resultSelected, setResulSelected] = useState("");
+  const [resultSelected, setResultSelected] = useState("");
   const [values, setValues] = useState<ScoreInputDTO>({
     id: "",
     pair_id: "",
@@ -208,14 +204,6 @@ export const Panel = () => {
         abortEarly: false,
       });
 
-      const body = {
-        score: values.score,
-        tieBreak: timeToSecondFormater(values.tieBreak),
-        pair_id: values.pair_id,
-        workout_id: values.workout_id,
-      };
-
-      const response = await api.post(`/score`, body);
       // console.log(body);
       setErrors({});
       toast.success("Resultado criado com sucesso!");
@@ -244,12 +232,6 @@ export const Panel = () => {
 
     return workoutType?.type;
   };
-
-  useEffect(() => {
-    if (values.workout_id) {
-      getWorkoutById();
-    }
-  }, [values.workout_id]);
 
   const filterScore = () => {
     if (workoutFiltered && categoryFiltered) {
@@ -287,8 +269,9 @@ export const Panel = () => {
     try {
       //desestruturando o estado, pegando os valores que guardamos la, atraves dos inputs
 
-      // await api.delete(`/score/${itemToDeleteId}`);
+      await api.delete(`/score/${resultSelected}`);
       toast.success("Resultado deletado com sucesso!");
+      setOpenDeleteDialog(false);
       getScore();
     } catch (err: any) {
       if (err?.response) {
@@ -302,6 +285,11 @@ export const Panel = () => {
     }
   };
 
+  const openDialog = (item_id: string) => {
+    setResultSelected(item_id);
+    setOpenDeleteDialog(true);
+  };
+
   return (
     <Container>
       <Dialog
@@ -311,18 +299,23 @@ export const Panel = () => {
         aria-describedby="alert-dialog-description"
       >
         <DialogTitle id="alert-dialog-title">
-          {"Use Google's location service?"}
+          Deseja excluir o resultado?
         </DialogTitle>
         <DialogContent>
           <DialogContentText id="alert-dialog-description">
-            Let Google help apps determine location. This means sending
-            anonymous location data to Google, even when no apps are running.
+            Essa ação é irreversível, ao deletar não será possível desfazer.
+            Você deseja apagar mesmo assim?
           </DialogContentText>
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => {}}>Disagree</Button>
-          <Button onClick={() => {}} autoFocus>
-            Agree
+          <Button
+            onClick={() => setOpenDeleteDialog(false)}
+            sx={{ color: "#fff" }}
+          >
+            Cancelar
+          </Button>
+          <Button variant="contained" onClick={deleteResult} autoFocus>
+            Confirmar
           </Button>
         </DialogActions>
       </Dialog>
@@ -595,6 +588,7 @@ export const Panel = () => {
             Adicionar Resultados
           </Button>
         </ContentHeader>
+
         <TableContainer>
           <Table>
             <Thead>
@@ -607,6 +601,9 @@ export const Panel = () => {
             </Thead>
 
             <Tbody>
+              <Tr>
+                <Td></Td>
+              </Tr>
               {filterScore()?.map((score) => (
                 <Tr key={score.id}>
                   <Td>
@@ -630,16 +627,24 @@ export const Panel = () => {
                   </Td>
                   <Td>
                     <FlexRow>
-                      <Delete>
+                      <Delete
+                        onClick={() => {
+                          openDialog(score.id);
+                        }}
+                      >
                         <DeleteForeverIcon
                           fontSize={isMobile ? "small" : "medium"}
+                          sx={{ marginRight: "4px" }}
                         />
                         {!isMobile && "Excluir"}
                       </Delete>
-                      <Edit>
-                        <EditIcon fontSize={isMobile ? "small" : "medium"} />
+                      {/* <Edit>
+                        <EditIcon
+                          fontSize={isMobile ? "small" : "medium"}
+                          sx={{ marginRight: "4px" }}
+                        />
                         {!isMobile && "Editar"}
-                      </Edit>
+                      </Edit> */}
                     </FlexRow>
                   </Td>
                 </Tr>
