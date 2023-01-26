@@ -1,4 +1,5 @@
 import React, { createContext, useCallback, useState, useContext } from "react";
+import { useNavigate } from "react-router-dom";
 import api from "../services/api";
 
 interface User {
@@ -41,6 +42,7 @@ interface AuthContextData {
 const AuthContext = createContext<AuthContextData>({} as AuthContextData);
 
 export const AuthProvider: React.FC = ({ children }) => {
+  const navigate = useNavigate();
   const [data, setData] = useState<AuthState>(() => {
     const refresh_token = localStorage.getItem("@NaHora:refresh_token");
     const token = localStorage.getItem("@NaHora:token");
@@ -70,6 +72,7 @@ export const AuthProvider: React.FC = ({ children }) => {
     api.defaults.headers.authorization = `Bearer ${token}`;
 
     setData({ token, user, refresh_token });
+    navigate("panel");
   }, []);
 
   const signOut = useCallback(() => {

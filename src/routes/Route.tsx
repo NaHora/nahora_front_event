@@ -18,7 +18,7 @@ export default function PrivateRoute({
   outlet,
 }: ProtectedRouteProps) {
   const { user } = useAuth();
-
+  console.log(!!user);
   if (!!user) {
     return outlet;
   } else {
