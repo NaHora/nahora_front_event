@@ -178,14 +178,14 @@ export const Filter = () => {
       <Content>
         <SelectContent>
           <SelectContainer>
-            <SelectTitle>Workout:</SelectTitle>
+            <SelectTitle>Rank:</SelectTitle>
             <SelectDiv>
               <Select
                 onChange={(e) => setCurrentWorkout(e.target.value)}
                 value={currentWorkout}
                 placeholder="Selecione"
               >
-                <SelectOption value="todos">Todos</SelectOption>
+                <SelectOption value="todos">Geral</SelectOption>
                 {workouts?.map((workout) => {
                   return (
                     <SelectOption value={workout.id} key={workout.id}>
@@ -359,6 +359,3 @@ export const Filter = () => {
     </Container>
   );
 };
-// true ? (
-//   <CircularProgress />
-// ) :
