@@ -80,15 +80,23 @@ export const SelectLabel = styled.span`
 
 export const Table = styled.table`
   width: 100%;
+  border-collapse: collapse;
 
-  border-spacing: 0 18px;
+  border-spacing: 0;
+
+  > tbody > tr:first-child {
+    background-color: #29282e;
+  }
+
+  > thead {
+    border: 2px solid #ef144d !important;
+  }
 `;
 
 export const Tbody = styled.tbody``;
 
 export const Thead = styled.thead`
-  border: 2px solid #ef144d;
-  border-spacing: 0px;
+  border-spacing: 0px 18px;
 `;
 
 export const Tr = styled.tr`
