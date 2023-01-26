@@ -19,13 +19,12 @@ import {
   Point,
   FlexColumnAlignStart,
   Total,
-
 } from "./styles";
 import EventLogo from "../../assets/event-logo.png";
 import React, { useEffect, useState } from "react";
 import api from "../../services/api";
 import MilitaryTechIcon from "@mui/icons-material/MilitaryTech";
-import { useMediaQuery } from "@mui/material";
+import { CircularProgress, useMediaQuery } from "@mui/material";
 import { theme } from "../../styles/global";
 
 type Rank = {
@@ -46,12 +45,15 @@ export const Ranking = () => {
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
   async function getRankGeral() {
-    const response = await api.get('/score/rank/total');
+    const response = await api.get("/score/rank/total");
     setRankGeral(response.data);
     setCurrentRankGeral(response.data[0]);
     const rankSize = response.data[0].length;
 
-    const eachItemFromRank = Array.from({ length: rankSize }, (_, index) => index);
+    const eachItemFromRank = Array.from(
+      { length: rankSize },
+      (_, index) => index
+    );
     setCurrentItems(eachItemFromRank);
   }
 
@@ -73,7 +75,11 @@ export const Ranking = () => {
   }, [currentCategory, rankGeral]);
 
   useEffect(() => {
-    if (Array.isArray(currentItems) && currentItems.length > 0 && changeCategory) {
+    if (
+      Array.isArray(currentItems) &&
+      currentItems.length > 0 &&
+      changeCategory
+    ) {
       const interval = setInterval(() => {
         const currentItemsCopied = [...currentItems];
         const rankSize = [...currentItemsCopied].length;
@@ -91,7 +97,10 @@ export const Ranking = () => {
             setCurrentRankGeral(rankGeral[newCategory]);
             const rankSize = rankGeral[newCategory].length;
 
-            const eachItemFromRank = Array.from({ length: rankSize }, (_, index) => index);
+            const eachItemFromRank = Array.from(
+              { length: rankSize },
+              (_, index) => index
+            );
             setCurrentItems(eachItemFromRank);
             setChangeCategory(false);
           } else {
@@ -107,23 +116,23 @@ export const Ranking = () => {
   function getWorkoutPoint(index: number) {
     switch (index) {
       case 0:
-        return '1';
+        return "1";
         break;
       case 1:
-        return '2.1';
+        return "2.1";
         break;
       case 2:
-        return '2.2';
+        return "2.2";
         break;
       case 3:
-        return '2.3';
+        return "2.3";
         break;
       case 4:
-        return '3';
+        return "3";
         // Expected output: "Mangoes and papayas are $2.79 a pound."
         break;
       default:
-        return '0';
+        return "0";
     }
   }
 
@@ -132,14 +141,14 @@ export const Ranking = () => {
       <EventImage src={EventLogo} alt="event logo" />
       {Array.isArray(currentRankGeral) && currentRankGeral.length > 0 ? (
         <Content>
-          <CategoryTitle className={!currentItems.includes(1) ? 'hide' : ''}>
+          <CategoryTitle className={!currentItems.includes(1) ? "hide" : ""}>
             {currentRankGeral[0]?.category}
           </CategoryTitle>
           <Table>
             <Thead>
               <Tr>
                 <Th>Posição</Th>
-                <Th style={{ textAlign: 'left' }}>Equipe</Th>
+                <Th style={{ textAlign: "left" }}>Equipe</Th>
                 <Th>Workouts</Th>
                 <Th>Pontuação</Th>
               </Tr>
@@ -148,11 +157,10 @@ export const Ranking = () => {
             <Tbody>
               {currentRankGeral.map((row, index) => (
                 <Tr
-                  className={!currentItems.includes(index) ? 'hide' : ''}
-                  style={{ transform: 'skew(-10deg)' }}
+                  className={!currentItems.includes(index) ? "hide" : ""}
+                  style={{ transform: "skew(-10deg)" }}
                   key={row.pairName}
                 >
-
                   <Td style={{ textAlign: "center" }}>
                     {row.position === 1 && (
                       <MilitaryTechIcon
@@ -197,7 +205,7 @@ export const Ranking = () => {
           </Table>
         </Content>
       ) : (
-        <span>Carregando...</span>
+        <CircularProgress />
       )}
     </Container>
   );
