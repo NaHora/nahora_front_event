@@ -41,6 +41,7 @@ export const LoginEmail = styled.h2`
   font-size: 16px;
 
   margin-top: 35px;
+  margin-bottom: 4px;
 `;
 
 export const LoginPassword = styled.h2`
@@ -48,4 +49,5 @@ export const LoginPassword = styled.h2`
   font-size: 16px;
 
   margin-top: 18px;
+  margin-bottom: 4px;
 `;

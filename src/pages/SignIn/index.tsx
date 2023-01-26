@@ -98,7 +98,7 @@ export const SignIn = () => {
             },
             startAdornment: (
               <InputAdornment position="start">
-                <EmailSharpIcon sx={{ fontSize: 24, color: "#29282E4D" }} />
+                <EmailSharpIcon sx={{ fontSize: 16, color: "#fff" }} />
               </InputAdornment>
             ),
           }}
@@ -125,11 +125,12 @@ export const SignIn = () => {
             },
             startAdornment: (
               <InputAdornment position="start">
-                <LockSharpIcon sx={{ fontSize: 24, color: "#29282E4D" }} />
+                <LockSharpIcon sx={{ fontSize: 16, color: "#fff" }} />
               </InputAdornment>
             ),
           }}
         />
+
         <Button
           variant="contained"
           size="medium"

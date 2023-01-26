@@ -1,4 +1,9 @@
-import { CircularProgress, useMediaQuery } from "@mui/material";
+import {
+  CircularProgress,
+  MenuItem,
+  TextField,
+  useMediaQuery,
+} from "@mui/material";
 import { useEffect, useState } from "react";
 import EventLogo from "../../assets/event-logo.png";
 import api from "../../services/api";
@@ -32,6 +37,7 @@ import {
   WorkoutName,
   Score,
   SelectContent,
+  InputLabel,
 } from "./styles";
 import { secondToTimeFormater } from "../../utils/time";
 
@@ -187,42 +193,66 @@ export const Filter = () => {
       <Content>
         <SelectContent>
           <SelectContainer>
-            <SelectTitle>Rank:</SelectTitle>
-            <SelectDiv>
-              <Select
-                onChange={(e) => setCurrentWorkout(e.target.value)}
-                value={currentWorkout}
-                placeholder="Selecione"
-              >
-                <SelectOption value="todos">Geral</SelectOption>
-                {workouts?.map((workout) => {
-                  return (
-                    <SelectOption value={workout.id} key={workout.id}>
-                      {workout.number} - {workout.name}
-                    </SelectOption>
-                  );
-                })}
-              </Select>
-            </SelectDiv>
+            <InputLabel>Workout</InputLabel>
+            <TextField
+              id="outlined-basic"
+              label=""
+              size="small"
+              onChange={(e) => setCurrentWorkout(e.target.value)}
+              value={currentWorkout}
+              variant="outlined"
+              select
+              sx={{
+                width: "100%",
+                borderRadius: "10px",
+              }}
+              InputProps={{
+                style: {
+                  borderRadius: "10px",
+                  backgroundColor: "#121214",
+                },
+              }}
+            >
+              <MenuItem value="todos">Geral</MenuItem>
+              {workouts?.map((workout) => {
+                return (
+                  <MenuItem key={workout.id} value={workout.id}>
+                    {workout.number} - {workout.name}
+                  </MenuItem>
+                );
+              })}
+            </TextField>
           </SelectContainer>
 
           <SelectContainer>
-            <SelectTitle>Categorias:</SelectTitle>
-            <SelectDiv>
-              <Select
-                onChange={(e) => setCurrentCategory(e.target.value)}
-                value={currentCategory}
-                placeholder="Selecione"
-              >
-                {categories?.map((category) => {
-                  return (
-                    <SelectOption value={category.id} key={category.id}>
-                      {category.name}
-                    </SelectOption>
-                  );
-                })}
-              </Select>
-            </SelectDiv>
+            <InputLabel>Categorias:</InputLabel>
+            <TextField
+              id="outlined-basic"
+              label=""
+              size="small"
+              onChange={(e) => setCurrentCategory(e.target.value)}
+              value={currentCategory}
+              variant="outlined"
+              select
+              sx={{
+                width: "100%",
+                borderRadius: "10px",
+              }}
+              InputProps={{
+                style: {
+                  borderRadius: "10px",
+                  backgroundColor: "#121214",
+                },
+              }}
+            >
+              {categories?.map((category) => {
+                return (
+                  <MenuItem key={category.id} value={category.id}>
+                    {category.name}
+                  </MenuItem>
+                );
+              })}
+            </TextField>
           </SelectContainer>
         </SelectContent>
 
