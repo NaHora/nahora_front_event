@@ -1,21 +1,21 @@
-import { createTheme } from '@mui/material/styles';
+import { createTheme } from "@mui/material/styles";
 
 export const theme = createTheme({
   palette: {
     primary: {
-      main: '#ff9000',
+      main: "#f50057",
     },
     secondary: {
-      main: '#0b0b0b',
+      main: "#f50057",
     },
     info: {
-      main: '#111111',
+      main: "#111111",
     },
     error: {
-      main: '#D54C46',
+      main: "#D54C46",
     },
   },
   typography: {
-    fontFamily: 'Epilogue',
+    fontFamily: "Roboto",
   },
 });
