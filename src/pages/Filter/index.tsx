@@ -193,7 +193,7 @@ export const Filter = () => {
       <Content>
         <SelectContent>
           <SelectContainer>
-            <InputLabel>Workout</InputLabel>
+            <InputLabel>Rank</InputLabel>
             <TextField
               id="outlined-basic"
               label=""
