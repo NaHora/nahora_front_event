@@ -40,11 +40,28 @@ import AddIcon from "@mui/icons-material/Add";
 import DeleteForeverIcon from "@mui/icons-material/DeleteForever";
 import EditIcon from "@mui/icons-material/Edit";
 
-type SelectPropsDto = {
+type SelectPropsDTO = {
   id: string;
   name: string;
   category_id?: string;
   event_id?: string;
+};
+
+type ScoreDTO = {
+  id: string;
+  pair_id: string;
+  score: number;
+  tieBreak: number;
+  workout_id: string;
+  pair: PairDTO;
+};
+
+type PairDTO = {
+  category_id: string;
+  first_member: string;
+  id: string;
+  name: string;
+  second_member: string;
 };
 
 export const Panel = () => {
@@ -56,10 +73,25 @@ export const Panel = () => {
   const [score, setScore] = useState("");
   const [tieBreak, setTieBreak] = useState("");
   const [loading, setLoading] = useState(false);
-  const [workoutList, setWorkoutList] = useState<SelectPropsDto[]>([]);
-  const [categoryList, setCategoryList] = useState<SelectPropsDto[]>([]);
-  const [pairList, setPairList] = useState<SelectPropsDto[]>([]);
+  const [workoutList, setWorkoutList] = useState<SelectPropsDTO[]>([]);
+  const [categoryList, setCategoryList] = useState<SelectPropsDTO[]>([]);
+  const [pairList, setPairList] = useState<SelectPropsDTO[]>([]);
+  const [scoreList, setScoreList] = useState<ScoreDTO[]>([]);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+
+  const getScore = async () => {
+    setLoading(true);
+
+    try {
+      const response = await api.get(`/score`);
+
+      setScoreList(response.data);
+    } catch (err) {
+    } finally {
+      setLoading(false);
+    }
+  };
+  console.log(scoreList);
 
   const getWorkout = async () => {
     setLoading(true);
@@ -91,9 +123,10 @@ export const Panel = () => {
     setLoading(true);
 
     try {
-      const response = await api.get(`/pair`);
+      const response = await api.get(
+        `/pair/listByCategory/${categorySelected}`
+      );
 
-      console.log(response.data);
       setPairList(response.data);
     } catch (err) {
     } finally {
@@ -104,12 +137,17 @@ export const Panel = () => {
   useEffect(() => {
     getWorkout();
     getCategories();
-    getPairs();
+    getScore();
   }, []);
+
+  useEffect(() => {
+    if (categorySelected) {
+      getPairs();
+    }
+  }, [categorySelected]);
 
   const postResults = async () => {
     setLoading(true);
-    <Alert severity="success">Sucesso</Alert>;
 
     try {
       const body = {
@@ -119,7 +157,9 @@ export const Panel = () => {
         workout_id: workoutSelected,
       };
 
-      const response = await api.post(`/workout`, body);
+      const response = await api.post(`/score`, body);
+      getScore();
+      setIsDrawerOpen(false);
     } catch (err) {
     } finally {
       setLoading(false);
@@ -162,7 +202,7 @@ export const Panel = () => {
               </SelectOption>
               {categoryList.map((category) => {
                 return (
-                  <SelectOption key={category.id} value={category.name}>
+                  <SelectOption key={category.id} value={category.id}>
                     {category.name}
                   </SelectOption>
                 );
@@ -177,9 +217,9 @@ export const Panel = () => {
               <SelectOption value="" disabled selected>
                 Dupla
               </SelectOption>
-              {pairList.map((pair) => {
+              {pairList?.map((pair) => {
                 return (
-                  <SelectOption key={pair.category_id} value={pair.category_id}>
+                  <SelectOption key={pair.id} value={pair.id}>
                     {pair.name}
                   </SelectOption>
                 );
@@ -279,32 +319,36 @@ export const Panel = () => {
           </Thead>
 
           <Tbody>
-            <Tr>
-              <Td>
-                <FlexColumnAlignStart>
-                  <PairName>Nome dupla</PairName>
-                  <CompetitorsName>Otavio / Augusto</CompetitorsName>
-                </FlexColumnAlignStart>
-              </Td>
-              <Td>
-                <Points>10</Points>
-              </Td>
-              <Td>
-                <TieBreak>00</TieBreak>
-              </Td>
-              <Td>
-                <FlexRow>
-                  <Delete>
-                    <DeleteForeverIcon />
-                    Excluir
-                  </Delete>
-                  <Edit>
-                    <EditIcon />
-                    Editar
-                  </Edit>
-                </FlexRow>
-              </Td>
-            </Tr>
+            {scoreList?.map((score) => (
+              <Tr key={score.id}>
+                <Td>
+                  <FlexColumnAlignStart>
+                    <PairName>{score?.pair?.name}</PairName>
+                    <CompetitorsName>
+                      {score?.pair?.first_member} / {score?.pair?.second_member}
+                    </CompetitorsName>
+                  </FlexColumnAlignStart>
+                </Td>
+                <Td>
+                  <Points>{score?.score}</Points>
+                </Td>
+                <Td>
+                  <TieBreak>{score?.tieBreak}</TieBreak>
+                </Td>
+                <Td>
+                  <FlexRow>
+                    <Delete>
+                      <DeleteForeverIcon />
+                      Excluir
+                    </Delete>
+                    <Edit>
+                      <EditIcon />
+                      Editar
+                    </Edit>
+                  </FlexRow>
+                </Td>
+              </Tr>
+            ))}
           </Tbody>
         </Table>
       </Content>
