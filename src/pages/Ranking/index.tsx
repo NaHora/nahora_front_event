@@ -24,8 +24,9 @@ import EventLogo from "../../assets/event-logo.png";
 import React, { useEffect, useState } from "react";
 import api from "../../services/api";
 import MilitaryTechIcon from "@mui/icons-material/MilitaryTech";
-import { useMediaQuery } from "@mui/material";
+import { CircularProgress, useMediaQuery } from "@mui/material";
 import { theme } from "../../styles/global";
+
 type Rank = {
   category: string;
   competitors: string;
@@ -172,6 +173,7 @@ export const Ranking = () => {
                         }}
                       />
                     )}
+
                     <Position>{row.position}</Position>
                   </Td>
                   <Td>
@@ -203,7 +205,7 @@ export const Ranking = () => {
           </Table>
         </Content>
       ) : (
-        <span>Carregando...</span>
+        <CircularProgress />
       )}
     </Container>
   );
