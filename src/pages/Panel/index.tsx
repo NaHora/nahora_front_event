@@ -55,6 +55,7 @@ import EditIcon from "@mui/icons-material/Edit";
 import getValidationErrors from "../../utils";
 import { secondToTimeFormater, timeToSecondFormater } from "../../utils/time";
 import { theme } from "../../styles/global";
+import { LoadingButton } from "@mui/lab";
 
 type SelectPropsDTO = {
   id: string;
@@ -138,7 +139,7 @@ export const Panel = () => {
         tieBreak: secondToTimeFormater(item?.tieBreak),
         workout_id: item?.workout_id,
       });
-      setCategorySelected(item?.pair?.category_id);
+      setCategorySelected(item?.pair?.category_id as string);
       setDrawerType(drawerType);
       setIsDrawerOpen(true);
     } else {
@@ -395,9 +396,14 @@ export const Panel = () => {
           >
             Cancelar
           </Button>
-          <Button variant="contained" onClick={deleteResult} autoFocus>
+          <LoadingButton
+            loading={loading}
+            variant="contained"
+            onClick={deleteResult}
+            autoFocus
+          >
             Confirmar
-          </Button>
+          </LoadingButton>
         </DialogActions>
       </Dialog>
 
@@ -582,16 +588,17 @@ export const Panel = () => {
               }}
             />
 
-            <Button
+            <LoadingButton
               variant="contained"
               color="primary"
               size="large"
               style={{ marginTop: "60px", borderRadius: "10px" }}
               fullWidth
+              loading={loading}
               onClick={drawerType === "edit" ? putData : postResults}
             >
               {drawerType === "edit" ? "Editar" : "Adicionar"}
-            </Button>
+            </LoadingButton>
           </ResultForm>
         </DrawerContainer>
       </Drawer>

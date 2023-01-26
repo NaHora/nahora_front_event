@@ -21,6 +21,7 @@ import { useAuth } from "../../hooks/auth";
 import { useState } from "react";
 import getValidationErrors from "../../utils";
 import { toast } from "react-toastify";
+import { LoadingButton } from "@mui/lab";
 export interface StateProps {
   [key: string]: any;
 }
@@ -131,7 +132,7 @@ export const SignIn = () => {
           }}
         />
 
-        <Button
+        <LoadingButton
           variant="contained"
           size="medium"
           sx={{
@@ -140,9 +141,10 @@ export const SignIn = () => {
             marginTop: "24px",
           }}
           onClick={handleSignIn}
+          loading={loading}
         >
-          {loading ? <CircularProgress /> : "Login"}
-        </Button>
+          Login
+        </LoadingButton>
       </Content>
     </Container>
   );
