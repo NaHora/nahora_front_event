@@ -1,4 +1,6 @@
+
 import { BrowserRouter, Route, Routes } from "react-router-dom";
+import { Panel } from "../pages/Panel";
 import { Filter } from "../pages/Filter";
 import { Ranking } from "../pages/Ranking";
 import { SignIn } from "../pages/SignIn";
@@ -9,10 +11,12 @@ const defaultProtectedRouteProps: Omit<ProtectedRouteProps, "outlet"> = {
   authenticationPath: "/admin",
 };
 
+
 export default function AppRoutes() {
   return (
     <BrowserRouter>
       <Routes>
+
         <Route path="/admin" element={<SignIn />} />
         <Route
           path="/signup"
@@ -26,11 +30,12 @@ export default function AppRoutes() {
           element={
             <PrivateRoute
               {...defaultProtectedRouteProps}
-              outlet={<Ranking />}
+              outlet={<Panel />}
             />
           }
         />
         <Route path="/" element={<Filter />} />
+
       </Routes>
     </BrowserRouter>
   );
