@@ -273,3 +273,9 @@ export const Total = styled.div`
     font-size: 16px;
   }
 `;
+
+export const InputLabel = styled.h2`
+  color: #f5f5f5;
+  font-size: 14px;
+  margin-bottom: 4px;
+`;

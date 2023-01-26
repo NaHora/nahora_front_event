@@ -3,7 +3,6 @@ import { Panel } from "../pages/Panel";
 import { Filter } from "../pages/Filter";
 import { Ranking } from "../pages/Ranking";
 import { SignIn } from "../pages/SignIn";
-import { SignUp } from "../pages/SignUp";
 import PrivateRoute, { ProtectedRouteProps } from "./Route";
 
 const defaultProtectedRouteProps: Omit<ProtectedRouteProps, "outlet"> = {
@@ -14,12 +13,7 @@ export default function AppRoutes() {
   return (
     <Routes>
       <Route path="/admin" element={<SignIn />} />
-      <Route
-        path="/signup"
-        element={
-          <PrivateRoute {...defaultProtectedRouteProps} outlet={<SignUp />} />
-        }
-      />
+
       <Route path="/rank" element={<Ranking />} />
 
       <Route

@@ -55,6 +55,7 @@ import EditIcon from "@mui/icons-material/Edit";
 import getValidationErrors from "../../utils";
 import { secondToTimeFormater, timeToSecondFormater } from "../../utils/time";
 import { theme } from "../../styles/global";
+import { LoadingButton } from "@mui/lab";
 
 type SelectPropsDTO = {
   id: string;
@@ -114,6 +115,7 @@ export const Panel = () => {
   const [errors, setErrors] = useState<StateProps>({} as StateProps);
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
   const [resultSelected, setResultSelected] = useState("");
+  const [scoreSelected, setScoreSelected] = useState("");
   const [values, setValues] = useState<ScoreInputDTO>({
     id: "",
     pair_id: "",
@@ -121,6 +123,38 @@ export const Panel = () => {
     tieBreak: "",
     workout_id: "",
   });
+  const [drawerType, setDrawerType] = useState("");
+
+  const openDrawer = (drawerType: string, item: ScoreInputDTO) => {
+    if (drawerType === "edit") {
+      console.log("iten", item?.id);
+      console.log("score", item?.score);
+      setValues({
+        id: item?.id,
+        pair_id: item?.pair_id,
+        score:
+          getWorkoutById(item?.workout_id) === "FORTIME"
+            ? secondToTimeFormater(item?.score)
+            : Number(item?.score),
+        tieBreak: secondToTimeFormater(item?.tieBreak),
+        workout_id: item?.workout_id,
+      });
+      setCategorySelected(item?.pair?.category_id as string);
+      setDrawerType(drawerType);
+      setIsDrawerOpen(true);
+    } else {
+      setCategorySelected("");
+      setValues({
+        id: "",
+        pair_id: "",
+        score: 0,
+        tieBreak: "",
+        workout_id: "",
+      });
+      setDrawerType(drawerType);
+      setIsDrawerOpen(true);
+    }
+  };
 
   const getScore = async () => {
     setLoading(true);
@@ -195,7 +229,10 @@ export const Panel = () => {
     try {
       const schema = Yup.object().shape({
         workout_id: Yup.string().required("Workout obrigatório"),
-        score: Yup.number().required("Score obrigatório"),
+        score:
+          getWorkoutById(values.workout_id) === "FORTIME"
+            ? Yup.string().required("Score obrigatório")
+            : Yup.number().required("Score obrigatório"),
         pair_id: Yup.string().required("Dupla obrigatória"),
         tieBreak: Yup.string().required("Tie Break obrigatório"),
       });
@@ -204,7 +241,17 @@ export const Panel = () => {
         abortEarly: false,
       });
 
-      // console.log(body);
+      const body = {
+        score:
+          getWorkoutById(values.workout_id) === "FORTIME"
+            ? timeToSecondFormater(values.score as string)
+            : Number(values.score),
+        tieBreak: timeToSecondFormater(values.tieBreak),
+        pair_id: values.pair_id,
+        workout_id: values.workout_id,
+      };
+
+      const response = await api.post(`/score`, body);
       setErrors({});
       toast.success("Resultado criado com sucesso!");
       getScore();
@@ -218,6 +265,41 @@ export const Panel = () => {
         return toast.error(
           err?.response?.data?.message ||
             "Ocorreu um erro ao adicionar o resultado, tente novamente"
+        );
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const putData = async () => {
+    setLoading(true);
+    try {
+      const { tieBreak, score } = values;
+
+      const body = {
+        scoreId: scoreSelected,
+        tieBreak: timeToSecondFormater(tieBreak),
+        score:
+          getWorkoutById(values.workout_id) === "FORTIME"
+            ? timeToSecondFormater(score as string)
+            : Number(score),
+      };
+
+      await api.put("/score", body);
+      setErrors({});
+      toast.success("Resultado atualizado com sucesso!");
+      getScore();
+      setIsDrawerOpen(false);
+    } catch (err: any) {
+      if (err instanceof Yup.ValidationError) {
+        setErrors(getValidationErrors(err));
+        return;
+      }
+      if (err?.response) {
+        return toast.error(
+          err?.response?.data?.message ||
+            "Ocorreu um erro ao atualizar o resultado, tente novamente"
         );
       }
     } finally {
@@ -314,11 +396,17 @@ export const Panel = () => {
           >
             Cancelar
           </Button>
-          <Button variant="contained" onClick={deleteResult} autoFocus>
+          <LoadingButton
+            loading={loading}
+            variant="contained"
+            onClick={deleteResult}
+            autoFocus
+          >
             Confirmar
-          </Button>
+          </LoadingButton>
         </DialogActions>
       </Dialog>
+
       <Drawer
         anchor="right"
         open={isDrawerOpen}
@@ -339,6 +427,7 @@ export const Panel = () => {
               error={errors.workout_id}
               variant="outlined"
               helperText={errors.workout_id}
+              disabled={drawerType === "edit"}
               select
               sx={{
                 width: "100%",
@@ -354,7 +443,7 @@ export const Panel = () => {
               {workoutList?.map((workout) => {
                 return (
                   <MenuItem key={workout.id} value={workout.id}>
-                    {workout.name}
+                    {workout.number} - {workout.name}
                   </MenuItem>
                 );
               })}
@@ -368,6 +457,7 @@ export const Panel = () => {
               value={categorySelected}
               onChange={(e) => setCategorySelected(e.target.value)}
               variant="outlined"
+              disabled={drawerType === "edit"}
               select
               sx={{
                 width: "100%",
@@ -401,6 +491,7 @@ export const Panel = () => {
               error={errors.pair_id}
               variant="outlined"
               helperText={errors.pair_id}
+              disabled={drawerType === "edit"}
               select
               sx={{
                 width: "100%",
@@ -497,16 +588,17 @@ export const Panel = () => {
               }}
             />
 
-            <Button
+            <LoadingButton
               variant="contained"
               color="primary"
               size="large"
               style={{ marginTop: "60px", borderRadius: "10px" }}
               fullWidth
-              onClick={postResults}
+              loading={loading}
+              onClick={drawerType === "edit" ? putData : postResults}
             >
-              Adicionar
-            </Button>
+              {drawerType === "edit" ? "Editar" : "Adicionar"}
+            </LoadingButton>
           </ResultForm>
         </DrawerContainer>
       </Drawer>
@@ -540,7 +632,7 @@ export const Panel = () => {
                 {workoutList.map((workout) => {
                   return (
                     <MenuItem key={workout.id} value={workout.id}>
-                      {workout.name}
+                      {workout.number} - {workout.name}
                     </MenuItem>
                   );
                 })}
@@ -583,7 +675,15 @@ export const Panel = () => {
             color="primary"
             size="large"
             startIcon={<AddIcon />}
-            onClick={() => setIsDrawerOpen(true)}
+            onClick={() =>
+              openDrawer("create", {
+                id: "",
+                pair_id: "",
+                score: 0,
+                tieBreak: "",
+                workout_id: "",
+              })
+            }
           >
             Adicionar Resultados
           </Button>
@@ -617,7 +717,7 @@ export const Panel = () => {
                   </Td>
                   <Td>
                     <Points>
-                      {getWorkoutById(workoutFiltered) === "FORTIME"
+                      {getWorkoutById(score.workout_id) === "FORTIME"
                         ? secondToTimeFormater(score?.score)
                         : score?.score}
                     </Points>
@@ -638,13 +738,18 @@ export const Panel = () => {
                         />
                         {!isMobile && "Excluir"}
                       </Delete>
-                      {/* <Edit>
+                      <Edit
+                        onClick={() => {
+                          openDrawer("edit", score);
+                          setScoreSelected(score.id);
+                        }}
+                      >
                         <EditIcon
                           fontSize={isMobile ? "small" : "medium"}
                           sx={{ marginRight: "4px" }}
                         />
                         {!isMobile && "Editar"}
-                      </Edit> */}
+                      </Edit>
                     </FlexRow>
                   </Td>
                 </Tr>
