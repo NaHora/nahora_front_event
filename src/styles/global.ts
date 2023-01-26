@@ -17,6 +17,6 @@ export const theme = createTheme({
     mode: "dark",
   },
   typography: {
-    fontFamily: "Epilogue",
+    fontFamily: "Roboto",
   },
 });

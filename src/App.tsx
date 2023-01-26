@@ -1,12 +1,16 @@
 import AppRoutes from "./routes";
-import GlobalStyle from "./styles/styledGlobal";
 import { ThemeProvider, Box } from "@mui/system";
 import { theme } from "./styles/global";
+import AppProvider from "./hooks";
+import { GlobalStyle, ToastContainerStyled } from "./styles/styledGlobal";
 
 function App() {
   return (
     <ThemeProvider theme={theme}>
-      <AppRoutes />
+      <AppProvider>
+        <AppRoutes />
+        <ToastContainerStyled autoClose={3000} />
+      </AppProvider>
       <GlobalStyle />
     </ThemeProvider>
   );
