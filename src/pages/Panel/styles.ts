@@ -73,13 +73,14 @@ export const SelectLabel = styled.span`
 export const Table = styled.table`
   width: 100%;
 
-  border-spacing: 0;
+  border-spacing: 0 18px;
 `;
 
 export const Tbody = styled.tbody``;
 
 export const Thead = styled.thead`
   border: 2px solid #ef144d;
+  border-spacing: 0px;
 `;
 
 export const Tr = styled.tr`
