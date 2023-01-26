@@ -20,12 +20,16 @@ export const Content = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
+
+  @media only screen and (max-width: 768px) {
+    padding: 12px;
+  }
 `;
 
 export const ContentHeader = styled.div`
   width: 100%;
   display: flex;
-  align-items: center;
+  align-items: flex-end;
   justify-content: space-between;
   margin-bottom: 16px;
 
@@ -63,6 +67,10 @@ export const FilteredSelect = styled.div`
   flex-direction: column;
 `;
 
+export const TableContainer = styled.div`
+  width: 100%;
+`;
+
 export const SelectLabel = styled.span`
   font-weight: 700;
   font-size: 16px;
@@ -94,6 +102,10 @@ export const Th = styled.th`
   width: 25%;
   font-size: 16px;
   text-align: left;
+
+  @media only screen and (max-width: 768px) {
+    font-size: 12px;
+  }
 `;
 
 export const Td = styled.td`
@@ -114,19 +126,35 @@ export const FlexColumnAlignStart = styled.div`
 export const PairName = styled.span`
   font-weight: 400;
   font-size: 14px;
+
+  @media only screen and (max-width: 768px) {
+    font-size: 12px;
+  }
 `;
 export const Points = styled.span`
   font-weight: 400;
   font-size: 14px;
+
+  @media only screen and (max-width: 768px) {
+    font-size: 12px;
+  }
 `;
 export const TieBreak = styled.span`
   font-weight: 400;
   font-size: 14px;
+
+  @media only screen and (max-width: 768px) {
+    font-size: 12px;
+  }
 `;
 export const CompetitorsName = styled.span`
   font-weight: 400;
   font-size: 14px;
   margin-top: 4px;
+
+  @media only screen and (max-width: 768px) {
+    font-size: 10px;
+  }
 `;
 
 export const Delete = styled.button`
@@ -217,12 +245,8 @@ export const DrawerContainer = styled.div`
   }
 `;
 
-export const DrawerInput = styled.div`
-  width: 320px;
-  padding: 12px;
-  border-radius: 10px;
-  background-color: #121214;
-  margin-top: 40px;
+export const ResultForm = styled.div`
+  width: 360px;
 
   @media only screen and (max-width: 768px) {
     width: 240px;
@@ -237,4 +261,11 @@ export const DrawerTitle = styled.span`
   font-weight: 400;
   font-size: 16px;
   color: #fff;
+`;
+
+export const InputLabel = styled.h2`
+  color: #f5f5f5;
+  font-size: 14px;
+  margin-top: 40px;
+  margin-bottom: 4px;
 `;

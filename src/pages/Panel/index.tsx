@@ -26,19 +26,35 @@ import {
   Delete,
   Edit,
   DrawerTitle,
-  DrawerSelect,
-  DrawerSelectDiv,
-  DrawerInput,
-  Input,
   DrawerContainer,
+  InputLabel,
+  ResultForm,
+  TableContainer,
 } from "./styles";
 import EventLogo from "../../assets/event-logo.png";
+import { toast } from "react-toastify";
+import * as Yup from "yup";
 
-import { Alert, Box, Button, Drawer, TextField } from "@mui/material";
+import {
+  Button,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
+  Drawer,
+  MenuItem,
+  Modal,
+  TextField,
+  useMediaQuery,
+} from "@mui/material";
 
 import AddIcon from "@mui/icons-material/Add";
 import DeleteForeverIcon from "@mui/icons-material/DeleteForever";
 import EditIcon from "@mui/icons-material/Edit";
+import getValidationErrors from "../../utils";
+import { secondToTimeFormater, timeToSecondFormater } from "../../utils/time";
+import { theme } from "../../styles/global";
 
 type SelectPropsDTO = {
   id: string;
@@ -47,13 +63,30 @@ type SelectPropsDTO = {
   event_id?: string;
 };
 
+type WorkoutDTO = {
+  event_id: string;
+  id: string;
+  name: string;
+  number: string;
+  type: "REP" | "FORTIME";
+};
+
 type ScoreDTO = {
   id: string;
   pair_id: string;
   score: number;
-  tieBreak: number;
+  tieBreak: string;
   workout_id: string;
-  pair: PairDTO;
+  pair?: PairDTO;
+};
+
+type ScoreInputDTO = {
+  id: string;
+  pair_id: string;
+  score: number | string;
+  tieBreak: string;
+  workout_id: string;
+  pair?: PairDTO;
 };
 
 type PairDTO = {
@@ -64,6 +97,10 @@ type PairDTO = {
   second_member: string;
 };
 
+interface StateProps {
+  [key: string]: any;
+}
+
 export const Panel = () => {
   const [workoutFiltered, setWorkoutFiltered] = useState("");
   const [categoryFiltered, setCategoryFiltered] = useState("");
@@ -73,11 +110,21 @@ export const Panel = () => {
   const [score, setScore] = useState("");
   const [tieBreak, setTieBreak] = useState("");
   const [loading, setLoading] = useState(false);
-  const [workoutList, setWorkoutList] = useState<SelectPropsDTO[]>([]);
+  const [workoutList, setWorkoutList] = useState<WorkoutDTO[]>([]);
   const [categoryList, setCategoryList] = useState<SelectPropsDTO[]>([]);
   const [pairList, setPairList] = useState<SelectPropsDTO[]>([]);
   const [scoreList, setScoreList] = useState<ScoreDTO[]>([]);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const [errors, setErrors] = useState<StateProps>({} as StateProps);
+  const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
+  const [resultSelected, setResulSelected] = useState("");
+  const [values, setValues] = useState<ScoreInputDTO>({
+    id: "",
+    pair_id: "",
+    score: 0,
+    tieBreak: "",
+    workout_id: "",
+  });
 
   const getScore = async () => {
     setLoading(true);
@@ -91,7 +138,6 @@ export const Panel = () => {
       setLoading(false);
     }
   };
-  console.log(scoreList);
 
   const getWorkout = async () => {
     setLoading(true);
@@ -147,20 +193,110 @@ export const Panel = () => {
   }, [categorySelected]);
 
   const postResults = async () => {
+    setErrors({});
     setLoading(true);
 
     try {
+      const schema = Yup.object().shape({
+        workout_id: Yup.string().required("Workout obrigatório"),
+        score: Yup.number().required("Score obrigatório"),
+        pair_id: Yup.string().required("Dupla obrigatória"),
+        tieBreak: Yup.string().required("Tie Break obrigatório"),
+      });
+
+      await schema.validate(values, {
+        abortEarly: false,
+      });
+
       const body = {
-        score: Number(score),
-        tieBreak: Number(tieBreak),
-        pair_id: pairSelected,
-        workout_id: workoutSelected,
+        score: values.score,
+        tieBreak: timeToSecondFormater(values.tieBreak),
+        pair_id: values.pair_id,
+        workout_id: values.workout_id,
       };
 
       const response = await api.post(`/score`, body);
+      // console.log(body);
+      setErrors({});
+      toast.success("Resultado criado com sucesso!");
       getScore();
       setIsDrawerOpen(false);
-    } catch (err) {
+    } catch (err: any) {
+      if (err instanceof Yup.ValidationError) {
+        setErrors(getValidationErrors(err));
+        return;
+      }
+      if (err?.response) {
+        return toast.error(
+          err?.response?.data?.message ||
+            "Ocorreu um erro ao adicionar o resultado, tente novamente"
+        );
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const getWorkoutById = (currentWorkoutId: string) => {
+    const workoutType = workoutList.find(
+      (workout) => currentWorkoutId === workout.id
+    );
+
+    return workoutType?.type;
+  };
+
+  useEffect(() => {
+    if (values.workout_id) {
+      getWorkoutById();
+    }
+  }, [values.workout_id]);
+
+  const filterScore = () => {
+    if (workoutFiltered && categoryFiltered) {
+      return scoreList
+        ?.filter(
+          (currentScore) =>
+            workoutFiltered && currentScore.workout_id === workoutFiltered
+        )
+
+        ?.filter(
+          (currentScore) =>
+            categoryFiltered &&
+            currentScore.pair?.category_id === categoryFiltered
+        );
+    } else if (workoutFiltered && !categoryFiltered) {
+      return scoreList?.filter(
+        (currentScore) =>
+          workoutFiltered && currentScore.workout_id === workoutFiltered
+      );
+    } else if (!workoutFiltered && categoryFiltered) {
+      return scoreList?.filter(
+        (currentScore) =>
+          categoryFiltered &&
+          currentScore.pair?.category_id === categoryFiltered
+      );
+    } else {
+      return scoreList;
+    }
+  };
+
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+
+  const deleteResult = async () => {
+    setLoading(true);
+    try {
+      //desestruturando o estado, pegando os valores que guardamos la, atraves dos inputs
+
+      // await api.delete(`/score/${itemToDeleteId}`);
+      toast.success("Resultado deletado com sucesso!");
+      getScore();
+    } catch (err: any) {
+      if (err?.response) {
+        return toast.error(
+          err?.response?.data?.message ||
+            "Ocorreu um erro ao adicionar o resultado, tente novamente"
+        );
+      }
     } finally {
       setLoading(false);
     }
@@ -168,6 +304,28 @@ export const Panel = () => {
 
   return (
     <Container>
+      <Dialog
+        open={openDeleteDialog}
+        onClose={() => setOpenDeleteDialog(false)}
+        aria-labelledby="alert-dialog-title"
+        aria-describedby="alert-dialog-description"
+      >
+        <DialogTitle id="alert-dialog-title">
+          {"Use Google's location service?"}
+        </DialogTitle>
+        <DialogContent>
+          <DialogContentText id="alert-dialog-description">
+            Let Google help apps determine location. This means sending
+            anonymous location data to Google, even when no apps are running.
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => {}}>Disagree</Button>
+          <Button onClick={() => {}} autoFocus>
+            Agree
+          </Button>
+        </DialogActions>
+      </Dialog>
       <Drawer
         anchor="right"
         open={isDrawerOpen}
@@ -175,81 +333,188 @@ export const Panel = () => {
       >
         <DrawerContainer>
           <DrawerTitle>Adicionar Resultados</DrawerTitle>
-          <DrawerSelectDiv>
-            <DrawerSelect
-              value={workoutSelected}
-              onChange={(e) => setWorkoutSelected(e.target.value)}
+          <ResultForm>
+            <InputLabel>Workout</InputLabel>
+            <TextField
+              id="outlined-basic"
+              label=""
+              size="small"
+              onChange={(e) =>
+                setValues({ ...values, workout_id: e.target.value })
+              }
+              value={values.workout_id}
+              error={errors.workout_id}
+              variant="outlined"
+              helperText={errors.workout_id}
+              select
+              sx={{
+                width: "100%",
+                borderRadius: "10px",
+              }}
+              InputProps={{
+                style: {
+                  borderRadius: "10px",
+                  backgroundColor: "#121214",
+                },
+              }}
             >
-              <SelectOption value="" disabled selected>
-                Workout
-              </SelectOption>
-              {workoutList.map((workout) => {
+              {workoutList?.map((workout) => {
                 return (
-                  <SelectOption key={workout.id} value={workout.id}>
+                  <MenuItem key={workout.id} value={workout.id}>
                     {workout.name}
-                  </SelectOption>
+                  </MenuItem>
                 );
               })}
-            </DrawerSelect>
-          </DrawerSelectDiv>
-          <DrawerSelectDiv>
-            <DrawerSelect
+            </TextField>
+
+            <InputLabel>Categoria</InputLabel>
+            <TextField
+              id="outlined-basic"
+              label=""
+              size="small"
               value={categorySelected}
               onChange={(e) => setCategorySelected(e.target.value)}
+              variant="outlined"
+              select
+              sx={{
+                width: "100%",
+                borderRadius: "10px",
+              }}
+              InputProps={{
+                style: {
+                  borderRadius: "10px",
+                  backgroundColor: "#121214",
+                },
+              }}
             >
-              <SelectOption value="" disabled selected>
-                Categoria
-              </SelectOption>
-              {categoryList.map((category) => {
+              {categoryList?.map((category) => {
                 return (
-                  <SelectOption key={category.id} value={category.id}>
+                  <MenuItem key={category.id} value={category.id}>
                     {category.name}
-                  </SelectOption>
+                  </MenuItem>
                 );
               })}
-            </DrawerSelect>
-          </DrawerSelectDiv>
-          <DrawerSelectDiv>
-            <DrawerSelect
-              value={pairSelected}
-              onChange={(e) => setPairSelected(e.target.value)}
+            </TextField>
+
+            <InputLabel>Dupla</InputLabel>
+            <TextField
+              id="outlined-basic"
+              label=""
+              size="small"
+              onChange={(e) =>
+                setValues({ ...values, pair_id: e.target.value })
+              }
+              value={values.pair_id}
+              error={errors.pair_id}
+              variant="outlined"
+              helperText={errors.pair_id}
+              select
+              sx={{
+                width: "100%",
+                borderRadius: "10px",
+              }}
+              InputProps={{
+                style: {
+                  borderRadius: "10px",
+                  backgroundColor: "#121214",
+                },
+              }}
             >
-              <SelectOption value="" disabled selected>
-                Dupla
-              </SelectOption>
               {pairList?.map((pair) => {
                 return (
-                  <SelectOption key={pair.id} value={pair.id}>
+                  <MenuItem key={pair.id} value={pair.id}>
                     {pair.name}
-                  </SelectOption>
+                  </MenuItem>
                 );
               })}
-            </DrawerSelect>
-          </DrawerSelectDiv>
-          <DrawerInput>
-            <Input
-              value={score}
-              placeholder="Score"
-              onChange={(e) => setScore(e.target.value)}
+            </TextField>
+
+            <InputLabel>Score</InputLabel>
+            {getWorkoutById(values.workout_id) === "FORTIME" ? (
+              <TextField
+                id="outlined-basic"
+                label=""
+                size="small"
+                onChange={(e) =>
+                  setValues({ ...values, score: e.target.value })
+                }
+                value={values.score}
+                error={errors.score}
+                variant="outlined"
+                helperText={errors.score}
+                type="time"
+                sx={{
+                  width: "100%",
+                  borderRadius: "10px",
+                }}
+                InputProps={{
+                  style: {
+                    borderRadius: "10px",
+                    backgroundColor: "#121214",
+                  },
+                }}
+              />
+            ) : (
+              <TextField
+                id="outlined-basic"
+                label=""
+                size="small"
+                onChange={(e) =>
+                  setValues({ ...values, score: Number(e.target.value) })
+                }
+                value={values.score}
+                error={errors.score}
+                variant="outlined"
+                helperText={errors.score}
+                sx={{
+                  width: "100%",
+                  borderRadius: "10px",
+                }}
+                InputProps={{
+                  style: {
+                    borderRadius: "10px",
+                    backgroundColor: "#121214",
+                  },
+                }}
+              />
+            )}
+
+            <InputLabel>Tie-Break</InputLabel>
+            <TextField
+              id="outlined-basic"
+              label=""
+              size="small"
+              onChange={(e) =>
+                setValues({ ...values, tieBreak: e.target.value })
+              }
+              value={values.tieBreak}
+              error={errors.tieBreak}
+              variant="outlined"
+              helperText={errors.tieBreak}
+              type="time"
+              sx={{
+                width: "100%",
+                borderRadius: "10px",
+              }}
+              InputProps={{
+                style: {
+                  borderRadius: "10px",
+                  backgroundColor: "#121214",
+                },
+              }}
             />
-          </DrawerInput>
-          <DrawerInput>
-            <Input
-              value={tieBreak}
-              placeholder="Tie Break"
-              onChange={(e) => setTieBreak(e.target.value)}
-            />
-          </DrawerInput>
-          <Button
-            variant="contained"
-            color="primary"
-            size="large"
-            style={{ marginTop: "60px", borderRadius: "10px" }}
-            fullWidth
-            onClick={postResults}
-          >
-            Adicionar
-          </Button>
+
+            <Button
+              variant="contained"
+              color="primary"
+              size="large"
+              style={{ marginTop: "60px", borderRadius: "10px" }}
+              fullWidth
+              onClick={postResults}
+            >
+              Adicionar
+            </Button>
+          </ResultForm>
         </DrawerContainer>
       </Drawer>
 
@@ -258,44 +523,66 @@ export const Panel = () => {
         <ContentHeader>
           <FilteredContainer>
             <FilteredSelect>
-              <SelectLabel>Workout:</SelectLabel>
-              <SelectDiv>
-                <Select
-                  value={workoutFiltered}
-                  onChange={(e) => setWorkoutFiltered(e.target.value)}
-                >
-                  <SelectOption value="" disabled selected>
-                    Selecione
-                  </SelectOption>
-                  {workoutList.map((workout) => {
-                    return (
-                      <SelectOption key={workout.id} value={workout.name}>
-                        {workout.name}
-                      </SelectOption>
-                    );
-                  })}
-                </Select>
-              </SelectDiv>
+              <InputLabel style={{ marginTop: 0 }}>Workout:</InputLabel>
+              <TextField
+                id="outlined-basic"
+                label=""
+                size="small"
+                onChange={(e) => setWorkoutFiltered(e.target.value)}
+                value={workoutFiltered}
+                variant="outlined"
+                select
+                sx={{
+                  width: "250px",
+                  borderRadius: "10px",
+                }}
+                InputProps={{
+                  style: {
+                    borderRadius: "10px",
+                    backgroundColor: "#121214",
+                  },
+                }}
+              >
+                <MenuItem value="">Todos</MenuItem>
+                {workoutList.map((workout) => {
+                  return (
+                    <MenuItem key={workout.id} value={workout.id}>
+                      {workout.name}
+                    </MenuItem>
+                  );
+                })}
+              </TextField>
             </FilteredSelect>
             <FilteredSelect>
-              <SelectLabel>Categorias:</SelectLabel>
-              <SelectDiv>
-                <Select
-                  value={categoryFiltered}
-                  onChange={(e) => setCategoryFiltered(e.target.value)}
-                >
-                  <SelectOption value="" disabled selected>
-                    Selecione
-                  </SelectOption>
-                  {categoryList.map((category) => {
-                    return (
-                      <SelectOption key={category.id} value={category.name}>
-                        {category.name}
-                      </SelectOption>
-                    );
-                  })}
-                </Select>
-              </SelectDiv>
+              <InputLabel style={{ marginTop: 0 }}>Categorias:</InputLabel>
+              <TextField
+                id="outlined-basic"
+                label=""
+                size="small"
+                onChange={(e) => setCategoryFiltered(e.target.value)}
+                value={categoryFiltered}
+                variant="outlined"
+                select
+                sx={{
+                  width: "250px",
+                  borderRadius: "10px",
+                }}
+                InputProps={{
+                  style: {
+                    borderRadius: "10px",
+                    backgroundColor: "#121214",
+                  },
+                }}
+              >
+                <MenuItem value="">Todos</MenuItem>
+                {categoryList.map((category) => {
+                  return (
+                    <MenuItem key={category.id} value={category.id}>
+                      {category.name}
+                    </MenuItem>
+                  );
+                })}
+              </TextField>
             </FilteredSelect>
           </FilteredContainer>
           <Button
@@ -308,49 +595,58 @@ export const Panel = () => {
             Adicionar Resultados
           </Button>
         </ContentHeader>
-        <Table>
-          <Thead>
-            <Tr>
-              <Th>Equipe</Th>
-              <Th>Score</Th>
-              <Th>Tie Break</Th>
-              <Th style={{ textAlign: "center" }}>Ações</Th>
-            </Tr>
-          </Thead>
-
-          <Tbody>
-            {scoreList?.map((score) => (
-              <Tr key={score.id}>
-                <Td>
-                  <FlexColumnAlignStart>
-                    <PairName>{score?.pair?.name}</PairName>
-                    <CompetitorsName>
-                      {score?.pair?.first_member} / {score?.pair?.second_member}
-                    </CompetitorsName>
-                  </FlexColumnAlignStart>
-                </Td>
-                <Td>
-                  <Points>{score?.score}</Points>
-                </Td>
-                <Td>
-                  <TieBreak>{score?.tieBreak}</TieBreak>
-                </Td>
-                <Td>
-                  <FlexRow>
-                    <Delete>
-                      <DeleteForeverIcon />
-                      Excluir
-                    </Delete>
-                    <Edit>
-                      <EditIcon />
-                      Editar
-                    </Edit>
-                  </FlexRow>
-                </Td>
+        <TableContainer>
+          <Table>
+            <Thead>
+              <Tr>
+                <Th>Equipe</Th>
+                <Th>Score</Th>
+                <Th>Tie Break</Th>
+                <Th style={{ textAlign: "center" }}>Ações</Th>
               </Tr>
-            ))}
-          </Tbody>
-        </Table>
+            </Thead>
+
+            <Tbody>
+              {filterScore()?.map((score) => (
+                <Tr key={score.id}>
+                  <Td>
+                    <FlexColumnAlignStart>
+                      <PairName>{score?.pair?.name}</PairName>
+                      <CompetitorsName>
+                        {score?.pair?.first_member} /{" "}
+                        {score?.pair?.second_member}
+                      </CompetitorsName>
+                    </FlexColumnAlignStart>
+                  </Td>
+                  <Td>
+                    <Points>
+                      {getWorkoutById(workoutFiltered) === "FORTIME"
+                        ? secondToTimeFormater(score?.score)
+                        : score?.score}
+                    </Points>
+                  </Td>
+                  <Td>
+                    <TieBreak>{secondToTimeFormater(score?.tieBreak)}</TieBreak>
+                  </Td>
+                  <Td>
+                    <FlexRow>
+                      <Delete>
+                        <DeleteForeverIcon
+                          fontSize={isMobile ? "small" : "medium"}
+                        />
+                        {!isMobile && "Excluir"}
+                      </Delete>
+                      <Edit>
+                        <EditIcon fontSize={isMobile ? "small" : "medium"} />
+                        {!isMobile && "Editar"}
+                      </Edit>
+                    </FlexRow>
+                  </Td>
+                </Tr>
+              ))}
+            </Tbody>
+          </Table>
+        </TableContainer>
       </Content>
     </Container>
   );
