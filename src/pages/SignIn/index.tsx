@@ -84,7 +84,8 @@ export const SignIn = () => {
           size="small"
           onChange={(e) => setValues({ ...values, email: e.target.value })}
           value={values.email}
-          error={errors.email}
+          error={!!errors.email}
+          helperText={errors.email}
           variant="outlined"
           type={"email"}
           sx={{
@@ -115,7 +116,8 @@ export const SignIn = () => {
           }}
           onChange={(e) => setValues({ ...values, password: e.target.value })}
           value={values.password}
-          error={errors.password}
+          error={!!errors.password}
+          helperText={errors.password}
           InputProps={{
             startAdornment: (
               <InputAdornment position="start">
