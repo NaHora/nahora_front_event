@@ -33,6 +33,7 @@ import {
   Score,
   SelectContent,
 } from "./styles";
+import { secondToTimeFormater } from "../../utils/time";
 
 type Category = {
   id: string;
@@ -86,7 +87,7 @@ type WorkoutDescription = {
 export const Filter = () => {
   const [categories, setCategories] = useState<Category[]>([]);
   const [currentCategory, setCurrentCategory] = useState<string>("");
-  const [workouts, setWorkouts] = useState<Workout[]>();
+  const [workouts, setWorkouts] = useState<Workout[]>([]);
   const [currentWorkout, setCurrentWorkout] = useState<string>("todos");
   const [rank, setRank] = useState<Rank[]>([] as Rank[]);
   const [rankGeral, setRankGeral] = useState<RankGeral[]>();
@@ -171,6 +172,14 @@ export const Filter = () => {
 
     return myWorkoutsDescription?.description.split("|");
   }
+
+  const getWorkoutById = (currentWorkoutId: string) => {
+    const workoutType = workouts.find(
+      (workout) => currentWorkoutId === workout.id
+    );
+
+    return workoutType?.type;
+  };
 
   return (
     <Container>
@@ -277,12 +286,16 @@ export const Filter = () => {
                     </Td>
                     <Td>
                       <FlexRow>
-                        <Score style={{ color: "#F50057" }}>{row.score}</Score>
+                        <Score style={{ color: "#F50057" }}>
+                          {getWorkoutById(currentWorkout) === "FORTIME"
+                            ? secondToTimeFormater(row.score)
+                            : row.score}
+                        </Score>
                       </FlexRow>
                     </Td>
                     <Td>
                       <FlexRow>
-                        <Score>{row.tieBreak}</Score>
+                        <Score>{secondToTimeFormater(row.tieBreak)}</Score>
                       </FlexRow>
                     </Td>
                     <Td>
