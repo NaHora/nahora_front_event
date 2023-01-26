@@ -234,7 +234,7 @@ export const Panel = () => {
             ? Yup.string().required("Score obrigatório")
             : Yup.number().required("Score obrigatório"),
         pair_id: Yup.string().required("Dupla obrigatória"),
-        tieBreak: Yup.string().required("Tie Break obrigatório"),
+        tieBreak: Yup.string().optional(),
       });
 
       await schema.validate(values, {
@@ -273,6 +273,19 @@ export const Panel = () => {
   };
 
   const putData = async () => {
+    const schema = Yup.object().shape({
+      score:
+        getWorkoutById(values.workout_id) === "FORTIME"
+          ? Yup.string().required("Score obrigatório")
+          : Yup.number().required("Score obrigatório"),
+
+      tieBreak: Yup.string().optional(),
+    });
+
+    await schema.validate(values, {
+      abortEarly: false,
+    });
+
     setLoading(true);
     try {
       const { tieBreak, score } = values;
@@ -592,7 +605,10 @@ export const Panel = () => {
               variant="contained"
               color="primary"
               size="large"
-              style={{ marginTop: "60px", borderRadius: "10px" }}
+              style={{
+                marginTop: isMobile ? "24px" : "60px",
+                borderRadius: "10px",
+              }}
               fullWidth
               loading={loading}
               onClick={drawerType === "edit" ? putData : postResults}
