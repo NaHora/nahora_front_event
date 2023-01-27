@@ -123,8 +123,6 @@ export const Panel = () => {
 
   const openDrawer = (drawerType: string, item: ScoreInputDTO) => {
     if (drawerType === "edit") {
-      console.log("iten", item?.id);
-      console.log("score", item?.score);
       setValues({
         id: item?.id,
         pair_id: item?.pair_id,
@@ -555,7 +553,6 @@ export const Panel = () => {
                 decimalScale={2}
                 decimalSeparator=","
                 thousandSeparator="."
-                type="text"
                 onValueChange={(e) => {
                   setValues({ ...values, score: e.floatValue });
                 }}
