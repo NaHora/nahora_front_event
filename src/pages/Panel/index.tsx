@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import api from "../../services/api";
-import { PatternFormat } from "react-number-format";
+import { NumericFormat, PatternFormat } from "react-number-format";
 import {
   Container,
   Table,
@@ -80,7 +80,7 @@ type ScoreDTO = {
 type ScoreInputDTO = {
   id: string;
   pair_id: string;
-  score: number | string;
+  score?: number | string;
   tieBreak: string;
   workout_id: string;
   pair?: PairDTO;
@@ -123,14 +123,12 @@ export const Panel = () => {
 
   const openDrawer = (drawerType: string, item: ScoreInputDTO) => {
     if (drawerType === "edit") {
-      console.log("iten", item?.id);
-      console.log("score", item?.score);
       setValues({
         id: item?.id,
         pair_id: item?.pair_id,
         score:
           getWorkoutById(item?.workout_id) === "FORTIME"
-            ? secondToTimeFormater(item?.score)
+            ? secondToTimeFormater(item?.score!)
             : Number(item?.score),
         tieBreak: secondToTimeFormater(item?.tieBreak),
         workout_id: item?.workout_id,
@@ -239,7 +237,7 @@ export const Panel = () => {
         score:
           getWorkoutById(values.workout_id) === "FORTIME"
             ? timeToSecondFormater(values.score as string)
-            : Number(values.score),
+            : values.score,
         tieBreak: timeToSecondFormater(values.tieBreak),
         pair_id: values.pair_id,
         workout_id: values.workout_id,
@@ -290,7 +288,7 @@ export const Panel = () => {
         score:
           getWorkoutById(values.workout_id) === "FORTIME"
             ? timeToSecondFormater(score as string)
-            : Number(score),
+            : score,
       };
 
       await api.put("/score", body);
@@ -550,13 +548,17 @@ export const Panel = () => {
                 }}
               />
             ) : (
-              <TextField
+              <NumericFormat
+                customInput={TextField}
+                decimalScale={2}
+                decimalSeparator=","
+                thousandSeparator="."
+                onValueChange={(e) => {
+                  setValues({ ...values, score: e.floatValue });
+                }}
                 id="outlined-basic"
                 label=""
                 size="small"
-                onChange={(e) =>
-                  setValues({ ...values, score: Number(e.target.value) })
-                }
                 value={values.score}
                 error={errors.score}
                 variant="outlined"

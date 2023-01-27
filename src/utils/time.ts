@@ -1,7 +1,16 @@
 export function timeToSecondFormater(time: string) {
-  if (time.includes(":")) {
-    const [min, sec] = time.split(":");
-    return Number(min) * 60 + Number(sec);
+  if (time) {
+    if (time.includes(":")) {
+      if (time.includes("_")) {
+        const newTime = time?.replaceAll("_", "0");
+        time = newTime;
+      }
+
+      const [min, sec] = time.split(":");
+      return Number(min) * 60 + Number(sec);
+    } else {
+      return Number(time) * 60;
+    }
   }
 }
 
