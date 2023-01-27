@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import api from "../../services/api";
+import { PatternFormat } from "react-number-format";
 import {
   Container,
   Table,
@@ -17,10 +18,6 @@ import {
   ContentHeader,
   Points,
   TieBreak,
-  Select,
-  SelectDiv,
-  SelectOption,
-  SelectLabel,
   FilteredContainer,
   FilteredSelect,
   Delete,
@@ -44,7 +41,6 @@ import {
   DialogTitle,
   Drawer,
   MenuItem,
-  Modal,
   TextField,
   useMediaQuery,
 } from "@mui/material";
@@ -119,7 +115,7 @@ export const Panel = () => {
   const [values, setValues] = useState<ScoreInputDTO>({
     id: "",
     pair_id: "",
-    score: 0,
+    score: "",
     tieBreak: "",
     workout_id: "",
   });
@@ -143,13 +139,11 @@ export const Panel = () => {
       setDrawerType(drawerType);
       setIsDrawerOpen(true);
     } else {
-      setCategorySelected("");
       setValues({
-        id: "",
+        ...values,
         pair_id: "",
-        score: 0,
+        score: "",
         tieBreak: "",
-        workout_id: "",
       });
       setDrawerType(drawerType);
       setIsDrawerOpen(true);
@@ -528,7 +522,12 @@ export const Panel = () => {
 
             <InputLabel>Score</InputLabel>
             {getWorkoutById(values.workout_id) === "FORTIME" ? (
-              <TextField
+              <PatternFormat
+                customInput={TextField}
+                type="text"
+                format="##:##"
+                allowEmptyFormatting
+                mask="_"
                 id="outlined-basic"
                 label=""
                 size="small"
@@ -539,7 +538,6 @@ export const Panel = () => {
                 error={errors.score}
                 variant="outlined"
                 helperText={errors.score}
-                type="time"
                 sx={{
                   width: "100%",
                   borderRadius: "10px",
@@ -577,7 +575,11 @@ export const Panel = () => {
             )}
 
             <InputLabel>Tie-Break</InputLabel>
-            <TextField
+            <PatternFormat
+              customInput={TextField}
+              format="##:##"
+              allowEmptyFormatting
+              mask="_"
               id="outlined-basic"
               label=""
               size="small"
@@ -588,7 +590,6 @@ export const Panel = () => {
               error={errors.tieBreak}
               variant="outlined"
               helperText={errors.tieBreak}
-              type="time"
               sx={{
                 width: "100%",
                 borderRadius: "10px",
