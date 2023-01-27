@@ -44,6 +44,18 @@ export const Ranking = () => {
   const [currentItems, setCurrentItems] = useState<number[]>([]);
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
+  useEffect(() => {
+    const time = 300000; // milliseconds
+
+    const reloadId = setTimeout(() => {
+      window.location.reload();
+    }, time);
+
+    return () => {
+      clearTimeout(reloadId);
+    };
+  }, []);
+
   async function getRankGeral() {
     const response = await api.get("/score/rank/total");
     setRankGeral(response.data);
