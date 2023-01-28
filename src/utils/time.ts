@@ -11,6 +11,8 @@ export function timeToSecondFormater(time: string) {
     } else {
       return Number(time) * 60;
     }
+  } else {
+    return 0;
   }
 }
 
