@@ -3,7 +3,7 @@ import {
   CircularProgress,
   InputAdornment,
   TextField,
-} from "@mui/material";
+} from '@mui/material';
 import {
   Container,
   Content,
@@ -11,17 +11,16 @@ import {
   LoginTitle,
   LoginEmail,
   LoginPassword,
-} from "./styles";
-import { useNavigate } from "react-router-dom";
-import EventLogo from "../../assets/event-logo-login.png";
-import EmailSharpIcon from "@mui/icons-material/EmailSharp";
-import LockSharpIcon from "@mui/icons-material/LockSharp";
-import * as Yup from "yup";
-import { useAuth } from "../../hooks/auth";
-import { useState } from "react";
-import getValidationErrors from "../../utils";
-import { toast } from "react-toastify";
-import { LoadingButton } from "@mui/lab";
+} from './styles';
+import EventLogo from '../../assets/event-logo.png';
+import EmailSharpIcon from '@mui/icons-material/EmailSharp';
+import LockSharpIcon from '@mui/icons-material/LockSharp';
+import * as Yup from 'yup';
+import { useAuth } from '../../hooks/auth';
+import { useState } from 'react';
+import getValidationErrors from '../../utils';
+import { toast } from 'react-toastify';
+import { LoadingButton } from '@mui/lab';
 export interface StateProps {
   [key: string]: any;
 }
@@ -34,8 +33,8 @@ export const SignIn = () => {
   const [errors, setErrors] = useState<StateProps>({} as StateProps);
   const [loading, setLoading] = useState(false);
   const [values, setValues] = useState<SignInFormData>({
-    email: "",
-    password: "",
+    email: '',
+    password: '',
   });
 
   async function handleSignIn() {
@@ -44,11 +43,11 @@ export const SignIn = () => {
     try {
       const schema = Yup.object().shape({
         email: Yup.string()
-          .email("Email inválido")
-          .required("Email obrigatório"),
+          .email('Email inválido')
+          .required('Email obrigatório'),
         password: Yup.string()
-          .min(6, "Minimo de 6 caracteres")
-          .required("Senha obrigatória"),
+          .min(6, 'Minimo de 6 caracteres')
+          .required('Senha obrigatória'),
       });
 
       await schema.validate(values, {
@@ -65,7 +64,7 @@ export const SignIn = () => {
       if (err?.response) {
         return toast.error(
           err?.response?.data?.message ||
-            "Ocorreu um erro ao fazer login, cheque as credenciais"
+            'Ocorreu um erro ao fazer login, cheque as credenciais'
         );
       }
     } finally {
@@ -75,7 +74,7 @@ export const SignIn = () => {
 
   return (
     <Container>
-      <EventImage src={EventLogo} alt="event logo" />
+      <EventImage src={EventLogo} width={724} alt="event logo" />
       <Content>
         <LoginTitle>Login</LoginTitle>
         <LoginEmail>E-mail</LoginEmail>
@@ -88,18 +87,18 @@ export const SignIn = () => {
           error={!!errors.email}
           helperText={errors.email}
           variant="outlined"
-          type={"email"}
+          type={'email'}
           sx={{
-            width: "100%",
-            borderRadius: "4px",
+            width: '100%',
+            borderRadius: '4px',
           }}
           InputProps={{
             style: {
-              backgroundColor: "#121214",
+              backgroundColor: '#121214',
             },
             startAdornment: (
               <InputAdornment position="start">
-                <EmailSharpIcon sx={{ fontSize: 16, color: "#fff" }} />
+                <EmailSharpIcon sx={{ fontSize: 16, color: '#fff' }} />
               </InputAdornment>
             ),
           }}
@@ -110,11 +109,11 @@ export const SignIn = () => {
           label=""
           size="small"
           variant="outlined"
-          type={"password"}
+          type={'password'}
           sx={{
-            width: "100%",
-            borderRadius: "4px",
-            color: "#fff",
+            width: '100%',
+            borderRadius: '4px',
+            color: '#fff',
           }}
           onChange={(e) => setValues({ ...values, password: e.target.value })}
           value={values.password}
@@ -122,11 +121,11 @@ export const SignIn = () => {
           helperText={errors.password}
           InputProps={{
             style: {
-              backgroundColor: "#121214",
+              backgroundColor: '#121214',
             },
             startAdornment: (
               <InputAdornment position="start">
-                <LockSharpIcon sx={{ fontSize: 16, color: "#fff" }} />
+                <LockSharpIcon sx={{ fontSize: 16, color: '#fff' }} />
               </InputAdornment>
             ),
           }}
@@ -136,9 +135,10 @@ export const SignIn = () => {
           variant="contained"
           size="medium"
           sx={{
-            backgroundColor: "#EF144D",
-            width: "100%",
-            marginTop: "24px",
+            backgroundColor: '#f04c12',
+            // backgroundColor: '#EF144D',
+            width: '100%',
+            marginTop: '24px',
           }}
           onClick={handleSignIn}
           loading={loading}

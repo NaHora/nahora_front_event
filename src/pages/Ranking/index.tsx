@@ -19,13 +19,13 @@ import {
   Point,
   FlexColumnAlignStart,
   Total,
-} from "./styles";
-import EventLogo from "../../assets/event-logo.png";
-import React, { useEffect, useState } from "react";
-import api from "../../services/api";
-import MilitaryTechIcon from "@mui/icons-material/MilitaryTech";
-import { CircularProgress, useMediaQuery } from "@mui/material";
-import { theme } from "../../styles/global";
+} from './styles';
+import EventLogo from '../../assets/event-logo.png';
+import React, { useEffect, useState } from 'react';
+import api from '../../services/api';
+import MilitaryTechIcon from '@mui/icons-material/MilitaryTech';
+import { CircularProgress, useMediaQuery } from '@mui/material';
+import { theme } from '../../styles/global';
 
 type Rank = {
   category: string;
@@ -42,7 +42,7 @@ export const Ranking = () => {
   const [currentCategory, setCurrentCategory] = useState(0);
   const [changeCategory, setChangeCategory] = useState(false);
   const [currentItems, setCurrentItems] = useState<number[]>([]);
-  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
   useEffect(() => {
     const time = 300000; // milliseconds
@@ -57,7 +57,7 @@ export const Ranking = () => {
   }, []);
 
   async function getRankGeral() {
-    const response = await api.get("/score/rank/total");
+    const response = await api.get('/score/rank/total');
     setRankGeral(response.data);
     setCurrentRankGeral(response.data[0]);
     const rankSize = response.data[0].length;
@@ -128,39 +128,39 @@ export const Ranking = () => {
   function getWorkoutPoint(index: number) {
     switch (index) {
       case 0:
-        return "1";
+        return '1';
         break;
       case 1:
-        return "2.1";
+        return '2.1';
         break;
       case 2:
-        return "2.2";
+        return '2.2';
         break;
       case 3:
-        return "2.3";
+        return '2.3';
         break;
       case 4:
-        return "3";
+        return '3';
         // Expected output: "Mangoes and papayas are $2.79 a pound."
         break;
       default:
-        return "0";
+        return '0';
     }
   }
 
   return (
     <Container>
-      <EventImage src={EventLogo} alt="event logo" />
+      <EventImage src={EventLogo} width={320} alt="event logo" />
       {Array.isArray(currentRankGeral) && currentRankGeral.length > 0 ? (
         <Content>
-          <CategoryTitle className={!currentItems.includes(1) ? "hide" : ""}>
+          <CategoryTitle className={!currentItems.includes(1) ? 'hide' : ''}>
             {currentRankGeral[0]?.category}
           </CategoryTitle>
           <Table>
             <Thead>
               <Tr>
                 <Th>Posição</Th>
-                <Th style={{ textAlign: "left" }}>Equipe</Th>
+                <Th style={{ textAlign: 'left' }}>Equipe</Th>
                 <Th>Workouts</Th>
                 <Th>Pontuação</Th>
               </Tr>
@@ -169,17 +169,17 @@ export const Ranking = () => {
             <Tbody>
               {currentRankGeral.map((row, index) => (
                 <Tr
-                  className={!currentItems.includes(index) ? "hide" : ""}
-                  style={{ transform: "skew(-10deg)" }}
+                  className={!currentItems.includes(index) ? 'hide' : ''}
+                  style={{ transform: 'skew(-10deg)' }}
                   key={row.pairName}
                 >
-                  <Td style={{ textAlign: "center" }}>
+                  <Td style={{ textAlign: 'center' }}>
                     {row.position === 1 && (
                       <MilitaryTechIcon
                         style={{
-                          color: "#F50057",
+                          color: '#f04c12',
                           fontSize: 60,
-                          position: "absolute",
+                          position: 'absolute',
                           left: isMobile ? -20 : 0,
                           top: 0,
                         }}

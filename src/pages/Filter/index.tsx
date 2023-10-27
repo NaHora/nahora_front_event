@@ -3,12 +3,12 @@ import {
   MenuItem,
   TextField,
   useMediaQuery,
-} from "@mui/material";
-import { useEffect, useState } from "react";
-import EventLogo from "../../assets/event-logo.png";
-import api from "../../services/api";
-import { theme } from "../../styles/global";
-import MilitaryTechIcon from "@mui/icons-material/MilitaryTech";
+} from '@mui/material';
+import { useEffect, useState } from 'react';
+import EventLogo from '../../assets/event-logo.png';
+import api from '../../services/api';
+import { theme } from '../../styles/global';
+import MilitaryTechIcon from '@mui/icons-material/MilitaryTech';
 import {
   CompetitorsName,
   Container,
@@ -38,8 +38,8 @@ import {
   Score,
   SelectContent,
   InputLabel,
-} from "./styles";
-import { secondToTimeFormater } from "../../utils/time";
+} from './styles';
+import { secondToTimeFormater } from '../../utils/time';
 
 type Category = {
   id: string;
@@ -92,15 +92,15 @@ type WorkoutDescription = {
 
 export const Filter = () => {
   const [categories, setCategories] = useState<Category[]>([]);
-  const [currentCategory, setCurrentCategory] = useState<string>("");
+  const [currentCategory, setCurrentCategory] = useState<string>('');
   const [workouts, setWorkouts] = useState<Workout[]>([]);
-  const [currentWorkout, setCurrentWorkout] = useState<string>("todos");
+  const [currentWorkout, setCurrentWorkout] = useState<string>('todos');
   const [rank, setRank] = useState<Rank[]>([] as Rank[]);
   const [rankGeral, setRankGeral] = useState<RankGeral[]>();
   const [workoutsDescription, setWorkoutsDescription] =
     useState<WorkoutDescription[]>();
 
-  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
   async function getWorkoutDescriptions() {
     const response = await api.get(`/workout-description`);
@@ -115,13 +115,13 @@ export const Filter = () => {
   }
 
   async function getCategories() {
-    const response = await api.get("/category");
+    const response = await api.get('/category');
     setCategories(response.data);
     setCurrentCategory(response.data[0]?.id);
   }
 
   async function getWorkouts() {
-    const response = await api.get("/workout");
+    const response = await api.get('/workout');
     setWorkouts(response.data);
   }
 
@@ -134,7 +134,7 @@ export const Filter = () => {
 
   useEffect(() => {
     if (currentCategory && currentWorkout) {
-      if (currentWorkout === "todos") {
+      if (currentWorkout === 'todos') {
         getRankGeral();
       } else {
         getRank();
@@ -149,23 +149,23 @@ export const Filter = () => {
   function getWorkoutPoint(index: number) {
     switch (index) {
       case 0:
-        return "1";
+        return '1';
         break;
       case 1:
-        return "2.1";
+        return '2.1';
         break;
       case 2:
-        return "2.2";
+        return '2.2';
         break;
       case 3:
-        return "2.3";
+        return '2.3';
         break;
       case 4:
-        return "3";
+        return '3';
 
         break;
       default:
-        return "0";
+        return '0';
     }
   }
 
@@ -176,7 +176,7 @@ export const Filter = () => {
         currentWorkoutDescription.category_id === currentCategory
     );
 
-    return myWorkoutsDescription?.description.split("|");
+    return myWorkoutsDescription?.description.split('|');
   }
 
   const getWorkoutById = (currentWorkoutId: string) => {
@@ -189,7 +189,7 @@ export const Filter = () => {
 
   return (
     <Container>
-      <EventImage src={EventLogo} alt="event logo" />
+      <EventImage src={EventLogo} width={320} alt="event logo" />
       <Content>
         <SelectContent>
           <SelectContainer>
@@ -203,13 +203,13 @@ export const Filter = () => {
               variant="outlined"
               select
               sx={{
-                width: "100%",
-                borderRadius: "10px",
+                width: '100%',
+                borderRadius: '10px',
               }}
               InputProps={{
                 style: {
-                  borderRadius: "10px",
-                  backgroundColor: "#121214",
+                  borderRadius: '10px',
+                  backgroundColor: '#121214',
                 },
               }}
             >
@@ -235,13 +235,13 @@ export const Filter = () => {
               variant="outlined"
               select
               sx={{
-                width: "100%",
-                borderRadius: "10px",
+                width: '100%',
+                borderRadius: '10px',
               }}
               InputProps={{
                 style: {
-                  borderRadius: "10px",
-                  backgroundColor: "#121214",
+                  borderRadius: '10px',
+                  backgroundColor: '#121214',
                 },
               }}
             >
@@ -256,7 +256,7 @@ export const Filter = () => {
           </SelectContainer>
         </SelectContent>
 
-        {currentWorkout !== "todos" && (
+        {currentWorkout !== 'todos' && (
           <WorkoutDiv>
             {getCurrentWorkoutDescription()?.map(
               (currentWorkoutDescription) => {
@@ -270,12 +270,12 @@ export const Filter = () => {
           </WorkoutDiv>
         )}
 
-        {currentWorkout !== "todos" ? (
+        {currentWorkout !== 'todos' ? (
           <Table>
             <Thead>
               <Tr>
                 <Th>Posição</Th>
-                <Th style={{ textAlign: "left" }}>Equipe</Th>
+                <Th style={{ textAlign: 'left' }}>Equipe</Th>
                 <Th>Score</Th>
                 <Th>Tie-Break</Th>
                 <Th>Pontuação</Th>
@@ -284,21 +284,21 @@ export const Filter = () => {
 
             <Tbody>
               {rank.length === 0 ? (
-                <Tr style={{ transform: "skew(-10deg)" }}>
-                  <Td colSpan={5} style={{ textAlign: "center" }}>
+                <Tr style={{ transform: 'skew(-10deg)' }}>
+                  <Td colSpan={5} style={{ textAlign: 'center' }}>
                     Scores ainda não cadastrados
                   </Td>
                 </Tr>
               ) : (
                 rank?.map((row) => (
-                  <Tr style={{ transform: "skew(-10deg)" }} key={row.id}>
-                    <Td style={{ textAlign: "center" }}>
+                  <Tr style={{ transform: 'skew(-10deg)' }} key={row.id}>
+                    <Td style={{ textAlign: 'center' }}>
                       {row.position === 1 && (
                         <MilitaryTechIcon
                           style={{
-                            color: "#F50057",
+                            color: '#f04c12',
                             fontSize: 60,
-                            position: "absolute",
+                            position: 'absolute',
                             left: isMobile ? -20 : 0,
                             top: 0,
                           }}
@@ -316,8 +316,8 @@ export const Filter = () => {
                     </Td>
                     <Td>
                       <FlexRow>
-                        <Score style={{ color: "#F50057" }}>
-                          {getWorkoutById(currentWorkout) === "FORTIME"
+                        <Score style={{ color: '#f04c12' }}>
+                          {getWorkoutById(currentWorkout) === 'FORTIME'
                             ? secondToTimeFormater(row.score)
                             : row.score}
                         </Score>
@@ -343,7 +343,7 @@ export const Filter = () => {
             <Thead>
               <Tr>
                 <Th>Posição</Th>
-                <Th style={{ textAlign: "left" }}>Equipe</Th>
+                <Th style={{ textAlign: 'left' }}>Equipe</Th>
                 {!isMobile && <Th>Workouts</Th>}
                 <Th>Pontuação</Th>
               </Tr>
@@ -351,14 +351,14 @@ export const Filter = () => {
 
             <Tbody>
               {rankGeral?.map((row, index) => (
-                <Tr style={{ transform: "skew(-10deg)" }} key={row.pairName}>
-                  <Td style={{ textAlign: "center" }}>
+                <Tr style={{ transform: 'skew(-10deg)' }} key={row.pairName}>
+                  <Td style={{ textAlign: 'center' }}>
                     {row.position === 1 && (
                       <MilitaryTechIcon
                         style={{
-                          color: "#F50057",
+                          color: '#f04c12',
                           fontSize: 60,
-                          position: "absolute",
+                          position: 'absolute',
                           left: isMobile ? -20 : 0,
                           top: 0,
                         }}

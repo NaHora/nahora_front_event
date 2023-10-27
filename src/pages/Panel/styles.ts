@@ -1,4 +1,4 @@
-import styled, { keyframes } from "styled-components";
+import styled, { keyframes } from 'styled-components';
 
 export const Container = styled.div`
   padding: 0 16px;
@@ -89,7 +89,8 @@ export const Table = styled.table`
   }
 
   > thead {
-    border: 2px solid #ef144d !important;
+    /* border: 2px solid #ef144d !important; */
+    border: 2px solid #f04c12 !important;
   }
 `;
 
@@ -176,7 +177,7 @@ export const Delete = styled.button`
   transition: all 0.2s;
 
   :hover {
-    background-color: #f50057;
+    background-color: #f04c12;
     color: #fff;
   }
 `;
@@ -192,7 +193,7 @@ export const Edit = styled.button`
   transition: all 0.2s;
 
   :hover {
-    background-color: #f50057;
+    background-color: #f04c12;
     color: #fff;
   }
 `;

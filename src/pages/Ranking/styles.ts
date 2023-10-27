@@ -1,4 +1,4 @@
-import styled, { keyframes } from "styled-components";
+import styled, { keyframes } from 'styled-components';
 
 const fadeOut = keyframes`
   0% {
@@ -121,7 +121,7 @@ export const CompetitorsName = styled.span`
 export const WorkoutName = styled.span`
   font-weight: 400;
   font-size: 14px;
-  color: #f50057;
+  color: #f04c12;
 `;
 
 export const Point = styled.span`
@@ -132,8 +132,9 @@ export const Point = styled.span`
 
 export const Total = styled.div`
   font-weight: 900;
+  background-color: #f04c12;
   font-size: 24px;
-  background-color: #ef144d;
+  /* background-color: #ef144d; */
   padding: 8px 12px;
   box-shadow: 0px 3px 1px -2px rgba(0, 0, 0, 0.2),
     0px 2px 2px rgba(0, 0, 0, 0.14), 0px 1px 5px rgba(0, 0, 0, 0.12);

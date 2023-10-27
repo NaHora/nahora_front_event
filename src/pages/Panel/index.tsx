@@ -1,6 +1,6 @@
-import { useEffect, useState } from "react";
-import api from "../../services/api";
-import { NumericFormat, PatternFormat } from "react-number-format";
+import { useEffect, useState } from 'react';
+import api from '../../services/api';
+import { NumericFormat, PatternFormat } from 'react-number-format';
 import {
   Container,
   Table,
@@ -27,10 +27,10 @@ import {
   InputLabel,
   ResultForm,
   TableContainer,
-} from "./styles";
-import EventLogo from "../../assets/event-logo.png";
-import { toast } from "react-toastify";
-import * as Yup from "yup";
+} from './styles';
+import EventLogo from '../../assets/event-logo.png';
+import { toast } from 'react-toastify';
+import * as Yup from 'yup';
 
 import {
   Button,
@@ -43,15 +43,15 @@ import {
   MenuItem,
   TextField,
   useMediaQuery,
-} from "@mui/material";
+} from '@mui/material';
 
-import AddIcon from "@mui/icons-material/Add";
-import DeleteForeverIcon from "@mui/icons-material/DeleteForever";
-import EditIcon from "@mui/icons-material/Edit";
-import getValidationErrors from "../../utils";
-import { secondToTimeFormater, timeToSecondFormater } from "../../utils/time";
-import { theme } from "../../styles/global";
-import { LoadingButton } from "@mui/lab";
+import AddIcon from '@mui/icons-material/Add';
+import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
+import EditIcon from '@mui/icons-material/Edit';
+import getValidationErrors from '../../utils';
+import { secondToTimeFormater, timeToSecondFormater } from '../../utils/time';
+import { theme } from '../../styles/global';
+import { LoadingButton } from '@mui/lab';
 
 type SelectPropsDTO = {
   id: string;
@@ -65,7 +65,7 @@ type WorkoutDTO = {
   id: string;
   name: string;
   number: string;
-  type: "REP" | "FORTIME";
+  type: 'REP' | 'FORTIME';
 };
 
 type ScoreDTO = {
@@ -99,9 +99,9 @@ interface StateProps {
 }
 
 export const Panel = () => {
-  const [workoutFiltered, setWorkoutFiltered] = useState("");
-  const [categoryFiltered, setCategoryFiltered] = useState("");
-  const [categorySelected, setCategorySelected] = useState("");
+  const [workoutFiltered, setWorkoutFiltered] = useState('');
+  const [categoryFiltered, setCategoryFiltered] = useState('');
+  const [categorySelected, setCategorySelected] = useState('');
   const [loading, setLoading] = useState(false);
   const [workoutList, setWorkoutList] = useState<WorkoutDTO[]>([]);
   const [categoryList, setCategoryList] = useState<SelectPropsDTO[]>([]);
@@ -110,24 +110,24 @@ export const Panel = () => {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [errors, setErrors] = useState<StateProps>({} as StateProps);
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
-  const [resultSelected, setResultSelected] = useState("");
-  const [scoreSelected, setScoreSelected] = useState("");
+  const [resultSelected, setResultSelected] = useState('');
+  const [scoreSelected, setScoreSelected] = useState('');
   const [values, setValues] = useState<ScoreInputDTO>({
-    id: "",
-    pair_id: "",
-    score: "",
-    tieBreak: "",
-    workout_id: "",
+    id: '',
+    pair_id: '',
+    score: '',
+    tieBreak: '',
+    workout_id: '',
   });
-  const [drawerType, setDrawerType] = useState("");
+  const [drawerType, setDrawerType] = useState('');
 
   const openDrawer = (drawerType: string, item: ScoreInputDTO) => {
-    if (drawerType === "edit") {
+    if (drawerType === 'edit') {
       setValues({
         id: item?.id,
         pair_id: item?.pair_id,
         score:
-          getWorkoutById(item?.workout_id) === "FORTIME"
+          getWorkoutById(item?.workout_id) === 'FORTIME'
             ? secondToTimeFormater(item?.score!)
             : Number(item?.score),
         tieBreak: secondToTimeFormater(item?.tieBreak),
@@ -139,9 +139,9 @@ export const Panel = () => {
     } else {
       setValues({
         ...values,
-        pair_id: "",
-        score: "",
-        tieBreak: "",
+        pair_id: '',
+        score: '',
+        tieBreak: '',
       });
       setDrawerType(drawerType);
       setIsDrawerOpen(true);
@@ -220,12 +220,12 @@ export const Panel = () => {
 
     try {
       const schema = Yup.object().shape({
-        workout_id: Yup.string().required("Workout obrigatório"),
+        workout_id: Yup.string().required('Workout obrigatório'),
         score:
-          getWorkoutById(values.workout_id) === "FORTIME"
-            ? Yup.string().required("Score obrigatório")
-            : Yup.number().required("Score obrigatório"),
-        pair_id: Yup.string().required("Dupla obrigatória"),
+          getWorkoutById(values.workout_id) === 'FORTIME'
+            ? Yup.string().required('Score obrigatório')
+            : Yup.number().required('Score obrigatório'),
+        pair_id: Yup.string().required('Dupla obrigatória'),
         tieBreak: Yup.string().optional(),
       });
 
@@ -235,7 +235,7 @@ export const Panel = () => {
 
       const body = {
         score:
-          getWorkoutById(values.workout_id) === "FORTIME"
+          getWorkoutById(values.workout_id) === 'FORTIME'
             ? timeToSecondFormater(values.score as string)
             : values.score,
         tieBreak: timeToSecondFormater(values.tieBreak),
@@ -245,7 +245,7 @@ export const Panel = () => {
 
       const response = await api.post(`/score`, body);
       setErrors({});
-      toast.success("Resultado criado com sucesso!");
+      toast.success('Resultado criado com sucesso!');
       getScore();
       setIsDrawerOpen(false);
     } catch (err: any) {
@@ -256,7 +256,7 @@ export const Panel = () => {
       if (err?.response) {
         return toast.error(
           err?.response?.data?.message ||
-            "Ocorreu um erro ao adicionar o resultado, tente novamente"
+            'Ocorreu um erro ao adicionar o resultado, tente novamente'
         );
       }
     } finally {
@@ -267,9 +267,9 @@ export const Panel = () => {
   const putData = async () => {
     const schema = Yup.object().shape({
       score:
-        getWorkoutById(values.workout_id) === "FORTIME"
-          ? Yup.string().required("Score obrigatório")
-          : Yup.number().required("Score obrigatório"),
+        getWorkoutById(values.workout_id) === 'FORTIME'
+          ? Yup.string().required('Score obrigatório')
+          : Yup.number().required('Score obrigatório'),
 
       tieBreak: Yup.string().optional(),
     });
@@ -286,14 +286,14 @@ export const Panel = () => {
         scoreId: scoreSelected,
         tieBreak: timeToSecondFormater(tieBreak),
         score:
-          getWorkoutById(values.workout_id) === "FORTIME"
+          getWorkoutById(values.workout_id) === 'FORTIME'
             ? timeToSecondFormater(score as string)
             : score,
       };
 
-      await api.put("/score", body);
+      await api.put('/score', body);
       setErrors({});
-      toast.success("Resultado atualizado com sucesso!");
+      toast.success('Resultado atualizado com sucesso!');
       getScore();
       setIsDrawerOpen(false);
     } catch (err: any) {
@@ -304,7 +304,7 @@ export const Panel = () => {
       if (err?.response) {
         return toast.error(
           err?.response?.data?.message ||
-            "Ocorreu um erro ao atualizar o resultado, tente novamente"
+            'Ocorreu um erro ao atualizar o resultado, tente novamente'
         );
       }
     } finally {
@@ -349,7 +349,7 @@ export const Panel = () => {
     }
   };
 
-  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
   const deleteResult = async () => {
     setLoading(true);
@@ -357,14 +357,14 @@ export const Panel = () => {
       //desestruturando o estado, pegando os valores que guardamos la, atraves dos inputs
 
       await api.delete(`/score/${resultSelected}`);
-      toast.success("Resultado deletado com sucesso!");
+      toast.success('Resultado deletado com sucesso!');
       setOpenDeleteDialog(false);
       getScore();
     } catch (err: any) {
       if (err?.response) {
         return toast.error(
           err?.response?.data?.message ||
-            "Ocorreu um erro ao adicionar o resultado, tente novamente"
+            'Ocorreu um erro ao adicionar o resultado, tente novamente'
         );
       }
     } finally {
@@ -397,7 +397,7 @@ export const Panel = () => {
         <DialogActions>
           <Button
             onClick={() => setOpenDeleteDialog(false)}
-            sx={{ color: "#fff" }}
+            sx={{ color: '#fff' }}
           >
             Cancelar
           </Button>
@@ -432,16 +432,16 @@ export const Panel = () => {
               error={errors.workout_id}
               variant="outlined"
               helperText={errors.workout_id}
-              disabled={drawerType === "edit"}
+              disabled={drawerType === 'edit'}
               select
               sx={{
-                width: "100%",
-                borderRadius: "10px",
+                width: '100%',
+                borderRadius: '10px',
               }}
               InputProps={{
                 style: {
-                  borderRadius: "10px",
-                  backgroundColor: "#121214",
+                  borderRadius: '10px',
+                  backgroundColor: '#121214',
                 },
               }}
             >
@@ -462,16 +462,16 @@ export const Panel = () => {
               value={categorySelected}
               onChange={(e) => setCategorySelected(e.target.value)}
               variant="outlined"
-              disabled={drawerType === "edit"}
+              disabled={drawerType === 'edit'}
               select
               sx={{
-                width: "100%",
-                borderRadius: "10px",
+                width: '100%',
+                borderRadius: '10px',
               }}
               InputProps={{
                 style: {
-                  borderRadius: "10px",
-                  backgroundColor: "#121214",
+                  borderRadius: '10px',
+                  backgroundColor: '#121214',
                 },
               }}
             >
@@ -496,16 +496,16 @@ export const Panel = () => {
               error={errors.pair_id}
               variant="outlined"
               helperText={errors.pair_id}
-              disabled={drawerType === "edit"}
+              disabled={drawerType === 'edit'}
               select
               sx={{
-                width: "100%",
-                borderRadius: "10px",
+                width: '100%',
+                borderRadius: '10px',
               }}
               InputProps={{
                 style: {
-                  borderRadius: "10px",
-                  backgroundColor: "#121214",
+                  borderRadius: '10px',
+                  backgroundColor: '#121214',
                 },
               }}
             >
@@ -519,7 +519,7 @@ export const Panel = () => {
             </TextField>
 
             <InputLabel>Score</InputLabel>
-            {getWorkoutById(values.workout_id) === "FORTIME" ? (
+            {getWorkoutById(values.workout_id) === 'FORTIME' ? (
               <PatternFormat
                 customInput={TextField}
                 type="text"
@@ -537,13 +537,13 @@ export const Panel = () => {
                 variant="outlined"
                 helperText={errors.score}
                 sx={{
-                  width: "100%",
-                  borderRadius: "10px",
+                  width: '100%',
+                  borderRadius: '10px',
                 }}
                 InputProps={{
                   style: {
-                    borderRadius: "10px",
-                    backgroundColor: "#121214",
+                    borderRadius: '10px',
+                    backgroundColor: '#121214',
                   },
                 }}
               />
@@ -564,13 +564,13 @@ export const Panel = () => {
                 variant="outlined"
                 helperText={errors.score}
                 sx={{
-                  width: "100%",
-                  borderRadius: "10px",
+                  width: '100%',
+                  borderRadius: '10px',
                 }}
                 InputProps={{
                   style: {
-                    borderRadius: "10px",
-                    backgroundColor: "#121214",
+                    borderRadius: '10px',
+                    backgroundColor: '#121214',
                   },
                 }}
               />
@@ -593,13 +593,13 @@ export const Panel = () => {
               variant="outlined"
               helperText={errors.tieBreak}
               sx={{
-                width: "100%",
-                borderRadius: "10px",
+                width: '100%',
+                borderRadius: '10px',
               }}
               InputProps={{
                 style: {
-                  borderRadius: "10px",
-                  backgroundColor: "#121214",
+                  borderRadius: '10px',
+                  backgroundColor: '#121214',
                 },
               }}
             />
@@ -609,20 +609,20 @@ export const Panel = () => {
               color="primary"
               size="large"
               style={{
-                marginTop: isMobile ? "24px" : "60px",
-                borderRadius: "10px",
+                marginTop: isMobile ? '24px' : '60px',
+                borderRadius: '10px',
               }}
               fullWidth
               loading={loading}
-              onClick={drawerType === "edit" ? putData : postResults}
+              onClick={drawerType === 'edit' ? putData : postResults}
             >
-              {drawerType === "edit" ? "Editar" : "Adicionar"}
+              {drawerType === 'edit' ? 'Editar' : 'Adicionar'}
             </LoadingButton>
           </ResultForm>
         </DrawerContainer>
       </Drawer>
 
-      <EventImage src={EventLogo} alt="event logo" />
+      <EventImage src={EventLogo} width={318} alt="event logo" />
       <Content>
         <ContentHeader>
           <FilteredContainer>
@@ -637,13 +637,13 @@ export const Panel = () => {
                 variant="outlined"
                 select
                 sx={{
-                  width: "250px",
-                  borderRadius: "10px",
+                  width: '250px',
+                  borderRadius: '10px',
                 }}
                 InputProps={{
                   style: {
-                    borderRadius: "10px",
-                    backgroundColor: "#121214",
+                    borderRadius: '10px',
+                    backgroundColor: '#121214',
                   },
                 }}
               >
@@ -668,13 +668,13 @@ export const Panel = () => {
                 variant="outlined"
                 select
                 sx={{
-                  width: "250px",
-                  borderRadius: "10px",
+                  width: '250px',
+                  borderRadius: '10px',
                 }}
                 InputProps={{
                   style: {
-                    borderRadius: "10px",
-                    backgroundColor: "#121214",
+                    borderRadius: '10px',
+                    backgroundColor: '#121214',
                   },
                 }}
               >
@@ -695,12 +695,12 @@ export const Panel = () => {
             size="large"
             startIcon={<AddIcon />}
             onClick={() =>
-              openDrawer("create", {
-                id: "",
-                pair_id: "",
+              openDrawer('create', {
+                id: '',
+                pair_id: '',
                 score: 0,
-                tieBreak: "",
-                workout_id: "",
+                tieBreak: '',
+                workout_id: '',
               })
             }
           >
@@ -715,7 +715,7 @@ export const Panel = () => {
                 <Th>Equipe</Th>
                 <Th>Score</Th>
                 <Th>Tie Break</Th>
-                <Th style={{ textAlign: "center" }}>Ações</Th>
+                <Th style={{ textAlign: 'center' }}>Ações</Th>
               </Tr>
             </Thead>
 
@@ -729,14 +729,14 @@ export const Panel = () => {
                     <FlexColumnAlignStart>
                       <PairName>{score?.pair?.name}</PairName>
                       <CompetitorsName>
-                        {score?.pair?.first_member} /{" "}
+                        {score?.pair?.first_member} /{' '}
                         {score?.pair?.second_member}
                       </CompetitorsName>
                     </FlexColumnAlignStart>
                   </Td>
                   <Td>
                     <Points>
-                      {getWorkoutById(score.workout_id) === "FORTIME"
+                      {getWorkoutById(score.workout_id) === 'FORTIME'
                         ? secondToTimeFormater(score?.score)
                         : score?.score}
                     </Points>
@@ -752,22 +752,22 @@ export const Panel = () => {
                         }}
                       >
                         <DeleteForeverIcon
-                          fontSize={isMobile ? "small" : "medium"}
-                          sx={{ marginRight: "4px" }}
+                          fontSize={isMobile ? 'small' : 'medium'}
+                          sx={{ marginRight: '4px' }}
                         />
-                        {!isMobile && "Excluir"}
+                        {!isMobile && 'Excluir'}
                       </Delete>
                       <Edit
                         onClick={() => {
-                          openDrawer("edit", score);
+                          openDrawer('edit', score);
                           setScoreSelected(score.id);
                         }}
                       >
                         <EditIcon
-                          fontSize={isMobile ? "small" : "medium"}
-                          sx={{ marginRight: "4px" }}
+                          fontSize={isMobile ? 'small' : 'medium'}
+                          sx={{ marginRight: '4px' }}
                         />
-                        {!isMobile && "Editar"}
+                        {!isMobile && 'Editar'}
                       </Edit>
                     </FlexRow>
                   </Td>
