@@ -52,6 +52,7 @@ import getValidationErrors from '../../utils';
 import { secondToTimeFormater, timeToSecondFormater } from '../../utils/time';
 import { theme } from '../../styles/global';
 import { LoadingButton } from '@mui/lab';
+import Navbar from '../../components/navbar';
 
 type SelectPropsDTO = {
   id: string;
@@ -303,6 +304,7 @@ export const PairCreate = () => {
 
   return (
     <Container>
+      <Navbar />
       <Dialog
         open={openDeleteDialog}
         onClose={() => setOpenDeleteDialog(false)}
