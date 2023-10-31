@@ -73,16 +73,16 @@ type WorkoutDTO = {
 type ScoreDTO = {
   id: string;
   name: string;
-  number: number;
+  number: string;
   type?: 'REP' | 'FORTIME';
   event_id: string;
 };
 
 type ScoreInputDTO = {
   id: string;
-  number: string;
+  number?: string;
   name?: string;
-  type: string;
+  type?: 'REP' | 'FORTIME';
   event_id: string;
 };
 
@@ -107,7 +107,7 @@ export const Wod = () => {
     id: '',
     number: '',
     name: '',
-    type: '',
+    type: 'REP',
     event_id: '',
   });
   const [drawerType, setDrawerType] = useState('');

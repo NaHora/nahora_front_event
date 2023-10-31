@@ -73,16 +73,17 @@ type WorkoutDTO = {
 type ScoreDTO = {
   id: string;
   hour: string;
-  description: number;
+  description: string;
   workout_id: string;
+  category_id: string;
 };
 
 type ScoreInputDTO = {
   id: string;
-  category_id: string;
+  category_id?: string;
   description?: string;
   hour: string;
-  workout_id: string;
+  workout_id?: string;
 };
 
 interface StateProps {
