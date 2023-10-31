@@ -8,6 +8,7 @@ import PrivateRoute, { ProtectedRouteProps } from './Route';
 import { Wod } from '../pages/Wod';
 import { WodDescription } from '../pages/WodDescription';
 import { PairCreate } from '../pages/PairCreate';
+import { Category } from '../pages/Category';
 
 const defaultProtectedRouteProps: Omit<ProtectedRouteProps, 'outlet'> = {
   authenticationPath: '/admin',
@@ -48,6 +49,14 @@ export default function AppRoutes() {
           />
         }
       />
+
+      <Route
+        path="/category"
+        element={
+          <PrivateRoute {...defaultProtectedRouteProps} outlet={<Category />} />
+        }
+      />
+
       <Route path="/" element={<Filter />} />
     </Routes>
   );
