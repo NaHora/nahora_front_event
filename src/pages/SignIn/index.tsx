@@ -74,7 +74,7 @@ export const SignIn = () => {
 
   return (
     <Container>
-      <EventImage src={EventLogo} width={724} alt="event logo" />
+      <EventImage src={EventLogo} width={320} alt="event logo" />
       <Content>
         <LoginTitle>Login</LoginTitle>
         <LoginEmail>E-mail</LoginEmail>

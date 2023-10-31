@@ -1,9 +1,12 @@
-import { BrowserRouter, Route, Routes } from 'react-router-dom';
+import { Route, Routes } from 'react-router-dom';
+
 import { Panel } from '../pages/Panel';
 import { Filter } from '../pages/Filter';
 import { Ranking } from '../pages/Ranking';
 import { SignIn } from '../pages/SignIn';
 import PrivateRoute, { ProtectedRouteProps } from './Route';
+import { Wod } from '../pages/Wod';
+import { WodDescription } from '../pages/WodDescription';
 import { PairCreate } from '../pages/PairCreate';
 
 const defaultProtectedRouteProps: Omit<ProtectedRouteProps, 'outlet'> = {
@@ -25,6 +28,18 @@ export default function AppRoutes() {
       />
 
       <Route
+        path="/wod"
+        element={
+          <PrivateRoute {...defaultProtectedRouteProps} outlet={<Wod />} />
+        }
+      />
+
+      <Route
+        path="/wod-descricao"
+        element={
+          <PrivateRoute
+            {...defaultProtectedRouteProps}
+            outlet={<WodDescription />}
         path="/pair-create"
         element={
           <PrivateRoute
