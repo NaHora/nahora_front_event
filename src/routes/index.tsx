@@ -1,12 +1,14 @@
-import { BrowserRouter, Route, Routes } from "react-router-dom";
-import { Panel } from "../pages/Panel";
-import { Filter } from "../pages/Filter";
-import { Ranking } from "../pages/Ranking";
-import { SignIn } from "../pages/SignIn";
-import PrivateRoute, { ProtectedRouteProps } from "./Route";
+import { Route, Routes } from 'react-router-dom';
+import { Panel } from '../pages/Panel';
+import { Filter } from '../pages/Filter';
+import { Ranking } from '../pages/Ranking';
+import { SignIn } from '../pages/SignIn';
+import PrivateRoute, { ProtectedRouteProps } from './Route';
+import { Wod } from '../pages/Wod';
+import { WodDescription } from '../pages/WodDescription';
 
-const defaultProtectedRouteProps: Omit<ProtectedRouteProps, "outlet"> = {
-  authenticationPath: "/admin",
+const defaultProtectedRouteProps: Omit<ProtectedRouteProps, 'outlet'> = {
+  authenticationPath: '/admin',
 };
 
 export default function AppRoutes() {
@@ -20,6 +22,23 @@ export default function AppRoutes() {
         path="/panel"
         element={
           <PrivateRoute {...defaultProtectedRouteProps} outlet={<Panel />} />
+        }
+      />
+
+      <Route
+        path="/wod"
+        element={
+          <PrivateRoute {...defaultProtectedRouteProps} outlet={<Wod />} />
+        }
+      />
+
+      <Route
+        path="/wod-descricao"
+        element={
+          <PrivateRoute
+            {...defaultProtectedRouteProps}
+            outlet={<WodDescription />}
+          />
         }
       />
       <Route path="/" element={<Filter />} />

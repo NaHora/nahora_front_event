@@ -175,8 +175,7 @@ export const Filter = () => {
         currentWorkoutDescription.workout_id === currentWorkout &&
         currentWorkoutDescription.category_id === currentCategory
     );
-
-    return myWorkoutsDescription?.description.split('|');
+    return myWorkoutsDescription?.description.split('\n');
   }
 
   const getWorkoutById = (currentWorkoutId: string) => {
