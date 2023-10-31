@@ -41,7 +41,11 @@ export default function AppRoutes() {
           <PrivateRoute
             {...defaultProtectedRouteProps}
             outlet={<WodDescription />}
-        path="/pair-create"
+          />
+        }
+      />
+      <Route
+        path="/duplas"
         element={
           <PrivateRoute
             {...defaultProtectedRouteProps}
@@ -50,8 +54,9 @@ export default function AppRoutes() {
         }
       />
 
+
       <Route
-        path="/category"
+        path="/categorias"
         element={
           <PrivateRoute {...defaultProtectedRouteProps} outlet={<Category />} />
         }
