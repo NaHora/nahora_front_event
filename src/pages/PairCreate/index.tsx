@@ -187,8 +187,8 @@ export const PairCreate = () => {
 
     try {
       const schema = Yup.object().shape({
-        first_member: Yup.string().required('Membro 1 obrigatório'),
-        second_member: Yup.string().required('Membro 1 obrigatório'),
+        // first_member: Yup.string().required('Membro 1 obrigatório'),
+        // second_member: Yup.string().required('Membro 1 obrigatório'),
         name: Yup.string().required('Nome da dupla obrigatório'),
       });
 

@@ -191,7 +191,9 @@ export const Ranking = () => {
                   <Td>
                     <FlexColumnAlignStart>
                       <PairName>{row.pairName}</PairName>
-                      <CompetitorsName>{row.competitors}</CompetitorsName>
+                      {row.competitors !== ' / ' && (
+                        <CompetitorsName>{row.competitors}</CompetitorsName>
+                      )}
                     </FlexColumnAlignStart>
                   </Td>
                   <Td>

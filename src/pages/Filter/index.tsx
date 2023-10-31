@@ -308,9 +308,13 @@ export const Filter = () => {
                     <Td>
                       <FlexColumnAlignStart>
                         <PairName>{row.pair.name}</PairName>
-                        <CompetitorsName>
-                          {row.pair.first_member} / {row.pair.second_member}
-                        </CompetitorsName>
+                        {row.pair.first_member && row.pair.second_member && (
+                          <CompetitorsName>
+                            {row.pair.first_member +
+                              '/' +
+                              row.pair.second_member}
+                          </CompetitorsName>
+                        )}
                       </FlexColumnAlignStart>
                     </Td>
                     <Td>
@@ -368,7 +372,9 @@ export const Filter = () => {
                   <Td>
                     <FlexColumnAlignStart>
                       <PairName>{row.pairName}</PairName>
-                      <CompetitorsName>{row.competitors}</CompetitorsName>
+                      {row.competitors !== ' / ' && (
+                        <CompetitorsName>{row.competitors}</CompetitorsName>
+                      )}
                     </FlexColumnAlignStart>
                   </Td>
                   {!isMobile && (
