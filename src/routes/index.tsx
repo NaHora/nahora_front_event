@@ -5,6 +5,7 @@ import { Ranking } from '../pages/Ranking';
 import { SignIn } from '../pages/SignIn';
 import PrivateRoute, { ProtectedRouteProps } from './Route';
 import { PairCreate } from '../pages/PairCreate';
+import { Category } from '../pages/Category';
 
 const defaultProtectedRouteProps: Omit<ProtectedRouteProps, 'outlet'> = {
   authenticationPath: '/admin',
@@ -33,6 +34,14 @@ export default function AppRoutes() {
           />
         }
       />
+
+      <Route
+        path="/category"
+        element={
+          <PrivateRoute {...defaultProtectedRouteProps} outlet={<Category />} />
+        }
+      />
+
       <Route path="/" element={<Filter />} />
     </Routes>
   );
