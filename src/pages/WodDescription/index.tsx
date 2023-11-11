@@ -205,7 +205,7 @@ export const WodDescription = () => {
   const postResults = async () => {
     setErrors({});
     setLoading(true);
-
+    console.log(values);
     try {
       const schema = Yup.object().shape({
         workout_id: Yup.string().required('Workout obrigatório'),
@@ -425,8 +425,10 @@ export const WodDescription = () => {
               id="outlined-basic"
               label=""
               size="small"
-              value={categorySelected}
-              onChange={(e) => setCategorySelected(e.target.value)}
+              value={values.category_id}
+              onChange={(e) =>
+                setValues({ ...values, category_id: e.target.value })
+              }
               variant="outlined"
               disabled={drawerType === 'edit'}
               select
