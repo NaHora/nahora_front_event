@@ -26,6 +26,7 @@ import api from '../../services/api';
 import MilitaryTechIcon from '@mui/icons-material/MilitaryTech';
 import { CircularProgress, useMediaQuery } from '@mui/material';
 import { theme } from '../../styles/global';
+import { Workout } from '../Filter';
 
 type Rank = {
   category: string;
@@ -43,7 +44,11 @@ export const Ranking = () => {
   const [changeCategory, setChangeCategory] = useState(false);
   const [currentItems, setCurrentItems] = useState<number[]>([]);
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
-
+  const [workouts, setWorkouts] = useState<Workout[]>([]);
+  async function getWorkouts() {
+    const response = await api.get('/workout');
+    setWorkouts(response.data);
+  }
   useEffect(() => {
     const time = 300000; // milliseconds
 
@@ -71,6 +76,7 @@ export const Ranking = () => {
 
   useEffect(() => {
     getRankGeral();
+    getWorkouts();
   }, []);
 
   useEffect(() => {
@@ -201,7 +207,7 @@ export const Ranking = () => {
                       {row.workouts.map((workoutPoint, index) => {
                         return (
                           <FlexColumn key={getWorkoutPoint(index)}>
-                            <WorkoutName>{getWorkoutPoint(index)}</WorkoutName>
+                            <WorkoutName>{workouts[index].number}</WorkoutName>
                             <Point>{workoutPoint}</Point>
                           </FlexColumn>
                         );

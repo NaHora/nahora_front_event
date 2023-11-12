@@ -47,7 +47,7 @@ type Category = {
   event_id: string;
 };
 
-type Workout = {
+export type Workout = {
   id: string;
   name: string;
   number: string;
@@ -384,7 +384,7 @@ export const Filter = () => {
                           return (
                             <FlexColumn key={getWorkoutPoint(index)}>
                               <WorkoutName>
-                                {getWorkoutPoint(index)}
+                                {workouts[index].number}
                               </WorkoutName>
                               <Point>{workoutPoint}</Point>
                             </FlexColumn>
