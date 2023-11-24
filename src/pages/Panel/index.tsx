@@ -380,7 +380,7 @@ export const Panel = () => {
 
   return (
     <Container>
-      <Navbar />
+      {/* <Navbar /> */}
       <Dialog
         open={openDeleteDialog}
         onClose={() => setOpenDeleteDialog(false)}
