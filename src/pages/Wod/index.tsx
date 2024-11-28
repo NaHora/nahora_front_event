@@ -170,7 +170,7 @@ export const Wod = () => {
         number: values.number,
         name: values.name,
         type: 'REP',
-        event_id: '51d9ecfa-a881-44f6-959a-919bf44f5455',
+        event_id: '1f0fd51d-cd1c-43a9-80ed-00d039571520',
       };
 
       const response = await api.post(`/workout`, body);
