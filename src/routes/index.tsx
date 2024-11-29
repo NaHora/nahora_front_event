@@ -9,6 +9,7 @@ import { Wod } from '../pages/Wod';
 import { WodDescription } from '../pages/WodDescription';
 import { PairCreate } from '../pages/PairCreate';
 import { Category } from '../pages/Category';
+import { CreateAccount } from '../pages/CreateAccount';
 
 const defaultProtectedRouteProps: Omit<ProtectedRouteProps, 'outlet'> = {
   authenticationPath: '/admin',
@@ -18,6 +19,7 @@ export default function AppRoutes() {
   return (
     <Routes>
       <Route path="/admin" element={<SignIn />} />
+      <Route path="/" element={<CreateAccount />} />
 
       <Route path="/rank" element={<Ranking />} />
 
@@ -54,7 +56,6 @@ export default function AppRoutes() {
         }
       />
 
-
       <Route
         path="/categorias"
         element={
@@ -62,7 +63,7 @@ export default function AppRoutes() {
         }
       />
 
-      <Route path="/" element={<Filter />} />
+      {/* <Route path="/" element={<Filter />} /> */}
     </Routes>
   );
 }
