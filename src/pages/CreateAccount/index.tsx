@@ -22,6 +22,7 @@ import InputMask from 'react-input-mask';
 import * as Yup from 'yup';
 import { CreditCard, QrCode } from '@mui/icons-material';
 import { Typography, Grid } from '@mui/material';
+import { toast } from 'react-toastify';
 
 const steps = ['Tipo de inscrição', 'Cadastro dos Atletas', 'Pagamento'];
 
@@ -70,6 +71,7 @@ type FormData = {
 export const CreateAccount = () => {
   const [currentStep, setCurrentStep] = useState(0);
   const [loading, setLoading] = useState(false);
+  const [pix, setPix] = useState({ qrCode: '', qrCodeUrl: '' });
   const [categories, setCategories] = useState([] as any);
   const [formData, setFormData] = useState<FormData>(() => {
     const savedData = localStorage.getItem('athleteData');
@@ -273,8 +275,11 @@ export const CreateAccount = () => {
 
     setLoading(true);
     try {
-      await api.post('/teams', dataToSend);
+      const res = await api.post('/teams', dataToSend);
       console.log('Dados enviados:', dataToSend);
+      if (res?.data?.result?.pix) {
+        setPix(res?.data?.result?.pix);
+      }
     } catch (error) {
       console.error('Erro ao enviar dados:', error);
     } finally {
@@ -356,6 +361,16 @@ export const CreateAccount = () => {
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setCardData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleCopy = async () => {
+    try {
+      await navigator.clipboard.writeText(pix?.qrCode);
+      toast.success('Copiado com sucesso!');
+    } catch (err) {
+      console.error('Erro ao copiar o texto: ', err);
+      toast.error('Falha ao copiar o texto.');
+    }
   };
 
   return (
@@ -606,7 +621,44 @@ export const CreateAccount = () => {
                 </Button>
               </Grid>
             </Grid>
-
+            {paymentMethod === 'pix' && pix.qrCodeUrl && (
+              <div
+                style={{
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  display: 'flex',
+                  width: '100%',
+                  marginTop: 20,
+                  marginBottom: 20,
+                }}
+              >
+                <img src={pix.qrCodeUrl} alt="pix" />
+              </div>
+            )}
+            {paymentMethod === 'pix' && pix.qrCode && (
+              <div
+                style={{
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  width: '100%',
+                  marginTop: 20,
+                  marginBottom: 20,
+                }}
+              >
+                <Typography variant="body2" textAlign={'center'} color="white">
+                  {pix.qrCode}
+                </Typography>
+                <Button
+                  style={{ marginTop: 12 }}
+                  variant="contained"
+                  onClick={handleCopy}
+                >
+                  Copiar codigo
+                </Button>
+              </div>
+            )}
             {paymentMethod === 'card' && (
               <div style={{ marginTop: '20px' }}>
                 <StepTitle>Dados do Cartão</StepTitle>
@@ -735,7 +787,7 @@ export const CreateAccount = () => {
                   </InputMask>
                 </form>
 
-                <StepTitle style={{ marginTop: 20 }}>
+                <StepTitle style={{ marginTop: 20, marginBottom: 12 }}>
                   Endereço de Cobrança
                 </StepTitle>
 
