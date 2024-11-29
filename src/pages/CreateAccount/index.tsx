@@ -21,6 +21,9 @@ import EventLogo from '../../assets/event-logo.png';
 import api from '../../services/api';
 import InputMask from 'react-input-mask';
 import * as Yup from 'yup';
+import { CreditCard, QrCode } from '@mui/icons-material';
+import { Typography, Grid } from '@mui/material';
+import Cards from 'react-credit-cards-2';
 
 const steps = ['Tipo de inscrição', 'Cadastro dos Atletas', 'Pagamento'];
 
@@ -43,14 +46,6 @@ type Athlete = {
   birth_date: string;
   shirt_size: string;
   gender: string;
-  address: {
-    line_1: string;
-    line_2: string;
-    zip_code: string;
-    city: string;
-    state: string;
-    country: string;
-  };
 };
 
 type FormData = {
@@ -78,14 +73,6 @@ export const CreateAccount = () => {
         birth_date: '',
         shirt_size: '',
         gender: '',
-        address: {
-          line_1: '',
-          line_2: '',
-          zip_code: '',
-          city: '',
-          state: '',
-          country: 'BR',
-        },
       },
     ],
     result: {
@@ -100,6 +87,18 @@ export const CreateAccount = () => {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [lots, setLots] = useState([] as any[]);
   const [pixCode, setPixCode] = useState('');
+  const [paymentMethod, setPaymentMethod] = useState<'pix' | 'card' | ''>('');
+  const [cardData, setCardData] = useState({
+    number: '',
+    name: '',
+    expiry: '',
+    cvc: '',
+    focus: '',
+  });
+
+  const handlePaymentMethod = (method: 'pix' | 'card') => {
+    setPaymentMethod(method);
+  };
 
   useEffect(() => {
     getCategories();
@@ -151,14 +150,6 @@ export const CreateAccount = () => {
         birth_date: '',
         shirt_size: '',
         gender: '',
-        address: {
-          line_1: '',
-          line_2: '',
-          zip_code: '',
-          city: '',
-          state: '',
-          country: 'BR',
-        },
       }));
 
       setFormData((prev) => ({
@@ -267,45 +258,29 @@ export const CreateAccount = () => {
     setFormData((prev) => ({ ...prev, athletes: updatedAthletes }));
   };
 
-  const fetchAddressByZipCode = async (zip_code: string, index: number) => {
-    if (!/^\d{5}-?\d{3}$/.test(zip_code)) {
-      setErrors((prev) => ({
-        ...prev,
-        [`athletes[${index}].address.zip_code`]: 'CEP inválido',
-      }));
-      return;
-    }
-
+  const fetchAddressByZipCode = async (zip_code: string) => {
     try {
       const response = await fetch(
         `https://viacep.com.br/ws/${zip_code.replace(/\D/g, '')}/json/`
       );
       const data = await response.json();
-
-      if (data.erro) {
-        setErrors((prev) => ({
+      if (!data.erro) {
+        setFormData((prev) => ({
           ...prev,
-          [`athletes[${index}].address.zip_code`]: 'CEP não encontrado',
+          result: {
+            ...prev.result,
+            address: {
+              ...prev.result.address,
+              line_1: `${data.logradouro}, ${data.bairro}`,
+              city: data.localidade,
+              state: data.uf,
+              zip_code,
+            },
+          },
         }));
-        return;
       }
-
-      const updatedAthletes = [...formData.athletes];
-      updatedAthletes[index].address = {
-        ...updatedAthletes[index].address,
-        line_1: `${data.logradouro}, ${data.bairro}`,
-        zip_code,
-        city: data.localidade,
-        state: data.uf,
-        country: 'BR',
-      };
-      setFormData((prev) => ({ ...prev, athletes: updatedAthletes }));
     } catch (error) {
       console.error('Erro ao buscar o CEP:', error);
-      setErrors((prev) => ({
-        ...prev,
-        [`athletes[${index}].address.zip_code`]: 'Erro ao buscar o CEP',
-      }));
     }
   };
 
@@ -318,6 +293,44 @@ export const CreateAccount = () => {
       console.error(error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleCardDataChange = (field: string, value: string) => {
+    setFormData((prev) => ({
+      ...prev,
+      result: {
+        ...prev.result,
+        [field]: value,
+      },
+    }));
+  };
+
+  const handleAddressChange = (field: string, value: string) => {
+    setFormData((prev) => ({
+      ...prev,
+      result: {
+        ...prev.result,
+        address: {
+          ...prev.result.address,
+          [field]: value,
+        },
+      },
+    }));
+  };
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setCardData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleInputFocus = (e: React.FocusEvent<HTMLInputElement>) => {
+    const { name } = e.target;
+
+    if (['number', 'name', 'expiry', 'cvc'].includes(name)) {
+      setCardData((prev) => ({ ...prev, focus: name }));
+    } else {
+      setCardData((prev) => ({ ...prev, focus: '' }));
     }
   };
 
@@ -458,80 +471,7 @@ export const CreateAccount = () => {
                     />
                   )}
                 </InputMask>
-                <InputMask
-                  mask="99999-999"
-                  value={athlete.address.zip_code}
-                  onChange={(e) => {
-                    handleAthleteChange(
-                      index,
-                      'address.zip_code',
-                      e.target.value
-                    );
-                    if (e.target.value.length === 9) {
-                      fetchAddressByZipCode(e.target.value, index);
-                    }
-                  }}
-                >
-                  {(inputProps) => (
-                    <TextField
-                      {...inputProps}
-                      label="CEP"
-                      fullWidth
-                      margin="normal"
-                      error={!!errors[`athletes[${index}].address.zip_code`]}
-                      helperText={errors[`athletes[${index}].address.zip_code`]}
-                    />
-                  )}
-                </InputMask>
-                <TextField
-                  label="Endereço"
-                  value={athlete.address.line_1}
-                  onChange={(e) =>
-                    handleAthleteChange(index, 'address.line_1', e.target.value)
-                  }
-                  fullWidth
-                  margin="normal"
-                />
-                <TextField
-                  label="Número"
-                  value={athlete.address.line_2}
-                  onChange={(e) =>
-                    handleAthleteChange(index, 'address.line_2', e.target.value)
-                  }
-                  fullWidth
-                  margin="normal"
-                />
-                <TextField
-                  label="Cidade"
-                  value={athlete.address.city}
-                  onChange={(e) =>
-                    handleAthleteChange(index, 'address.city', e.target.value)
-                  }
-                  fullWidth
-                  margin="normal"
-                />
-                <TextField
-                  label="Estado"
-                  value={athlete.address.state}
-                  onChange={(e) =>
-                    handleAthleteChange(index, 'address.state', e.target.value)
-                  }
-                  fullWidth
-                  margin="normal"
-                />
-                <TextField
-                  label="País"
-                  value={athlete.address.country}
-                  onChange={(e) =>
-                    handleAthleteChange(
-                      index,
-                      'address.country',
-                      e.target.value
-                    )
-                  }
-                  fullWidth
-                  margin="normal"
-                />
+
                 <TextField
                   label="Data de Nascimento"
                   value={athlete.birth_date || ''}
@@ -615,18 +555,194 @@ export const CreateAccount = () => {
 
         {currentStep === 2 && (
           <StepDiv>
-            <StepTitle>Pagamento</StepTitle>
-            {loading ? (
-              <CircularProgress />
-            ) : pixCode ? (
+            <StepTitle>Selecione o método de pagamento:</StepTitle>
+            <Grid
+              container
+              spacing={2}
+              style={{ marginTop: '16px', marginBottom: '16px' }}
+            >
+              <Grid item xs={6}>
+                <Button
+                  variant={paymentMethod === 'pix' ? 'contained' : 'outlined'}
+                  onClick={() => handlePaymentMethod('pix')}
+                  startIcon={<QrCode />}
+                  fullWidth
+                >
+                  PIX
+                </Button>
+              </Grid>
+              <Grid item xs={6}>
+                <Button
+                  variant={paymentMethod === 'card' ? 'contained' : 'outlined'}
+                  onClick={() => handlePaymentMethod('card')}
+                  startIcon={<CreditCard />}
+                  fullWidth
+                >
+                  Cartão
+                </Button>
+              </Grid>
+            </Grid>
+
+            {paymentMethod === 'pix' && (
               <div>
-                <h1>Valor da inscrição: {lots[0]?.amount}</h1>
-                <p>Código PIX gerado: {pixCode}</p>
+                {loading ? (
+                  <CircularProgress />
+                ) : pixCode ? (
+                  <div>
+                    <Typography variant="h6">
+                      Valor da inscrição: {lots[0]?.amount}
+                    </Typography>
+                    <p>Utilize o código PIX abaixo:</p>
+                    <p style={{ fontWeight: 'bold' }}>{pixCode}</p>
+                  </div>
+                ) : (
+                  <Button variant="contained" onClick={handlePayment}>
+                    Gerar Código PIX
+                  </Button>
+                )}
               </div>
-            ) : (
-              <Button variant="contained" onClick={handlePayment}>
-                Gerar Código PIX
-              </Button>
+            )}
+
+            {paymentMethod === 'card' && (
+              <div style={{ marginTop: '20px' }}>
+                <StepTitle>Dados do Cartão</StepTitle>
+
+                <form autoComplete="off">
+                  <InputMask
+                    mask="9999 9999 9999 9999"
+                    value={cardData.number}
+                    onChange={(e) =>
+                      setCardData((prev) => ({
+                        ...prev,
+                        number: e.target.value,
+                      }))
+                    }
+                    onFocus={(e) =>
+                      setCardData((prev) => ({ ...prev, focus: e.target.name }))
+                    }
+                  >
+                    {(inputProps) => (
+                      <TextField
+                        {...inputProps}
+                        name="number"
+                        label="Número do Cartão"
+                        fullWidth
+                        margin="normal"
+                      />
+                    )}
+                  </InputMask>
+                  <TextField
+                    id="card-name"
+                    name="name"
+                    label="Nome no Cartão"
+                    fullWidth
+                    margin="normal"
+                    placeholder="Nome completo"
+                    onChange={handleInputChange}
+                    onFocus={handleInputFocus}
+                    value={cardData.name}
+                    autoComplete="off"
+                  />
+
+                  <InputMask
+                    mask="99/99"
+                    value={cardData.expiry}
+                    onChange={(e) =>
+                      setCardData((prev) => ({
+                        ...prev,
+                        expiry: e.target.value,
+                      }))
+                    }
+                    onFocus={(e) =>
+                      setCardData((prev) => ({ ...prev, focus: e.target.name }))
+                    }
+                  >
+                    {(inputProps) => (
+                      <TextField
+                        {...inputProps}
+                        name="expiry"
+                        label="Data de Expiração (MM/AA)"
+                        fullWidth
+                        margin="normal"
+                      />
+                    )}
+                  </InputMask>
+                  <InputMask
+                    mask="999"
+                    value={cardData.cvc}
+                    onChange={(e) =>
+                      setCardData((prev) => ({ ...prev, cvc: e.target.value }))
+                    }
+                    onFocus={(e) =>
+                      setCardData((prev) => ({ ...prev, focus: e.target.name }))
+                    }
+                  >
+                    {(inputProps) => (
+                      <TextField
+                        {...inputProps}
+                        name="cvc"
+                        label="CVC"
+                        fullWidth
+                        margin="normal"
+                      />
+                    )}
+                  </InputMask>
+                </form>
+
+                <StepTitle style={{ marginTop: 20 }}>
+                  Endereço de Cobrança
+                </StepTitle>
+                <TextField
+                  label="CEP"
+                  fullWidth
+                  margin="normal"
+                  onChange={(e) =>
+                    handleAddressChange('zip_code', e.target.value)
+                  }
+                  onBlur={(e) => fetchAddressByZipCode(e.target.value)}
+                />
+                <TextField
+                  label="Endereço"
+                  fullWidth
+                  margin="normal"
+                  onChange={(e) =>
+                    handleAddressChange('line_1', e.target.value)
+                  }
+                />
+                <TextField
+                  label="Número"
+                  fullWidth
+                  margin="normal"
+                  onChange={(e) =>
+                    handleAddressChange('line_2', e.target.value)
+                  }
+                />
+                <TextField
+                  label="Cidade"
+                  fullWidth
+                  margin="normal"
+                  onChange={(e) => handleAddressChange('city', e.target.value)}
+                />
+                <TextField
+                  label="Estado"
+                  fullWidth
+                  margin="normal"
+                  onChange={(e) => handleAddressChange('state', e.target.value)}
+                />
+                <TextField
+                  label="País"
+                  value="BR"
+                  fullWidth
+                  margin="normal"
+                  disabled
+                />
+              </div>
+            )}
+
+            {!paymentMethod && (
+              <Typography variant="body2" color="error">
+                Por favor, selecione um método de pagamento.
+              </Typography>
             )}
           </StepDiv>
         )}
