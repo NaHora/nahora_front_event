@@ -75,8 +75,8 @@ export const CreateAccount = () => {
     return savedData
       ? JSON.parse(savedData)
       : {
-          selectedCategory: '',
-          teamName: '',
+          category_id: '',
+          name: '',
           box: '',
           athletes: [
             {
@@ -94,7 +94,6 @@ export const CreateAccount = () => {
 
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [lots, setLots] = useState([] as any[]);
-  const [pixCode, setPixCode] = useState('');
   const [paymentMethod, setPaymentMethod] = useState<'pix' | 'card' | ''>('');
   const [cardData, setCardData] = useState<CardData>({
     number: '',
@@ -122,7 +121,9 @@ export const CreateAccount = () => {
   const getCategories = async () => {
     setLoading(true);
     try {
-      const response = await api.get('/category');
+      const response = await api.get(
+        '/category/event/1f0fd51d-cd1c-43a9-80ed-00d039571520'
+      );
       setCategories(response.data);
     } catch (error) {
       console.error('Erro ao buscar categorias:', error);
@@ -228,10 +229,7 @@ export const CreateAccount = () => {
 
     setLoading(true);
     try {
-      await api.post(
-        '/event/1f0fd51d-cd1c-43a9-80ed-00d039571520/teams',
-        dataToSend
-      );
+      await api.post('/teams', dataToSend);
       console.log('Dados enviados:', dataToSend);
     } catch (error) {
       console.error('Erro ao enviar dados:', error);
@@ -290,7 +288,7 @@ export const CreateAccount = () => {
             city: data.localidade,
             state: data.uf,
             zip_code,
-            country: 'Brasil',
+            country: 'BR',
           },
         }));
       } else {
@@ -301,16 +299,6 @@ export const CreateAccount = () => {
     }
   };
 
-  const handleCardDataChange = (field: string, value: string) => {
-    setFormData((prev) => ({
-      ...prev,
-      result: {
-        ...prev.result,
-        [field]: value,
-      },
-    }));
-  };
-
   const handleAddressChange = (field: string, value: string) => {
     setCardData((prev) => ({
       ...prev,
@@ -318,21 +306,6 @@ export const CreateAccount = () => {
         ...prev.billing_address,
         [field]: value,
       },
-    }));
-  };
-
-  const handleCardInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setCardData((prev) => ({ ...prev, [name]: value }));
-  };
-
-  const handleCardBillingChange = (
-    field: keyof BillingAddress,
-    value: string
-  ) => {
-    setCardData((prev) => ({
-      ...prev,
-      billing_address: { ...prev.billing_address, [field]: value },
     }));
   };
 
