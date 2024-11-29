@@ -278,6 +278,7 @@ export const CreateAccount = () => {
         },
       }),
       isPix: paymentMethod === 'pix',
+      installments,
     };
 
     setLoading(true);
