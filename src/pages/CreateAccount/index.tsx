@@ -6,6 +6,7 @@ import {
   StepLabel,
   TextField,
   MenuItem,
+  CircularProgress,
 } from '@mui/material';
 import {
   Container,
@@ -23,6 +24,7 @@ import * as Yup from 'yup';
 import { CreditCard, QrCode } from '@mui/icons-material';
 import { Typography, Grid } from '@mui/material';
 import { toast } from 'react-toastify';
+import { LoadingButton } from '@mui/lab';
 
 const steps = ['Tipo de inscrição', 'Cadastro dos Atletas', 'Pagamento'];
 
@@ -71,6 +73,7 @@ type FormData = {
 export const CreateAccount = () => {
   const [currentStep, setCurrentStep] = useState(0);
   const [loading, setLoading] = useState(false);
+  const [loadingCategory, setLoadingCategory] = useState(false);
   const [pix, setPix] = useState({ qrCode: '', qrCodeUrl: '' });
   const [categories, setCategories] = useState([] as any);
   const [formData, setFormData] = useState<FormData>(() => {
@@ -96,7 +99,8 @@ export const CreateAccount = () => {
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
-  const [lots, setLots] = useState([] as any[]);
+  const [installments, setInstallments] = useState(1);
+  const [lot, setLot] = useState({ amount: 0 });
   const [paymentMethod, setPaymentMethod] = useState<'pix' | 'card' | ''>('');
   const [cardData, setCardData] = useState<CardData>({
     number: '',
@@ -115,6 +119,7 @@ export const CreateAccount = () => {
     },
   });
   const normalizeCardNumber = (number: string) => number.replace(/\s+/g, '');
+  const disableButton = paymentMethod === 'pix' && pix?.qrCode;
 
   const handlePaymentMethod = (method: 'pix' | 'card') => {
     setPaymentMethod(method);
@@ -125,7 +130,7 @@ export const CreateAccount = () => {
   }, []);
 
   const getCategories = async () => {
-    setLoading(true);
+    setLoadingCategory(true);
     try {
       const response = await api.get(
         '/category/event/1f0fd51d-cd1c-43a9-80ed-00d039571520'
@@ -134,15 +139,17 @@ export const CreateAccount = () => {
     } catch (error) {
       console.error('Erro ao buscar categorias:', error);
     } finally {
-      setLoading(false);
+      setLoadingCategory(false);
     }
   };
 
   const getLots = async () => {
     setLoading(true);
     try {
-      const response = await api.get('/lots');
-      setLots(response.data);
+      const response = await api.get(
+        '/lots/event/1f0fd51d-cd1c-43a9-80ed-00d039571520'
+      );
+      setLot(response.data);
     } catch (error) {
       console.error('Erro ao buscar categorias:', error);
     } finally {
@@ -279,6 +286,8 @@ export const CreateAccount = () => {
       console.log('Dados enviados:', dataToSend);
       if (res?.data?.result?.pix) {
         setPix(res?.data?.result?.pix);
+      } else if (res?.data?.result?.chargeId) {
+        toast.success('Inscrição realizada com sucesso!');
       }
     } catch (error) {
       console.error('Erro ao enviar dados:', error);
@@ -390,51 +399,57 @@ export const CreateAccount = () => {
 
         {currentStep === 0 && (
           <StepDiv>
-            <StepTitle>Escolha a Categoria</StepTitle>
-            <TextField
-              select
-              label="Categoria"
-              value={formData.category_id}
-              onChange={(e) => handleCategoryChange(e.target.value)}
-              fullWidth
-              margin="normal"
-              error={!!errors.category_id}
-              helperText={errors.category_id}
-            >
-              {categories.map((category: any) => (
-                <MenuItem key={category.id} value={category.id}>
-                  {category.name}
-                </MenuItem>
-              ))}
-            </TextField>
-            <TextField
-              label="Nome do Time"
-              value={formData.name}
-              onChange={(e) =>
-                setFormData((prev) => ({
-                  ...prev,
-                  name: e.target.value,
-                }))
-              }
-              fullWidth
-              margin="normal"
-              error={!!errors.name}
-              helperText={errors.name}
-            />
-            <TextField
-              label="Box do Time"
-              value={formData.box}
-              onChange={(e) =>
-                setFormData((prev) => ({
-                  ...prev,
-                  box: e.target.value,
-                }))
-              }
-              fullWidth
-              margin="normal"
-              error={!!errors.box}
-              helperText={errors.box}
-            />
+            {!loadingCategory ? (
+              <>
+                <StepTitle>Escolha a Categoria</StepTitle>
+                <TextField
+                  select
+                  label="Categoria"
+                  value={formData.category_id}
+                  onChange={(e) => handleCategoryChange(e.target.value)}
+                  fullWidth
+                  margin="normal"
+                  error={!!errors.category_id}
+                  helperText={errors.category_id}
+                >
+                  {categories.map((category: any) => (
+                    <MenuItem key={category.id} value={category.id}>
+                      {category.name}
+                    </MenuItem>
+                  ))}
+                </TextField>
+                <TextField
+                  label="Nome do Time"
+                  value={formData.name}
+                  onChange={(e) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      name: e.target.value,
+                    }))
+                  }
+                  fullWidth
+                  margin="normal"
+                  error={!!errors.name}
+                  helperText={errors.name}
+                />
+                <TextField
+                  label="Box do Time"
+                  value={formData.box}
+                  onChange={(e) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      box: e.target.value,
+                    }))
+                  }
+                  fullWidth
+                  margin="normal"
+                  error={!!errors.box}
+                  helperText={errors.box}
+                />
+              </>
+            ) : (
+              <CircularProgress />
+            )}
           </StepDiv>
         )}
 
@@ -555,7 +570,7 @@ export const CreateAccount = () => {
                     <label style={{ color: 'white', marginRight: 16 }}>
                       <input
                         type="radio"
-                        value="Masculino"
+                        value="m"
                         checked={athlete.gender === 'm'}
                         onChange={(e) =>
                           handleAthleteChange(index, 'gender', e.target.value)
@@ -569,7 +584,7 @@ export const CreateAccount = () => {
                     <label style={{ color: 'white' }}>
                       <input
                         type="radio"
-                        value="Feminino"
+                        value="f"
                         checked={athlete.gender === 'f'}
                         onChange={(e) =>
                           handleAthleteChange(index, 'gender', e.target.value)
@@ -664,9 +679,26 @@ export const CreateAccount = () => {
                 <StepTitle>Dados do Cartão</StepTitle>
 
                 <form autoComplete="off">
+                  <TextField
+                    select
+                    label="Parcelas"
+                    value={installments}
+                    onChange={(e) => setInstallments(Number(e.target.value))}
+                    fullWidth
+                    margin="normal"
+                  >
+                    {[1, 2].map((time) => (
+                      <MenuItem key={time} value={time}>
+                        {time}x de R${' '}
+                        {(lot?.amount * (1 + (7 + time) / 100)) / 100 / time} -{' '}
+                        R$ {(lot?.amount * (1 + (7 + time) / 100)) / 100}
+                      </MenuItem>
+                    ))}
+                  </TextField>
                   <InputMask
                     mask="9999 9999 9999 9999"
                     value={cardData.number}
+                    autoComplete="cc-number"
                     onChange={(e) =>
                       setCardData((prev) => ({
                         ...prev,
@@ -694,10 +726,10 @@ export const CreateAccount = () => {
                     label="Nome no Cartão"
                     fullWidth
                     margin="normal"
+                    autoComplete="cc-name"
                     placeholder="Nome completo"
                     onChange={handleInputChange}
                     value={cardData.holder_name}
-                    autoComplete="off"
                   />
                   <TextField
                     id="holder_document"
@@ -766,7 +798,7 @@ export const CreateAccount = () => {
                     </InputMask>
                   </div>
                   <InputMask
-                    mask="999"
+                    mask="9999"
                     value={cardData.cvv}
                     onChange={(e) =>
                       setCardData((prev) => ({ ...prev, cvv: e.target.value }))
@@ -864,9 +896,14 @@ export const CreateAccount = () => {
           ) : null}
 
           {currentStep === 2 && (
-            <Button variant="contained" onClick={handlePayment}>
+            <LoadingButton
+              variant="contained"
+              loading={loading}
+              onClick={handlePayment}
+              disabled={disableButton}
+            >
               Concluir
-            </Button>
+            </LoadingButton>
           )}
         </div>
       </Content>
