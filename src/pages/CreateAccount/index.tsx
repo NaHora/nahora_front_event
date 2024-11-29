@@ -6,7 +6,6 @@ import {
   StepLabel,
   TextField,
   MenuItem,
-  CircularProgress,
 } from '@mui/material';
 import {
   Container,
@@ -23,11 +22,11 @@ import InputMask from 'react-input-mask';
 import * as Yup from 'yup';
 import { CreditCard, QrCode } from '@mui/icons-material';
 import { Typography, Grid } from '@mui/material';
-import Cards from 'react-credit-cards-2';
 
 const steps = ['Tipo de inscrição', 'Cadastro dos Atletas', 'Pagamento'];
 
 type Athlete = {
+  [key: string]: any;
   name: string;
   cpf: string;
   email: string;
@@ -52,7 +51,7 @@ type CardData = {
   holder_document: string;
   exp_month: string;
   exp_year: string;
-  cvc: string;
+  cvv: string;
   billing_address: BillingAddress;
 };
 
@@ -103,7 +102,7 @@ export const CreateAccount = () => {
     holder_document: '',
     exp_month: '',
     exp_year: '',
-    cvc: '',
+    cvv: '',
     billing_address: {
       line_1: '',
       line_2: '',
@@ -179,7 +178,7 @@ export const CreateAccount = () => {
     }
   };
 
-  const validationSchemas = {
+  const validationSchemas: Record<number, Yup.AnySchema> = {
     0: Yup.object().shape({
       category_id: Yup.string().required('Categoria é obrigatória'),
       name: Yup.string().required('Nome do time é obrigatório'),
@@ -213,9 +212,9 @@ export const CreateAccount = () => {
           is: false,
           then: Yup.string().required('Data de expiração é obrigatória'),
         }),
-        cvc: Yup.string().when('isPix', {
+        cvv: Yup.string().when('isPix', {
           is: false,
-          then: Yup.string().required('CVC é obrigatório'),
+          then: Yup.string().required('CVV é obrigatório'),
         }),
         billing_address: Yup.object().shape({
           line_1: Yup.string().required('Endereço é obrigatório'),
@@ -716,9 +715,9 @@ export const CreateAccount = () => {
                   </div>
                   <InputMask
                     mask="999"
-                    value={cardData.cvc}
+                    value={cardData.cvv}
                     onChange={(e) =>
-                      setCardData((prev) => ({ ...prev, cvc: e.target.value }))
+                      setCardData((prev) => ({ ...prev, cvv: e.target.value }))
                     }
                     onFocus={(e) =>
                       setCardData((prev) => ({ ...prev, focus: e.target.name }))
@@ -727,8 +726,8 @@ export const CreateAccount = () => {
                     {(inputProps) => (
                       <TextField
                         {...inputProps}
-                        name="cvc"
-                        label="CVC"
+                        name="cvv"
+                        label="CVV"
                         fullWidth
                         margin="normal"
                       />
