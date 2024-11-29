@@ -119,7 +119,7 @@ export const CreateAccount = () => {
     },
   });
   const normalizeCardNumber = (number: string) => number.replace(/\s+/g, '');
-  const disableButton = paymentMethod === 'pix' && pix?.qrCode;
+  const disableButton = paymentMethod === 'pix' && pix?.qrCode ? true : false;
 
   const handlePaymentMethod = (method: 'pix' | 'card') => {
     setPaymentMethod(method);
