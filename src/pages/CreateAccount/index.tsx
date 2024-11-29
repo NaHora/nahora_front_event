@@ -113,6 +113,7 @@ export const CreateAccount = () => {
       country: 'Brasil',
     },
   });
+  const normalizeCardNumber = (number: string) => number.replace(/\s+/g, '');
 
   const handlePaymentMethod = (method: 'pix' | 'card') => {
     setPaymentMethod(method);
@@ -262,7 +263,12 @@ export const CreateAccount = () => {
         cpf: athlete.cpf.replace(/\D/g, ''),
         phone_number: athlete.phone_number.replace(/\D/g, ''),
       })),
-      ...(paymentMethod === 'card' && { card: cardData }),
+      ...(paymentMethod === 'card' && {
+        card: {
+          ...cardData,
+          number: normalizeCardNumber(cardData.number), // Garantir que o número está normalizado
+        },
+      }),
       isPix: paymentMethod === 'pix',
     };
 
@@ -351,16 +357,6 @@ export const CreateAccount = () => {
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setCardData((prev) => ({ ...prev, [name]: value }));
-  };
-
-  const handleInputFocus = (e: React.FocusEvent<HTMLInputElement>) => {
-    const { name } = e.target;
-
-    if (['number', 'name', 'expiry', 'cvc'].includes(name)) {
-      setCardData((prev) => ({ ...prev, focus: name }));
-    } else {
-      setCardData((prev) => ({ ...prev, focus: '' }));
-    }
   };
 
   return (
@@ -623,7 +619,7 @@ export const CreateAccount = () => {
                     onChange={(e) =>
                       setCardData((prev) => ({
                         ...prev,
-                        number: e.target.value,
+                        number: normalizeCardNumber(e.target.value),
                       }))
                     }
                     onFocus={(e) =>
@@ -640,6 +636,7 @@ export const CreateAccount = () => {
                       />
                     )}
                   </InputMask>
+
                   <TextField
                     id="holder_name"
                     name="holder_name"
@@ -648,8 +645,19 @@ export const CreateAccount = () => {
                     margin="normal"
                     placeholder="Nome completo"
                     onChange={handleInputChange}
-                    onFocus={handleInputFocus}
                     value={cardData.holder_name}
+                    autoComplete="off"
+                  />
+                  <TextField
+                    id="holder_document"
+                    name="holder_document"
+                    type="number"
+                    label="Documento"
+                    fullWidth
+                    margin="normal"
+                    placeholder="Documento do comprador"
+                    onChange={handleInputChange}
+                    value={cardData.holder_document}
                     autoComplete="off"
                   />
                   <div style={{ flex: 'row' }}>
