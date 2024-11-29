@@ -24,6 +24,16 @@ import * as Yup from 'yup';
 
 const steps = ['Tipo de inscrição', 'Cadastro dos Atletas', 'Pagamento'];
 
+type Pix = {
+  qrCode: string;
+  qrCodeUrl: string;
+};
+
+type Result = {
+  pix: Pix;
+  chargeId: string;
+};
+
 type Athlete = {
   name: string;
   cpf: string;
@@ -32,6 +42,14 @@ type Athlete = {
   birth_date: string;
   shirt_size: string;
   gender: string;
+  address: {
+    line_1: string;
+    line_2: string;
+    zip_code: string;
+    city: string;
+    state: string;
+    country: string;
+  };
 };
 
 type FormData = {
@@ -39,25 +57,54 @@ type FormData = {
   teamName: string;
   box: string;
   athletes: Athlete[];
+  result: Result;
 };
 
 export const CreateAccount = () => {
   const [currentStep, setCurrentStep] = useState(0);
   const [loading, setLoading] = useState(false);
   const [categories, setCategories] = useState([]);
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<FormData>({
     selectedCategory: '',
     teamName: '',
     box: '',
-    athletes: [],
+    athletes: [
+      {
+        name: '',
+        cpf: '',
+        email: '',
+        phone_number: '',
+        birth_date: '',
+        shirt_size: '',
+        gender: '',
+        address: {
+          line_1: '',
+          line_2: '',
+          zip_code: '',
+          city: '',
+          state: '',
+          country: 'BR',
+        },
+      },
+    ],
+    result: {
+      chargeId: '',
+      pix: {
+        qrCode: '',
+        qrCodeUrl: '',
+      },
+    },
   });
+
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [lots, setLots] = useState([]);
+  const [pixCode, setPixCode] = useState('');
 
   useEffect(() => {
-    fetchCategories();
+    getCategories();
   }, []);
 
-  const fetchCategories = async () => {
+  const getCategories = async () => {
     setLoading(true);
     try {
       const response = await api.get('/category');
@@ -69,12 +116,31 @@ export const CreateAccount = () => {
     }
   };
 
+  const getLots = async () => {
+    setLoading(true);
+    try {
+      const response = await api.get('/lots');
+      setLots(response.data);
+    } catch (error) {
+      console.error('Erro ao buscar categorias:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (currentStep === 2) {
+      getLots();
+    }
+  }, [currentStep]);
+
   const handleCategoryChange = (categoryId: string) => {
     const selectedCategory = categories.find((cat) => cat.id === categoryId);
 
     if (selectedCategory) {
       const athleteNumber = selectedCategory.athlete_number;
-      const athletes: Athlete[] = Array(athleteNumber).fill({
+
+      const athletes: Athlete[] = Array.from({ length: athleteNumber }, () => ({
         name: '',
         cpf: '',
         email: '',
@@ -82,7 +148,15 @@ export const CreateAccount = () => {
         birth_date: '',
         shirt_size: '',
         gender: '',
-      });
+        address: {
+          line_1: '',
+          line_2: '',
+          zip_code: '',
+          city: '',
+          state: '',
+          country: 'BR',
+        },
+      }));
 
       setFormData((prev) => ({
         ...prev,
@@ -129,6 +203,29 @@ export const CreateAccount = () => {
         const schema = Yup.array().of(athleteSchema);
 
         await schema.validate(formData.athletes, { abortEarly: false });
+
+        // Transformar dados e enviar ao back-end
+        const data = {
+          name: formData.teamName,
+          box: formData.box,
+          category_id: formData.selectedCategory,
+          athletes: formData.athletes.map((athlete) => ({
+            ...athlete,
+            cpf: athlete.cpf.replace(/\D/g, ''), // Remover máscara do CPF
+            phone_number: athlete.phone_number.replace(/\D/g, ''), // Remover máscara do telefone
+            gender: athlete.gender === 'Masculino' ? 'm' : 'f', // Converter gênero
+          })),
+        };
+
+        setLoading(true);
+        try {
+          await api.post('/teams', data);
+          console.log('Dados enviados com sucesso:', data);
+        } catch (error) {
+          console.error('Erro ao enviar dados:', error);
+        } finally {
+          setLoading(false);
+        }
       }
 
       setCurrentStep((prev) => prev + 1);
@@ -149,8 +246,67 @@ export const CreateAccount = () => {
 
   const handleAthleteChange = (index: number, field: string, value: string) => {
     const updatedAthletes = [...formData.athletes];
-    updatedAthletes[index][field] = value;
+    if (field.includes('address')) {
+      const [parent, child] = field.split('.');
+      updatedAthletes[index][parent][child] = value;
+    } else {
+      updatedAthletes[index][field] = value;
+    }
     setFormData((prev) => ({ ...prev, athletes: updatedAthletes }));
+  };
+
+  const fetchAddressByZipCode = async (zip_code: string, index: number) => {
+    if (!/^\d{5}-?\d{3}$/.test(zip_code)) {
+      setErrors((prev) => ({
+        ...prev,
+        [`athletes[${index}].address.zip_code`]: 'CEP inválido',
+      }));
+      return;
+    }
+
+    try {
+      const response = await fetch(
+        `https://viacep.com.br/ws/${zip_code.replace(/\D/g, '')}/json/`
+      );
+      const data = await response.json();
+
+      if (data.erro) {
+        setErrors((prev) => ({
+          ...prev,
+          [`athletes[${index}].address.zip_code`]: 'CEP não encontrado',
+        }));
+        return;
+      }
+
+      const updatedAthletes = [...formData.athletes];
+      updatedAthletes[index].address = {
+        ...updatedAthletes[index].address,
+        line_1: `${data.logradouro}, ${data.bairro}`,
+        zip_code,
+        city: data.localidade,
+        state: data.uf,
+        country: 'BR',
+      };
+      setFormData((prev) => ({ ...prev, athletes: updatedAthletes }));
+    } catch (error) {
+      console.error('Erro ao buscar o CEP:', error);
+      setErrors((prev) => ({
+        ...prev,
+        [`athletes[${index}].address.zip_code`]: 'Erro ao buscar o CEP',
+      }));
+    }
+  };
+
+  const handlePayment = async () => {
+    setLoading(true);
+    try {
+      // Simulando geração de código PIX
+      setPixCode('1234567890ABCDEF');
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -220,9 +376,18 @@ export const CreateAccount = () => {
 
         {currentStep === 1 && (
           <div>
-            <StepTitle>Cadastro dos Atletas</StepTitle>
             {formData.athletes.map((athlete, index) => (
-              <div key={index} style={{ marginBottom: '16px' }}>
+              <div
+                key={index}
+                style={{
+                  marginBottom: '16px',
+                  padding: '16px',
+                  border: '1px solid #ccc',
+                  borderRadius: '8px',
+                }}
+              >
+                <StepTitle>Atleta</StepTitle>
+
                 <TextField
                   label="Nome"
                   value={athlete.name}
@@ -281,6 +446,80 @@ export const CreateAccount = () => {
                     />
                   )}
                 </InputMask>
+                <InputMask
+                  mask="99999-999"
+                  value={athlete.address.zip_code}
+                  onChange={(e) => {
+                    handleAthleteChange(
+                      index,
+                      'address.zip_code',
+                      e.target.value
+                    );
+                    if (e.target.value.length === 9) {
+                      fetchAddressByZipCode(e.target.value, index);
+                    }
+                  }}
+                >
+                  {(inputProps) => (
+                    <TextField
+                      {...inputProps}
+                      label="CEP"
+                      fullWidth
+                      margin="normal"
+                      error={!!errors[`athletes[${index}].address.zip_code`]}
+                      helperText={errors[`athletes[${index}].address.zip_code`]}
+                    />
+                  )}
+                </InputMask>
+                <TextField
+                  label="Endereço"
+                  value={athlete.address.line_1}
+                  onChange={(e) =>
+                    handleAthleteChange(index, 'address.line_1', e.target.value)
+                  }
+                  fullWidth
+                  margin="normal"
+                />
+                <TextField
+                  label="Número"
+                  value={athlete.address.line_2}
+                  onChange={(e) =>
+                    handleAthleteChange(index, 'address.line_2', e.target.value)
+                  }
+                  fullWidth
+                  margin="normal"
+                />
+                <TextField
+                  label="Cidade"
+                  value={athlete.address.city}
+                  onChange={(e) =>
+                    handleAthleteChange(index, 'address.city', e.target.value)
+                  }
+                  fullWidth
+                  margin="normal"
+                />
+                <TextField
+                  label="Estado"
+                  value={athlete.address.state}
+                  onChange={(e) =>
+                    handleAthleteChange(index, 'address.state', e.target.value)
+                  }
+                  fullWidth
+                  margin="normal"
+                />
+                <TextField
+                  label="País"
+                  value={athlete.address.country}
+                  onChange={(e) =>
+                    handleAthleteChange(
+                      index,
+                      'address.country',
+                      e.target.value
+                    )
+                  }
+                  fullWidth
+                  margin="normal"
+                />
                 <TextField
                   label="Data de Nascimento"
                   value={athlete.birth_date || ''}
@@ -362,6 +601,23 @@ export const CreateAccount = () => {
           </div>
         )}
 
+        {currentStep === 2 && (
+          <StepDiv>
+            <StepTitle>Pagamento</StepTitle>
+            {loading ? (
+              <CircularProgress />
+            ) : pixCode ? (
+              <div>
+                <h1>Valor da inscrição: {lots.amount}</h1>
+                <p>Código PIX gerado: {pixCode}</p>
+              </div>
+            ) : (
+              <Button variant="contained" onClick={handlePayment}>
+                Gerar Código PIX
+              </Button>
+            )}
+          </StepDiv>
+        )}
         <div style={{ marginTop: '24px' }}>
           {currentStep > 0 && (
             <Button onClick={handlePreviousStep} style={{ marginRight: '8px' }}>

@@ -42,12 +42,12 @@ export const StepperWrapper = styled.div`
   margin-bottom: 24px;
 
   .MuiStepConnector-line {
-    border-color: #f5f5f5; /* Cor da linha do Stepper */
+    border-color: #f5f5f5;
   }
 
   @media only screen and (max-width: 768px) {
     .MuiStepLabel-label {
-      font-size: 12px; /* Reduz tamanho do texto em telas menores */
+      font-size: 12px;
     }
   }
 `;
