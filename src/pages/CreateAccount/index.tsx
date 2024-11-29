@@ -48,8 +48,10 @@ type BillingAddress = {
 
 type CardData = {
   number: string;
-  name: string;
-  expiry: string;
+  holder_name: string;
+  holder_document: string;
+  exp_month: string;
+  exp_year: string;
   cvc: string;
   billing_address: BillingAddress;
 };
@@ -60,8 +62,8 @@ type PaymentData = {
 };
 
 type FormData = {
-  selectedCategory: string;
-  teamName: string;
+  category_id: string;
+  name: string;
   box: string;
   athletes: Athlete[];
 };
@@ -97,8 +99,10 @@ export const CreateAccount = () => {
   const [paymentMethod, setPaymentMethod] = useState<'pix' | 'card' | ''>('');
   const [cardData, setCardData] = useState<CardData>({
     number: '',
-    name: '',
-    expiry: '',
+    holder_name: '',
+    holder_document: '',
+    exp_month: '',
+    exp_year: '',
     cvc: '',
     billing_address: {
       line_1: '',
@@ -151,12 +155,10 @@ export const CreateAccount = () => {
   }, [currentStep]);
 
   const handleCategoryChange = (categoryId: string) => {
-    const selectedCategory = categories.find(
-      (cat: any) => cat.id === categoryId
-    );
+    const category_id = categories.find((cat: any) => cat.id === categoryId);
 
-    if (selectedCategory) {
-      const athleteNumber = selectedCategory.athlete_number;
+    if (category_id) {
+      const athleteNumber = category_id.athlete_number;
 
       const athletes: Athlete[] = Array.from({ length: athleteNumber }, () => ({
         name: '',
@@ -170,33 +172,74 @@ export const CreateAccount = () => {
 
       setFormData((prev) => ({
         ...prev,
-        selectedCategory: categoryId,
+        category_id: categoryId,
         athletes,
       }));
     }
   };
 
+  const validationSchemas = {
+    0: Yup.object().shape({
+      category_id: Yup.string().required('Categoria é obrigatória'),
+      name: Yup.string().required('Nome do time é obrigatório'),
+      box: Yup.string().required('Box é obrigatório'),
+    }),
+    1: Yup.array().of(
+      Yup.object().shape({
+        name: Yup.string().required('Nome é obrigatório'),
+        cpf: Yup.string().required('CPF é obrigatório'),
+        email: Yup.string()
+          .email('Email inválido')
+          .required('Email é obrigatório'),
+        phone_number: Yup.string().required('Contato é obrigatório'),
+        birth_date: Yup.string().required('Data de nascimento é obrigatória'),
+        shirt_size: Yup.string().required('Tamanho da camisa é obrigatório'),
+        gender: Yup.string().required('Gênero é obrigatório'),
+      })
+    ),
+    2: Yup.object().shape({
+      isPix: Yup.boolean(),
+      card: Yup.object().shape({
+        number: Yup.string().when('isPix', {
+          is: false,
+          then: Yup.string().required('Número do cartão é obrigatório'),
+        }),
+        name: Yup.string().when('isPix', {
+          is: false,
+          then: Yup.string().required('Nome no cartão é obrigatório'),
+        }),
+        expiry: Yup.string().when('isPix', {
+          is: false,
+          then: Yup.string().required('Data de expiração é obrigatória'),
+        }),
+        cvc: Yup.string().when('isPix', {
+          is: false,
+          then: Yup.string().required('CVC é obrigatório'),
+        }),
+        billing_address: Yup.object().shape({
+          line_1: Yup.string().required('Endereço é obrigatório'),
+          zip_code: Yup.string().required('CEP é obrigatório'),
+          city: Yup.string().required('Cidade é obrigatória'),
+          state: Yup.string().required('Estado é obrigatório'),
+        }),
+      }),
+    }),
+  };
+
   const handleNextStep = async () => {
     try {
       setErrors({});
+      const schema = validationSchemas[currentStep];
+      const dataToValidate =
+        currentStep === 1
+          ? formData.athletes
+          : currentStep === 2
+          ? { isPix: paymentMethod === 'pix', card: cardData }
+          : formData;
+
+      await schema.validate(dataToValidate, { abortEarly: false });
+
       if (currentStep === 1) {
-        // Validação dos dados dos atletas
-        const athleteSchema = Yup.object().shape({
-          name: Yup.string().required('Nome é obrigatório'),
-          cpf: Yup.string().required('CPF é obrigatório'),
-          email: Yup.string()
-            .email('Email inválido')
-            .required('Email é obrigatório'),
-          phone_number: Yup.string().required('Contato é obrigatório'),
-          birth_date: Yup.date().required('Data de nascimento é obrigatória'),
-          shirt_size: Yup.string().required('Tamanho da camisa é obrigatório'),
-          gender: Yup.string().required('Gênero é obrigatório'),
-        });
-
-        const schema = Yup.array().of(athleteSchema);
-        await schema.validate(formData.athletes, { abortEarly: false });
-
-        // Salvar no localStorage
         localStorage.setItem('athleteData', JSON.stringify(formData));
       }
       setCurrentStep((prev) => prev + 1);
@@ -212,19 +255,15 @@ export const CreateAccount = () => {
   };
 
   const handlePayment = async () => {
-    const paymentData: PaymentData = {
-      isPix: paymentMethod === 'pix',
-      ...(paymentMethod === 'card' && { card: cardData }),
-    };
-
     const dataToSend = {
       ...formData,
       athletes: formData.athletes.map((athlete) => ({
         ...athlete,
-        cpf: athlete.cpf.replace(/\D/g, ''), // Remover máscara
-        phone_number: athlete.phone_number.replace(/\D/g, ''), // Remover máscara
+        cpf: athlete.cpf.replace(/\D/g, ''),
+        phone_number: athlete.phone_number.replace(/\D/g, ''),
       })),
-      ...paymentData,
+      ...(paymentMethod === 'card' && { card: cardData }),
+      isPix: paymentMethod === 'pix',
     };
 
     setLoading(true);
@@ -345,12 +384,12 @@ export const CreateAccount = () => {
             <TextField
               select
               label="Categoria"
-              value={formData.selectedCategory}
+              value={formData.category_id}
               onChange={(e) => handleCategoryChange(e.target.value)}
               fullWidth
               margin="normal"
-              error={!!errors.selectedCategory}
-              helperText={errors.selectedCategory}
+              error={!!errors.category_id}
+              helperText={errors.category_id}
             >
               {categories.map((category: any) => (
                 <MenuItem key={category.id} value={category.id}>
@@ -360,17 +399,17 @@ export const CreateAccount = () => {
             </TextField>
             <TextField
               label="Nome do Time"
-              value={formData.teamName}
+              value={formData.name}
               onChange={(e) =>
                 setFormData((prev) => ({
                   ...prev,
-                  teamName: e.target.value,
+                  name: e.target.value,
                 }))
               }
               fullWidth
               margin="normal"
-              error={!!errors.teamName}
-              helperText={errors.teamName}
+              error={!!errors.name}
+              helperText={errors.name}
             />
             <TextField
               label="Box do Time"
@@ -602,41 +641,71 @@ export const CreateAccount = () => {
                     )}
                   </InputMask>
                   <TextField
-                    id="card-name"
-                    name="name"
+                    id="holder_name"
+                    name="holder_name"
                     label="Nome no Cartão"
                     fullWidth
                     margin="normal"
                     placeholder="Nome completo"
                     onChange={handleInputChange}
                     onFocus={handleInputFocus}
-                    value={cardData.name}
+                    value={cardData.holder_name}
                     autoComplete="off"
                   />
-
-                  <InputMask
-                    mask="99/99"
-                    value={cardData.expiry}
-                    onChange={(e) =>
-                      setCardData((prev) => ({
-                        ...prev,
-                        expiry: e.target.value,
-                      }))
-                    }
-                    onFocus={(e) =>
-                      setCardData((prev) => ({ ...prev, focus: e.target.name }))
-                    }
-                  >
-                    {(inputProps) => (
-                      <TextField
-                        {...inputProps}
-                        name="expiry"
-                        label="Data de Expiração (MM/AA)"
-                        fullWidth
-                        margin="normal"
-                      />
-                    )}
-                  </InputMask>
+                  <div style={{ flex: 'row' }}>
+                    <InputMask
+                      mask="99"
+                      value={cardData.exp_month}
+                      onChange={(e) =>
+                        setCardData((prev) => ({
+                          ...prev,
+                          exp_month: e.target.value,
+                        }))
+                      }
+                      onFocus={(e) =>
+                        setCardData((prev) => ({
+                          ...prev,
+                          focus: e.target.name,
+                        }))
+                      }
+                    >
+                      {(inputProps) => (
+                        <TextField
+                          {...inputProps}
+                          name="exp_month"
+                          label="Mes de Expiração"
+                          fullWidth
+                          margin="normal"
+                        />
+                      )}
+                    </InputMask>
+                    <InputMask
+                      mask="99"
+                      value={cardData.exp_year}
+                      onChange={(e) =>
+                        setCardData((prev) => ({
+                          ...prev,
+                          exp_year: e.target.value,
+                        }))
+                      }
+                      onFocus={(e) =>
+                        setCardData((prev) => ({
+                          ...prev,
+                          focus: e.target.name,
+                        }))
+                      }
+                    >
+                      {(inputProps) => (
+                        <TextField
+                          {...inputProps}
+                          name="exp_year"
+                          label="Ano de Expiração"
+                          fullWidth
+                          margin="normal"
+                        />
+                      )}
+                    </InputMask>
+                  </div>
                   <InputMask
                     mask="999"
                     value={cardData.cvc}
