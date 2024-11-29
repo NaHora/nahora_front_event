@@ -597,26 +597,6 @@ export const CreateAccount = () => {
               </Grid>
             </Grid>
 
-            {paymentMethod === 'pix' && (
-              <div>
-                {loading ? (
-                  <CircularProgress />
-                ) : pixCode ? (
-                  <div>
-                    <Typography variant="h6">
-                      Valor da inscrição: {lots[0]?.amount}
-                    </Typography>
-                    <p>Utilize o código PIX abaixo:</p>
-                    <p style={{ fontWeight: 'bold' }}>{pixCode}</p>
-                  </div>
-                ) : (
-                  <Button variant="contained" onClick={handlePayment}>
-                    Gerar Código PIX
-                  </Button>
-                )}
-              </div>
-            )}
-
             {paymentMethod === 'card' && (
               <div style={{ marginTop: '20px' }}>
                 <StepTitle>Dados do Cartão</StepTitle>
@@ -780,7 +760,9 @@ export const CreateAccount = () => {
           ) : null}
 
           {currentStep === 2 && (
-            <Button onClick={handlePayment}>Concluir</Button>
+            <Button variant="contained" onClick={handlePayment}>
+              Concluir
+            </Button>
           )}
         </div>
       </Content>
