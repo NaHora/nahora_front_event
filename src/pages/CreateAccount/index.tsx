@@ -228,7 +228,10 @@ export const CreateAccount = () => {
 
     setLoading(true);
     try {
-      await api.post('/teams', dataToSend);
+      await api.post(
+        '/event/1f0fd51d-cd1c-43a9-80ed-00d039571520/teams',
+        dataToSend
+      );
       console.log('Dados enviados:', dataToSend);
     } catch (error) {
       console.error('Erro ao enviar dados:', error);
