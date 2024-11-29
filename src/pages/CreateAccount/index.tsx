@@ -27,25 +27,36 @@ import Cards from 'react-credit-cards-2';
 
 const steps = ['Tipo de inscrição', 'Cadastro dos Atletas', 'Pagamento'];
 
-type Pix = {
-  qrCode: string;
-  qrCodeUrl: string;
-};
-
-type Result = {
-  pix: Pix;
-  chargeId: string;
-};
-
 type Athlete = {
-  [key: string]: any;
   name: string;
   cpf: string;
   email: string;
   phone_number: string;
   birth_date: string;
   shirt_size: string;
-  gender: string;
+  gender: 'm' | 'f';
+};
+
+type BillingAddress = {
+  line_1: string;
+  line_2: string;
+  zip_code: string;
+  city: string;
+  state: string;
+  country: string;
+};
+
+type CardData = {
+  number: string;
+  name: string;
+  expiry: string;
+  cvc: string;
+  billing_address: BillingAddress;
+};
+
+type PaymentData = {
+  isPix: boolean;
+  card?: CardData;
 };
 
 type FormData = {
@@ -53,47 +64,51 @@ type FormData = {
   teamName: string;
   box: string;
   athletes: Athlete[];
-  result: Result;
 };
 
 export const CreateAccount = () => {
   const [currentStep, setCurrentStep] = useState(0);
   const [loading, setLoading] = useState(false);
   const [categories, setCategories] = useState([] as any);
-  const [formData, setFormData] = useState<FormData>({
-    selectedCategory: '',
-    teamName: '',
-    box: '',
-    athletes: [
-      {
-        name: '',
-        cpf: '',
-        email: '',
-        phone_number: '',
-        birth_date: '',
-        shirt_size: '',
-        gender: '',
-      },
-    ],
-    result: {
-      chargeId: '',
-      pix: {
-        qrCode: '',
-        qrCodeUrl: '',
-      },
-    },
+  const [formData, setFormData] = useState<FormData>(() => {
+    const savedData = localStorage.getItem('athleteData');
+    return savedData
+      ? JSON.parse(savedData)
+      : {
+          selectedCategory: '',
+          teamName: '',
+          box: '',
+          athletes: [
+            {
+              name: '',
+              cpf: '',
+              email: '',
+              phone_number: '',
+              birth_date: '',
+              shirt_size: '',
+              gender: 'm',
+            },
+          ],
+        };
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [lots, setLots] = useState([] as any[]);
   const [pixCode, setPixCode] = useState('');
   const [paymentMethod, setPaymentMethod] = useState<'pix' | 'card' | ''>('');
-  const [cardData, setCardData] = useState({
+  const [cardData, setCardData] = useState<CardData>({
     number: '',
     name: '',
     expiry: '',
     cvc: '',
-    focus: '',
+    billing_address: {
+      line_1: '',
+      line_2: '',
+      zip_code: '',
+      city: '',
+      state: '',
+      country: 'Brasil',
+    },
   });
 
   const handlePaymentMethod = (method: 'pix' | 'card') => {
@@ -149,7 +164,7 @@ export const CreateAccount = () => {
         phone_number: '',
         birth_date: '',
         shirt_size: '',
-        gender: '',
+        gender: 'm',
       }));
 
       setFormData((prev) => ({
@@ -163,25 +178,8 @@ export const CreateAccount = () => {
   const handleNextStep = async () => {
     try {
       setErrors({});
-
-      if (currentStep === 0) {
-        const schema = Yup.object().shape({
-          selectedCategory: Yup.string().required('Categoria é obrigatória'),
-          teamName: Yup.string().required('Nome do time é obrigatório'),
-          box: Yup.string().required('Box é obrigatório'),
-        });
-
-        await schema.validate(
-          {
-            selectedCategory: formData.selectedCategory,
-            teamName: formData.teamName,
-            box: formData.box,
-          },
-          { abortEarly: false }
-        );
-      }
-
       if (currentStep === 1) {
+        // Validação dos dados dos atletas
         const athleteSchema = Yup.object().shape({
           name: Yup.string().required('Nome é obrigatório'),
           cpf: Yup.string().required('CPF é obrigatório'),
@@ -195,42 +193,47 @@ export const CreateAccount = () => {
         });
 
         const schema = Yup.array().of(athleteSchema);
-
         await schema.validate(formData.athletes, { abortEarly: false });
 
-        // Transformar dados e enviar ao back-end
-        const data = {
-          name: formData.teamName,
-          box: formData.box,
-          category_id: formData.selectedCategory,
-          athletes: formData.athletes.map((athlete) => ({
-            ...athlete,
-            cpf: athlete.cpf.replace(/\D/g, ''), // Remover máscara do CPF
-            phone_number: athlete.phone_number.replace(/\D/g, ''), // Remover máscara do telefone
-            gender: athlete.gender === 'Masculino' ? 'm' : 'f', // Converter gênero
-          })),
-        };
-
-        setLoading(true);
-        try {
-          await api.post('/teams', data);
-          console.log('Dados enviados com sucesso:', data);
-        } catch (error) {
-          console.error('Erro ao enviar dados:', error);
-        } finally {
-          setLoading(false);
-        }
+        // Salvar no localStorage
+        localStorage.setItem('athleteData', JSON.stringify(formData));
       }
-
       setCurrentStep((prev) => prev + 1);
     } catch (err) {
       if (err instanceof Yup.ValidationError) {
-        const validationErrors = {} as any;
-        err.inner.forEach((error: any) => {
-          validationErrors[error.path] = error.message;
+        const validationErrors: Record<string, string> = {};
+        err.inner.forEach((error) => {
+          validationErrors[error.path!] = error.message;
         });
         setErrors(validationErrors);
       }
+    }
+  };
+
+  const handlePayment = async () => {
+    const paymentData: PaymentData = {
+      isPix: paymentMethod === 'pix',
+      ...(paymentMethod === 'card' && { card: cardData }),
+    };
+
+    const dataToSend = {
+      ...formData,
+      athletes: formData.athletes.map((athlete) => ({
+        ...athlete,
+        cpf: athlete.cpf.replace(/\D/g, ''), // Remover máscara
+        phone_number: athlete.phone_number.replace(/\D/g, ''), // Remover máscara
+      })),
+      ...paymentData,
+    };
+
+    setLoading(true);
+    try {
+      await api.post('/teams', dataToSend);
+      console.log('Dados enviados:', dataToSend);
+    } catch (error) {
+      console.error('Erro ao enviar dados:', error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -240,19 +243,29 @@ export const CreateAccount = () => {
 
   const handleAthleteChange = (index: number, field: string, value: string) => {
     const updatedAthletes = [...formData.athletes];
-    if (field.includes('address')) {
+
+    if (field.includes('.')) {
       const [parent, child] = field.split('.');
-      const parentField = parent as keyof Athlete; // Garantir que o campo existe em Athlete
+      const parentField = parent as keyof Athlete;
+
       if (
         updatedAthletes[index][parentField] &&
         typeof updatedAthletes[index][parentField] === 'object'
       ) {
         (updatedAthletes[index][parentField] as Record<string, any>)[child] =
           value;
+      } else {
+        console.error(`Campo aninhado inválido: ${field}`);
+        return;
       }
     } else {
-      const fieldKey = field as keyof Athlete; // Garantir que o campo existe em Athlete
-      updatedAthletes[index][fieldKey] = value as Athlete[typeof fieldKey];
+      const fieldKey = field as keyof Athlete;
+      if (fieldKey in updatedAthletes[index]) {
+        updatedAthletes[index][fieldKey] = value as Athlete[typeof fieldKey];
+      } else {
+        console.error(`Campo inválido: ${field}`);
+        return;
+      }
     }
 
     setFormData((prev) => ({ ...prev, athletes: updatedAthletes }));
@@ -264,35 +277,24 @@ export const CreateAccount = () => {
         `https://viacep.com.br/ws/${zip_code.replace(/\D/g, '')}/json/`
       );
       const data = await response.json();
+
       if (!data.erro) {
-        setFormData((prev) => ({
+        setCardData((prev) => ({
           ...prev,
-          result: {
-            ...prev.result,
-            address: {
-              ...prev.result.address,
-              line_1: `${data.logradouro}, ${data.bairro}`,
-              city: data.localidade,
-              state: data.uf,
-              zip_code,
-            },
+          billing_address: {
+            ...prev.billing_address,
+            line_1: `${data.logradouro}, ${data.bairro}`,
+            city: data.localidade,
+            state: data.uf,
+            zip_code,
+            country: 'Brasil',
           },
         }));
+      } else {
+        console.error('CEP não encontrado.');
       }
     } catch (error) {
       console.error('Erro ao buscar o CEP:', error);
-    }
-  };
-
-  const handlePayment = async () => {
-    setLoading(true);
-    try {
-      // Simulando geração de código PIX
-      setPixCode('1234567890ABCDEF');
-    } catch (error) {
-      console.error(error);
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -307,15 +309,27 @@ export const CreateAccount = () => {
   };
 
   const handleAddressChange = (field: string, value: string) => {
-    setFormData((prev) => ({
+    setCardData((prev) => ({
       ...prev,
-      result: {
-        ...prev.result,
-        address: {
-          ...prev.result.address,
-          [field]: value,
-        },
+      billing_address: {
+        ...prev.billing_address,
+        [field]: value,
       },
+    }));
+  };
+
+  const handleCardInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setCardData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleCardBillingChange = (
+    field: keyof BillingAddress,
+    value: string
+  ) => {
+    setCardData((prev) => ({
+      ...prev,
+      billing_address: { ...prev.billing_address, [field]: value },
     }));
   };
 
@@ -517,7 +531,7 @@ export const CreateAccount = () => {
                       <input
                         type="radio"
                         value="Masculino"
-                        checked={athlete.gender === 'Masculino'}
+                        checked={athlete.gender === 'm'}
                         onChange={(e) =>
                           handleAthleteChange(index, 'gender', e.target.value)
                         }
@@ -531,7 +545,7 @@ export const CreateAccount = () => {
                       <input
                         type="radio"
                         value="Feminino"
-                        checked={athlete.gender === 'Feminino'}
+                        checked={athlete.gender === 'f'}
                         onChange={(e) =>
                           handleAthleteChange(index, 'gender', e.target.value)
                         }
@@ -692,49 +706,56 @@ export const CreateAccount = () => {
                 <StepTitle style={{ marginTop: 20 }}>
                   Endereço de Cobrança
                 </StepTitle>
+
                 <TextField
                   label="CEP"
-                  fullWidth
-                  margin="normal"
+                  value={cardData.billing_address?.zip_code || ''}
                   onChange={(e) =>
                     handleAddressChange('zip_code', e.target.value)
                   }
                   onBlur={(e) => fetchAddressByZipCode(e.target.value)}
+                  fullWidth
                 />
                 <TextField
                   label="Endereço"
-                  fullWidth
-                  margin="normal"
+                  value={cardData.billing_address?.line_1 || ''}
                   onChange={(e) =>
                     handleAddressChange('line_1', e.target.value)
                   }
+                  fullWidth
+                  margin="normal"
                 />
                 <TextField
                   label="Número"
-                  fullWidth
-                  margin="normal"
+                  value={cardData.billing_address?.line_2 || ''}
                   onChange={(e) =>
                     handleAddressChange('line_2', e.target.value)
                   }
+                  fullWidth
+                  margin="normal"
                 />
                 <TextField
                   label="Cidade"
+                  value={cardData.billing_address?.city || ''}
+                  onChange={(e) => handleAddressChange('city', e.target.value)}
                   fullWidth
                   margin="normal"
-                  onChange={(e) => handleAddressChange('city', e.target.value)}
                 />
                 <TextField
                   label="Estado"
+                  value={cardData.billing_address?.state || ''}
+                  onChange={(e) => handleAddressChange('state', e.target.value)}
                   fullWidth
                   margin="normal"
-                  onChange={(e) => handleAddressChange('state', e.target.value)}
                 />
                 <TextField
                   label="País"
-                  value="BR"
+                  value={cardData.billing_address?.country || ''}
+                  onChange={(e) =>
+                    handleAddressChange('country', e.target.value)
+                  }
                   fullWidth
                   margin="normal"
-                  disabled
                 />
               </div>
             )}
@@ -757,6 +778,10 @@ export const CreateAccount = () => {
               Próximo
             </Button>
           ) : null}
+
+          {currentStep === 2 && (
+            <Button onClick={handlePayment}>Concluir</Button>
+          )}
         </div>
       </Content>
     </Container>
