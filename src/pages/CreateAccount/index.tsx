@@ -35,6 +35,7 @@ type Result = {
 };
 
 type Athlete = {
+  [key: string]: any;
   name: string;
   cpf: string;
   email: string;
@@ -63,7 +64,7 @@ type FormData = {
 export const CreateAccount = () => {
   const [currentStep, setCurrentStep] = useState(0);
   const [loading, setLoading] = useState(false);
-  const [categories, setCategories] = useState([]);
+  const [categories, setCategories] = useState([] as any);
   const [formData, setFormData] = useState<FormData>({
     selectedCategory: '',
     teamName: '',
@@ -97,7 +98,7 @@ export const CreateAccount = () => {
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
-  const [lots, setLots] = useState([]);
+  const [lots, setLots] = useState([] as any[]);
   const [pixCode, setPixCode] = useState('');
 
   useEffect(() => {
@@ -135,7 +136,9 @@ export const CreateAccount = () => {
   }, [currentStep]);
 
   const handleCategoryChange = (categoryId: string) => {
-    const selectedCategory = categories.find((cat) => cat.id === categoryId);
+    const selectedCategory = categories.find(
+      (cat: any) => cat.id === categoryId
+    );
 
     if (selectedCategory) {
       const athleteNumber = selectedCategory.athlete_number;
@@ -231,8 +234,8 @@ export const CreateAccount = () => {
       setCurrentStep((prev) => prev + 1);
     } catch (err) {
       if (err instanceof Yup.ValidationError) {
-        const validationErrors = {};
-        err.inner.forEach((error) => {
+        const validationErrors = {} as any;
+        err.inner.forEach((error: any) => {
           validationErrors[error.path] = error.message;
         });
         setErrors(validationErrors);
@@ -248,10 +251,19 @@ export const CreateAccount = () => {
     const updatedAthletes = [...formData.athletes];
     if (field.includes('address')) {
       const [parent, child] = field.split('.');
-      updatedAthletes[index][parent][child] = value;
+      const parentField = parent as keyof Athlete; // Garantir que o campo existe em Athlete
+      if (
+        updatedAthletes[index][parentField] &&
+        typeof updatedAthletes[index][parentField] === 'object'
+      ) {
+        (updatedAthletes[index][parentField] as Record<string, any>)[child] =
+          value;
+      }
     } else {
-      updatedAthletes[index][field] = value;
+      const fieldKey = field as keyof Athlete; // Garantir que o campo existe em Athlete
+      updatedAthletes[index][fieldKey] = value as Athlete[typeof fieldKey];
     }
+
     setFormData((prev) => ({ ...prev, athletes: updatedAthletes }));
   };
 
@@ -337,7 +349,7 @@ export const CreateAccount = () => {
               error={!!errors.selectedCategory}
               helperText={errors.selectedCategory}
             >
-              {categories.map((category) => (
+              {categories.map((category: any) => (
                 <MenuItem key={category.id} value={category.id}>
                   {category.name}
                 </MenuItem>
@@ -608,7 +620,7 @@ export const CreateAccount = () => {
               <CircularProgress />
             ) : pixCode ? (
               <div>
-                <h1>Valor da inscrição: {lots.amount}</h1>
+                <h1>Valor da inscrição: {lots[0]?.amount}</h1>
                 <p>Código PIX gerado: {pixCode}</p>
               </div>
             ) : (
