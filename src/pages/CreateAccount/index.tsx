@@ -17,6 +17,7 @@ import {
   StepperWrapper,
   StepTitle,
 } from './styles';
+import Lottie from 'react-lottie';
 import EventLogo from '../../assets/event-logo.png';
 import api from '../../services/api';
 import InputMask from 'react-input-mask';
@@ -25,6 +26,7 @@ import { CreditCard, QrCode } from '@mui/icons-material';
 import { Typography, Grid } from '@mui/material';
 import { toast } from 'react-toastify';
 import { LoadingButton } from '@mui/lab';
+import * as animationData from '../../assets/lottie.json';
 
 const steps = ['Tipo de inscrição', 'Cadastro dos Atletas', 'Pagamento'];
 
@@ -288,6 +290,7 @@ export const CreateAccount = () => {
       if (res?.data?.result?.pix) {
         setPix(res?.data?.result?.pix);
       } else if (res?.data?.result?.chargeId) {
+        setCurrentStep(3);
         toast.success('Inscrição realizada com sucesso!');
       }
     } catch (error) {
@@ -884,29 +887,63 @@ export const CreateAccount = () => {
             )}
           </StepDiv>
         )}
-        <div style={{ marginTop: '24px' }}>
-          {currentStep > 0 && (
-            <Button onClick={handlePreviousStep} style={{ marginRight: '8px' }}>
-              Voltar
-            </Button>
-          )}
-          {currentStep < steps.length - 1 ? (
-            <Button variant="contained" onClick={handleNextStep}>
-              Próximo
-            </Button>
-          ) : null}
 
-          {currentStep === 2 && (
-            <LoadingButton
-              variant="contained"
-              loading={loading}
-              onClick={handlePayment}
-              disabled={disableButton}
-            >
-              Concluir
-            </LoadingButton>
-          )}
-        </div>
+        {currentStep === 3 && (
+          <StepDiv
+            style={{
+              flex: 1,
+              justifyContent: 'center',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              marginTop: 24,
+            }}
+          >
+            <Lottie
+              options={{
+                loop: false,
+                autoplay: true,
+                animationData: animationData,
+                rendererSettings: {
+                  preserveAspectRatio: 'xMidYMid slice',
+                },
+              }}
+              height={200}
+              width={200}
+            />
+            <StepTitle style={{ marginTop: 20 }}>
+              Inscrição realizada!
+            </StepTitle>
+          </StepDiv>
+        )}
+        {currentStep !== 3 && (
+          <div style={{ marginTop: '24px' }}>
+            {currentStep > 0 && (
+              <Button
+                onClick={handlePreviousStep}
+                style={{ marginRight: '8px' }}
+              >
+                Voltar
+              </Button>
+            )}
+            {currentStep < steps.length - 1 ? (
+              <Button variant="contained" onClick={handleNextStep}>
+                Próximo
+              </Button>
+            ) : null}
+
+            {currentStep === 2 && (
+              <LoadingButton
+                variant="contained"
+                loading={loading}
+                onClick={handlePayment}
+                disabled={disableButton}
+              >
+                Concluir
+              </LoadingButton>
+            )}
+          </div>
+        )}
       </Content>
     </Container>
   );
