@@ -10,6 +10,7 @@ import { WodDescription } from '../pages/WodDescription';
 import { PairCreate } from '../pages/PairCreate';
 import { Category } from '../pages/Category';
 import { CreateAccount } from '../pages/CreateAccount';
+import { RegisteredTeams } from '../pages/RegisteredTeams';
 
 const defaultProtectedRouteProps: Omit<ProtectedRouteProps, 'outlet'> = {
   authenticationPath: '/admin',
@@ -22,6 +23,7 @@ export default function AppRoutes() {
       <Route path="/" element={<CreateAccount />} />
 
       <Route path="/rank" element={<Ranking />} />
+      <Route path="/inscritos" element={<RegisteredTeams />} />
 
       <Route
         path="/panel"
