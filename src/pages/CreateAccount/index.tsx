@@ -285,8 +285,7 @@ export const CreateAccount = () => {
 
     setLoading(true);
     try {
-      // const res = await api.post('/teams', dataToSend);
-      console.log('Dados enviados:', dataToSend);
+      const res = await api.post('/teams', dataToSend);
       if (res?.data?.result?.pix) {
         setPix(res?.data?.result?.pix);
       } else if (res?.data?.result?.chargeId) {
