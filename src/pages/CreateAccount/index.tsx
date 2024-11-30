@@ -802,7 +802,7 @@ export const CreateAccount = () => {
                     </InputMask>
                   </div>
                   <InputMask
-                    mask="9999"
+                    mask="999"
                     value={cardData.cvv}
                     onChange={(e) =>
                       setCardData((prev) => ({ ...prev, cvv: e.target.value }))
