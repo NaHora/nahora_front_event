@@ -294,7 +294,7 @@ export const CreateAccount = () => {
         toast.success('Inscrição realizada com sucesso!');
       }
     } catch (error) {
-      console.error('Erro ao enviar dados:', error);
+      toast.error('Falha no pagamento!');
     } finally {
       setLoading(false);
     }
