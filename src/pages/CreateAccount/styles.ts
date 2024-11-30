@@ -73,6 +73,16 @@ export const StepTitle = styled.h1`
   }
 `;
 
+export const RegisterPayment = styled.h1`
+  color: #f5f5f5;
+  font-size: 16px;
+  margin-bottom: 16px;
+
+  @media only screen and (max-width: 768px) {
+    font-size: 16px;
+  }
+`;
+
 export const Label = styled.label`
   color: #fff;
   font-size: 14px;

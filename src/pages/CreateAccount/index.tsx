@@ -13,6 +13,7 @@ import {
   Content,
   EventImage,
   Label,
+  RegisterPayment,
   StepDiv,
   StepperWrapper,
   StepTitle,
@@ -687,23 +688,37 @@ export const CreateAccount = () => {
             {paymentMethod === 'pix' && (
               <div style={{ marginTop: '20px' }}>
                 {!pix.qrCode ? (
-                  <Button
-                    variant="contained"
-                    onClick={async () => {
-                      try {
-                        setLoading(true);
-                        await handlePayment();
-                      } catch (error) {
-                        toast.error('Erro ao gerar o PIX. Tente novamente.');
-                      } finally {
-                        setLoading(false);
-                      }
-                    }}
-                    disabled={loading}
-                    style={{ marginBottom: '16px' }}
-                  >
-                    {loading ? 'Gerando PIX...' : 'Gerar PIX'}
-                  </Button>
+                  <>
+                    <RegisterPayment>
+                      Valor da inscrição: R${' '}
+                      {(lot?.amount * formData.athletes.length) / 100}{' '}
+                    </RegisterPayment>
+                    <RegisterPayment>
+                      Taxa de serviço: R${' '}
+                      {(lot?.amount * formData.athletes.length * 0.08) / 100}{' '}
+                    </RegisterPayment>
+                    <RegisterPayment>
+                      Valor total: R${' '}
+                      {(lot?.amount * formData.athletes.length * 1.08) / 100}{' '}
+                    </RegisterPayment>
+                    <Button
+                      variant="contained"
+                      onClick={async () => {
+                        try {
+                          setLoading(true);
+                          await handlePayment();
+                        } catch (error) {
+                          toast.error('Erro ao gerar o PIX. Tente novamente.');
+                        } finally {
+                          setLoading(false);
+                        }
+                      }}
+                      disabled={loading}
+                      style={{ marginBottom: '16px' }}
+                    >
+                      {loading ? 'Gerando PIX...' : 'Gerar PIX'}
+                    </Button>
+                  </>
                 ) : (
                   <div
                     style={{
