@@ -121,7 +121,8 @@ export const CreateAccount = () => {
     },
   });
   const normalizeCardNumber = (number: string) => number.replace(/\s+/g, '');
-  const disableButton = paymentMethod === 'pix' && pix?.qrCode ? true : false;
+  const [teamId, setTeamId] = useState('');
+  const [loadingCep, setLoadingCep] = useState(false);
 
   const handlePaymentMethod = (method: 'pix' | 'card') => {
     setPaymentMethod(method);
@@ -276,7 +277,7 @@ export const CreateAccount = () => {
       ...(paymentMethod === 'card' && {
         card: {
           ...cardData,
-          number: normalizeCardNumber(cardData.number), // Garantir que o número está normalizado
+          number: normalizeCardNumber(cardData.number),
         },
       }),
       isPix: paymentMethod === 'pix',
@@ -288,12 +289,12 @@ export const CreateAccount = () => {
       const res = await api.post('/teams', dataToSend);
       if (res?.data?.result?.pix) {
         setPix(res?.data?.result?.pix);
+        setTeamId(res.data.id);
       } else if (res?.data?.result?.chargeId) {
-        setCurrentStep(3);
-        toast.success('Inscrição realizada com sucesso!');
+        toast.success('Código gerado com sucesso!');
       }
     } catch (error) {
-      toast.error('Falha no pagamento!');
+      toast.error('Falha na geração do código do pix!');
     } finally {
       setLoading(false);
     }
@@ -334,6 +335,7 @@ export const CreateAccount = () => {
   };
 
   const fetchAddressByZipCode = async (zip_code: string) => {
+    setLoadingCep(true);
     try {
       const response = await fetch(
         `https://viacep.com.br/ws/${zip_code.replace(/\D/g, '')}/json/`
@@ -348,15 +350,18 @@ export const CreateAccount = () => {
             line_1: `${data.logradouro}, ${data.bairro}`,
             city: data.localidade,
             state: data.uf,
-            zip_code, // Mantém o CEP no formato com máscara
+            zip_code: data.cep,
             country: 'BR',
           },
         }));
+        toast.success('Endereço preenchido com sucesso!');
       } else {
         toast.error('CEP não encontrado.');
       }
     } catch (error) {
-      toast.error('Erro ao buscar o CEP:', error);
+      toast.error('Erro ao buscar o CEP.');
+    } finally {
+      setLoadingCep(false);
     }
   };
 
@@ -646,50 +651,64 @@ export const CreateAccount = () => {
                 </Button>
               </Grid>
             </Grid>
-            {paymentMethod === 'pix' && pix.qrCodeUrl && (
-              <div
-                style={{
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                  display: 'flex',
-                  width: '100%',
-                  marginTop: 20,
-                  marginBottom: 20,
-                }}
-              >
-                <img src={pix.qrCodeUrl} alt="pix" />
-              </div>
-            )}
-            {paymentMethod === 'pix' && pix.qrCode && (
-              <div
-                style={{
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  width: '100%',
-                  marginTop: 20,
-                  marginBottom: 20,
-                }}
-              >
-                <Typography
-                  variant="body2"
-                  textAlign={'center'}
-                  color="white"
-                  sx={{
-                    wordBreak: 'break-word',
-                    overflowWrap: 'break-word',
-                  }}
-                >
-                  {pix.qrCode}
-                </Typography>
-                <Button
-                  style={{ marginTop: 12 }}
-                  variant="contained"
-                  onClick={handleCopy}
-                >
-                  Copiar codigo
-                </Button>
+
+            {paymentMethod === 'pix' && (
+              <div style={{ marginTop: '20px' }}>
+                {!pix.qrCode ? (
+                  <Button
+                    variant="contained"
+                    onClick={async () => {
+                      try {
+                        setLoading(true);
+                        await handlePayment();
+                      } catch (error) {
+                        toast.error('Erro ao gerar o PIX. Tente novamente.');
+                      } finally {
+                        setLoading(false);
+                      }
+                    }}
+                    disabled={loading}
+                    style={{ marginBottom: '16px' }}
+                  >
+                    {loading ? 'Gerando PIX...' : 'Gerar PIX'}
+                  </Button>
+                ) : (
+                  <div
+                    style={{
+                      justifyContent: 'center',
+                      alignItems: 'center',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      width: '100%',
+                      marginTop: 20,
+                      marginBottom: 20,
+                    }}
+                  >
+                    <img
+                      src={pix.qrCodeUrl}
+                      alt="QR Code PIX"
+                      style={{ marginBottom: 16 }}
+                    />
+                    <Typography
+                      variant="body2"
+                      textAlign={'center'}
+                      color="white"
+                      sx={{
+                        wordBreak: 'break-word',
+                        overflowWrap: 'break-word',
+                      }}
+                    >
+                      {pix.qrCode}
+                    </Typography>
+                    <Button
+                      style={{ marginTop: 12 }}
+                      variant="contained"
+                      onClick={handleCopy}
+                    >
+                      Copiar código
+                    </Button>
+                  </div>
+                )}
               </div>
             )}
             {paymentMethod === 'card' && (
@@ -825,10 +844,13 @@ export const CreateAccount = () => {
                     </InputMask>
                   </div>
                   <InputMask
-                    mask="999"
+                    mask="9999"
                     value={cardData.cvv}
                     onChange={(e) =>
-                      setCardData((prev) => ({ ...prev, cvv: e.target.value }))
+                      setCardData((prev) => ({
+                        ...prev,
+                        cvv: e.target.value.trim(),
+                      }))
                     }
                     onFocus={(e) =>
                       setCardData((prev) => ({ ...prev, focus: e.target.name }))
@@ -858,7 +880,7 @@ export const CreateAccount = () => {
                   }
                   onBlur={(e) =>
                     fetchAddressByZipCode(e.target.value.replace(/\D/g, ''))
-                  } // Remove máscara antes de buscar endereço
+                  }
                 >
                   {(inputProps) => (
                     <TextField
@@ -868,6 +890,14 @@ export const CreateAccount = () => {
                       margin="normal"
                       placeholder="Digite o CEP"
                       error={!!errors.zip_code}
+                      InputProps={{
+                        endAdornment: loadingCep && (
+                          <CircularProgress
+                            size={20}
+                            style={{ marginRight: '8px' }}
+                          />
+                        ),
+                      }}
                       helperText={errors.zip_code}
                     />
                   )}
@@ -972,10 +1002,29 @@ export const CreateAccount = () => {
               <LoadingButton
                 variant="contained"
                 loading={loading}
-                onClick={handlePayment}
-                disabled={disableButton}
+                onClick={async () => {
+                  try {
+                    setLoading(true);
+                    const result = await api.get(`/payments/team/${teamId}`);
+
+                    if (result.data.status === 'paid') {
+                      toast.success('Pagamento confirmado com sucesso!');
+                      setCurrentStep(3);
+                    } else {
+                      toast.error(
+                        'Pagamento não confirmado. Verifique e tente novamente.'
+                      );
+                    }
+                  } catch (error) {
+                    toast.error(
+                      'Erro ao confirmar pagamento. Tente novamente.'
+                    );
+                  } finally {
+                    setLoading(false);
+                  }
+                }}
               >
-                Concluir
+                Já paguei
               </LoadingButton>
             )}
           </div>
