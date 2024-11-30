@@ -24,7 +24,7 @@ type TeamsDTO = {
   id: string;
   name: string;
   active: boolean;
-  category: CategoryDTO[];
+  category: CategoryDTO;
 };
 
 interface StateProps {
