@@ -267,6 +267,12 @@ export const CreateAccount = () => {
   };
 
   const handlePayment = async () => {
+    const sanitizedCardData = {
+      ...cardData,
+      cvv: cardData.cvv.replace(/[^0-9]/g, ''),
+      number: normalizeCardNumber(cardData.number),
+    };
+
     const dataToSend = {
       ...formData,
       athletes: formData.athletes.map((athlete) => ({
@@ -274,12 +280,7 @@ export const CreateAccount = () => {
         cpf: athlete.cpf.replace(/\D/g, ''),
         phone_number: athlete.phone_number.replace(/\D/g, ''),
       })),
-      ...(paymentMethod === 'card' && {
-        card: {
-          ...cardData,
-          number: normalizeCardNumber(cardData.number),
-        },
-      }),
+      ...(paymentMethod === 'card' && { card: sanitizedCardData }),
       isPix: paymentMethod === 'pix',
       installments,
     };
@@ -287,14 +288,45 @@ export const CreateAccount = () => {
     setLoading(true);
     try {
       const res = await api.post('/teams', dataToSend);
-      if (res?.data?.result?.pix) {
-        setPix(res?.data?.result?.pix);
-        setTeamId(res.data.id);
-      } else if (res?.data?.result?.chargeId) {
-        toast.success('Código gerado com sucesso!');
+
+      if (paymentMethod === 'pix') {
+        if (res?.data?.result?.pix) {
+          setPix(res?.data?.result?.pix);
+          setTeamId(res.data.id);
+          toast.success('PIX gerado com sucesso!');
+        } else {
+          toast.error('Falha ao gerar PIX. Tente novamente.');
+        }
+      } else if (paymentMethod === 'card') {
+        if (res?.data?.result?.chargeId) {
+          setCurrentStep(3);
+          toast.success('Pagamento efetuado com sucesso!');
+        } else {
+          toast.error('Falha no pagamento com cartão.');
+        }
       }
     } catch (error) {
-      toast.error('Falha na geração do código do pix!');
+      toast.error(
+        error?.response?.data?.message || 'Erro ao processar pagamento.'
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleConfirmPayment = async () => {
+    setLoading(true);
+    try {
+      const result = await api.get(`/payments/team/${teamId}`);
+
+      if (result.data.status === 'paid') {
+        toast.success('Pagamento confirmado com sucesso!');
+        setCurrentStep(3);
+      } else {
+        toast.error('Pagamento não confirmado. Verifique e tente novamente.');
+      }
+    } catch (error) {
+      toast.error('Erro ao confirmar pagamento. Tente novamente.');
     } finally {
       setLoading(false);
     }
@@ -727,8 +759,16 @@ export const CreateAccount = () => {
                     {[1, 2].map((time) => (
                       <MenuItem key={time} value={time}>
                         {time}x de R${' '}
-                        {(lot?.amount * (1 + (7 + time) / 100)) / 100 / time} -{' '}
-                        R$ {(lot?.amount * (1 + (7 + time) / 100)) / 100}
+                        {(lot?.amount *
+                          formData.athletes.length *
+                          (1 + (7 + time) / 100)) /
+                          100 /
+                          time}{' '}
+                        - R${' '}
+                        {(lot?.amount *
+                          formData.athletes.length *
+                          (1 + (7 + time) / 100)) /
+                          100}
                       </MenuItem>
                     ))}
                   </TextField>
@@ -849,7 +889,7 @@ export const CreateAccount = () => {
                     onChange={(e) =>
                       setCardData((prev) => ({
                         ...prev,
-                        cvv: e.target.value.trim(),
+                        cvv: e.target.value,
                       }))
                     }
                     onFocus={(e) =>
@@ -1002,29 +1042,12 @@ export const CreateAccount = () => {
               <LoadingButton
                 variant="contained"
                 loading={loading}
-                onClick={async () => {
-                  try {
-                    setLoading(true);
-                    const result = await api.get(`/payments/team/${teamId}`);
-
-                    if (result.data.status === 'paid') {
-                      toast.success('Pagamento confirmado com sucesso!');
-                      setCurrentStep(3);
-                    } else {
-                      toast.error(
-                        'Pagamento não confirmado. Verifique e tente novamente.'
-                      );
-                    }
-                  } catch (error) {
-                    toast.error(
-                      'Erro ao confirmar pagamento. Tente novamente.'
-                    );
-                  } finally {
-                    setLoading(false);
-                  }
-                }}
+                onClick={
+                  paymentMethod === 'pix' ? handleConfirmPayment : handlePayment
+                }
+                disabled={loading}
               >
-                Já paguei
+                {paymentMethod === 'pix' ? 'Já paguei' : 'Concluir'}
               </LoadingButton>
             )}
           </div>
