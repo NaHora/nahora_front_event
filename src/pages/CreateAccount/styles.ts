@@ -31,6 +31,7 @@ export const Content = styled.div`
   border-radius: 8px;
   display: flex;
   flex-direction: column;
+  margin-top: -40px;
 
   @media only screen and (max-width: 768px) {
     padding: 16px;

@@ -285,7 +285,7 @@ export const CreateAccount = () => {
 
     setLoading(true);
     try {
-      const res = await api.post('/teams', dataToSend);
+      // const res = await api.post('/teams', dataToSend);
       console.log('Dados enviados:', dataToSend);
       if (res?.data?.result?.pix) {
         setPix(res?.data?.result?.pix);
@@ -349,15 +349,15 @@ export const CreateAccount = () => {
             line_1: `${data.logradouro}, ${data.bairro}`,
             city: data.localidade,
             state: data.uf,
-            zip_code,
+            zip_code, // Mantém o CEP no formato com máscara
             country: 'BR',
           },
         }));
       } else {
-        console.error('CEP não encontrado.');
+        toast.error('CEP não encontrado.');
       }
     } catch (error) {
-      console.error('Erro ao buscar o CEP:', error);
+      toast.error('Erro ao buscar o CEP:', error);
     }
   };
 
@@ -384,6 +384,13 @@ export const CreateAccount = () => {
       console.error('Erro ao copiar o texto: ', err);
       toast.error('Falha ao copiar o texto.');
     }
+  };
+
+  const handleHolderDocumentChange = (value: string) => {
+    setCardData((prev) => ({
+      ...prev,
+      holder_document: value.replace(/\D/g, ''),
+    }));
   };
 
   return (
@@ -666,7 +673,15 @@ export const CreateAccount = () => {
                   marginBottom: 20,
                 }}
               >
-                <Typography variant="body2" textAlign={'center'} color="white">
+                <Typography
+                  variant="body2"
+                  textAlign={'center'}
+                  color="white"
+                  sx={{
+                    wordBreak: 'break-word',
+                    overflowWrap: 'break-word',
+                  }}
+                >
                   {pix.qrCode}
                 </Typography>
                 <Button
@@ -735,18 +750,27 @@ export const CreateAccount = () => {
                     onChange={handleInputChange}
                     value={cardData.holder_name}
                   />
-                  <TextField
-                    id="holder_document"
-                    name="holder_document"
-                    type="number"
-                    label="Documento"
-                    fullWidth
-                    margin="normal"
-                    placeholder="Documento do comprador"
-                    onChange={handleInputChange}
+
+                  <InputMask
+                    mask="999.999.999-99"
                     value={cardData.holder_document}
-                    autoComplete="off"
-                  />
+                    onChange={(e) => handleHolderDocumentChange(e.target.value)}
+                  >
+                    {(inputProps) => (
+                      <TextField
+                        {...inputProps}
+                        id="holder_document"
+                        name="holder_document"
+                        label="CPF do Comprador"
+                        fullWidth
+                        margin="normal"
+                        placeholder="Digite o CPF"
+                        autoComplete="off"
+                        error={!!errors.holder_document}
+                        helperText={errors.holder_document}
+                      />
+                    )}
+                  </InputMask>
                   <div style={{ flex: 'row' }}>
                     <InputMask
                       mask="99"
@@ -827,15 +851,28 @@ export const CreateAccount = () => {
                   Endereço de Cobrança
                 </StepTitle>
 
-                <TextField
-                  label="CEP"
+                <InputMask
+                  mask="99999-999"
                   value={cardData.billing_address?.zip_code || ''}
                   onChange={(e) =>
                     handleAddressChange('zip_code', e.target.value)
                   }
-                  onBlur={(e) => fetchAddressByZipCode(e.target.value)}
-                  fullWidth
-                />
+                  onBlur={(e) =>
+                    fetchAddressByZipCode(e.target.value.replace(/\D/g, ''))
+                  } // Remove máscara antes de buscar endereço
+                >
+                  {(inputProps) => (
+                    <TextField
+                      {...inputProps}
+                      label="CEP"
+                      fullWidth
+                      margin="normal"
+                      placeholder="Digite o CEP"
+                      error={!!errors.zip_code}
+                      helperText={errors.zip_code}
+                    />
+                  )}
+                </InputMask>
                 <TextField
                   label="Endereço"
                   value={cardData.billing_address?.line_1 || ''}
