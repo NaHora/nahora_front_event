@@ -306,7 +306,7 @@ export const CreateAccount = () => {
           toast.error('Falha no pagamento com cartão.');
         }
       }
-    } catch (error) {
+    } catch (error: any) {
       toast.error(
         error?.response?.data?.message || 'Erro ao processar pagamento.'
       );
