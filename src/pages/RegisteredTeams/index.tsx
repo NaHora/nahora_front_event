@@ -20,11 +20,24 @@ type CategoryDTO = {
   name: string;
 };
 
+type PaymentDto = {
+  id: string;
+  payment_method: string;
+};
+
+type AthleteDto = {
+  id: string;
+  name: string;
+};
+
 type TeamsDTO = {
   id: string;
   name: string;
   active: boolean;
   category: CategoryDTO;
+  athletes: AthleteDto[];
+
+  payments: PaymentDto[];
 };
 
 interface StateProps {
@@ -67,6 +80,7 @@ export const RegisteredTeams = () => {
                 <Th>Time</Th>
                 <Th>Categoria</Th>
                 <Th style={{ textAlign: 'center' }}>Status</Th>
+                <Th style={{ textAlign: 'center' }}>Pagamento</Th>
               </Tr>
             </Thead>
 
@@ -77,7 +91,16 @@ export const RegisteredTeams = () => {
               {teamList?.map((team) => (
                 <Tr key={team.id}>
                   <Td>
-                    <PairName>{team?.name}</PairName>
+                    {team.athletes.length > 1
+                      ? team?.athletes.map((athlete) => (
+                          <>
+                            <PairName>{athlete.name}</PairName>
+                            <br />
+                          </>
+                        ))
+                      : team?.athletes.map((athlete) => (
+                          <PairName>{athlete.name}</PairName>
+                        ))}
                   </Td>
                   <Td>
                     <PairName>{team?.category?.name}</PairName>
@@ -85,6 +108,15 @@ export const RegisteredTeams = () => {
                   <Td style={{ textAlign: 'center' }}>
                     <PairName>
                       {team?.active === true ? 'Pago' : 'Não Pago'}
+                    </PairName>
+                  </Td>
+                  <Td style={{ textAlign: 'center' }}>
+                    <PairName>
+                      {team?.payments.length > 0
+                        ? team?.payments[0]?.payment_method === 'credit_card'
+                          ? 'cartåo'
+                          : 'pix'
+                        : '-'}
                     </PairName>
                   </Td>
                 </Tr>
