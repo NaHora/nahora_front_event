@@ -74,7 +74,7 @@ type FormData = {
 };
 
 export const CreateAccount = () => {
-  const [currentStep, setCurrentStep] = useState(0);
+  const [currentStep, setCurrentStep] = useState(4);
   const [loading, setLoading] = useState(false);
   const [loadingCategory, setLoadingCategory] = useState(false);
   const [pix, setPix] = useState({ qrCode: '', qrCodeUrl: '' });
@@ -1037,7 +1037,29 @@ export const CreateAccount = () => {
             </StepTitle>
           </StepDiv>
         )}
-        {currentStep !== 3 && (
+        {currentStep === 4 && (
+          <StepDiv
+            style={{
+              flex: 1,
+              justifyContent: 'center',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              marginTop: 24,
+            }}
+          >
+            <StepTitle style={{ marginTop: 20 }}>
+              🚨 Atenção, atletas!
+              <br />
+              <br /> O 1º lote de inscrições está oficialmente encerrado. 🎉
+              <br />
+              <br />
+              Fique de olho nas nossas redes para saber mais sobre o próximo
+              lote e garantir sua vaga no campeonato. Não perca tempo! 💪🔥
+            </StepTitle>
+          </StepDiv>
+        )}
+        {currentStep !== 3 && currentStep !== 4 && (
           <div style={{ marginTop: '24px' }}>
             {currentStep > 0 && (
               <Button
