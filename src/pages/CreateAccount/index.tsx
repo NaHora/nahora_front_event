@@ -1055,7 +1055,7 @@ export const CreateAccount = () => {
               <br />
               <br />
               Fique de olho nas nossas redes para saber mais sobre o próximo
-              lote e garantir sua vaga no campeonato. Não perca tempo! 💪🔥
+              lote e garantir sua vaga no campeonato. Fiquem ligados! 💪🔥
             </StepTitle>
           </StepDiv>
         )}
