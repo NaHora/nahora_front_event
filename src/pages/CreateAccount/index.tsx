@@ -20,7 +20,6 @@ import {
 } from './styles';
 import Lottie from 'react-lottie';
 import EventLogo from '../../assets/event-logo.png';
-import api from '../../services/api';
 import InputMask from 'react-input-mask';
 import * as Yup from 'yup';
 import { CreditCard, QrCode } from '@mui/icons-material';
@@ -28,6 +27,7 @@ import { Typography, Grid } from '@mui/material';
 import { toast } from 'react-toastify';
 import { LoadingButton } from '@mui/lab';
 import * as animationData from '../../assets/lottie.json';
+import { api } from '../../services/apiClient';
 
 const steps = ['Tipo de inscrição', 'Cadastro dos Atletas', 'Pagamento'];
 

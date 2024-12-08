@@ -22,11 +22,11 @@ import {
 } from './styles';
 import EventLogo from '../../assets/event-logo.png';
 import React, { useEffect, useState } from 'react';
-import api from '../../services/api';
 import MilitaryTechIcon from '@mui/icons-material/MilitaryTech';
 import { CircularProgress, useMediaQuery } from '@mui/material';
 import { theme } from '../../styles/global';
 import { Workout } from '../Filter';
+import { api } from '../../services/apiClient';
 
 type Rank = {
   category: string;

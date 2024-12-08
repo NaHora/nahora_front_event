@@ -4,19 +4,10 @@ import React, {
   useState,
   useContext,
   ReactNode,
-} from "react";
-import { useNavigate } from "react-router-dom";
-import api from "../services/api";
-
-interface User {
-  id: string;
-  name: string;
-  celphone: string;
-  isPrivate: boolean;
-  email: string;
-  avatar_url: string;
-  gender: string;
-}
+} from 'react';
+import { useNavigate } from 'react-router-dom';
+import { User } from '../dtos';
+import { api } from '../services/apiClient';
 
 interface AuthState {
   token: string;
@@ -49,9 +40,9 @@ const AuthContext = createContext<AuthContextData>({} as AuthContextData);
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const navigate = useNavigate();
   const [data, setData] = useState<AuthState>(() => {
-    const refresh_token = localStorage.getItem("@NaHora:refresh_token");
-    const token = localStorage.getItem("@NaHora:token");
-    const user = localStorage.getItem("@NaHora:user");
+    const refresh_token = localStorage.getItem('@NaHora:refresh_token');
+    const token = localStorage.getItem('@NaHora:token');
+    const user = localStorage.getItem('@NaHora:user');
 
     if (token && user && refresh_token) {
       api.defaults.headers.authorization = `Bearer ${token}`;
@@ -63,28 +54,28 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   });
 
   const signIn = useCallback(async ({ email, password }: SignInCredentials) => {
-    const response = await api.post("sessions", {
+    const response = await api.post('sessions', {
       email,
       password,
     });
 
     const { token, user, refresh_token } = response.data;
 
-    localStorage.setItem("@NaHora:refresh_token", refresh_token);
-    localStorage.setItem("@NaHora:token", token);
-    localStorage.setItem("@NaHora:user", JSON.stringify(user));
+    localStorage.setItem('@NaHora:refresh_token', refresh_token);
+    localStorage.setItem('@NaHora:token', token);
+    localStorage.setItem('@NaHora:user', JSON.stringify(user));
 
     api.defaults.headers.authorization = `Bearer ${token}`;
 
     setData({ token, user, refresh_token });
-    navigate("panel");
+    navigate('panel');
   }, []);
 
   const signOut = useCallback(() => {
-    localStorage.removeItem("@NaHora:refresh_token");
-    localStorage.removeItem("@NaHora:token");
-    localStorage.removeItem("@NaHora:user");
-    localStorage.removeItem("@NaHora:myEnterprise");
+    localStorage.removeItem('@NaHora:refresh_token');
+    localStorage.removeItem('@NaHora:token');
+    localStorage.removeItem('@NaHora:user');
+    localStorage.removeItem('@NaHora:myEnterprise');
 
     setData({} as AuthState);
   }, []);

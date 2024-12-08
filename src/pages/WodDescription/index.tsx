@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react';
-import api from '../../services/api';
 import { NumericFormat, PatternFormat } from 'react-number-format';
 import {
   Container,
@@ -54,6 +53,7 @@ import { secondToTimeFormater, timeToSecondFormater } from '../../utils/time';
 import { theme } from '../../styles/global';
 import { LoadingButton } from '@mui/lab';
 import Navbar from '../../components/navbar';
+import { api } from '../../services/apiClient';
 
 type SelectPropsDTO = {
   id: string;

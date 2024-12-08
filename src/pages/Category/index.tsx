@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react';
-import api from '../../services/api';
 import { NumericFormat, PatternFormat } from 'react-number-format';
 import {
   Container,
@@ -53,6 +52,7 @@ import { secondToTimeFormater, timeToSecondFormater } from '../../utils/time';
 import { theme } from '../../styles/global';
 import { LoadingButton } from '@mui/lab';
 import Navbar from '../../components/navbar';
+import { api } from '../../services/apiClient';
 
 type SelectPropsDTO = {
   id: string;
@@ -108,7 +108,9 @@ export const Category = () => {
     setLoading(true);
 
     try {
-      const response = await api.get(`/category`);
+      const response = await api.get(
+        `/category/event/1f0fd51d-cd1c-43a9-80ed-00d039571520`
+      );
 
       setCategoryList(response.data);
       setCategoryFiltered(response.data[0].id);

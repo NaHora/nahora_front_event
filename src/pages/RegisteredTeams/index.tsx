@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react';
-import api from '../../services/api';
 import {
   Container,
   Table,
@@ -14,6 +13,7 @@ import {
   TableContainer,
 } from './styles';
 import EventLogo from '../../assets/event-logo.png';
+import { api } from '../../services/apiClient';
 
 type CategoryDTO = {
   id: string;
