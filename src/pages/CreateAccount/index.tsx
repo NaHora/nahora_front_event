@@ -27,7 +27,7 @@ import { Typography, Grid } from '@mui/material';
 import { toast } from 'react-toastify';
 import { LoadingButton } from '@mui/lab';
 import * as animationData from '../../assets/lottie.json';
-import { api } from '../../services/apiClient';
+import api from '../../services/api';
 
 const steps = ['Tipo de inscrição', 'Cadastro dos Atletas', 'Pagamento'];
 

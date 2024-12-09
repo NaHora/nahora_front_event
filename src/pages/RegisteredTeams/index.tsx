@@ -13,7 +13,7 @@ import {
   TableContainer,
 } from './styles';
 import EventLogo from '../../assets/event-logo.png';
-import { api } from '../../services/apiClient';
+import api from '../../services/api';
 
 type CategoryDTO = {
   id: string;

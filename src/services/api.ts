@@ -1,30 +1,33 @@
-import axios, { AxiosError } from 'axios';
-import { useAuth } from '../hooks/auth';
+import axios, { AxiosError, AxiosInstance } from 'axios';
 
 let isRefreshing = false;
-let failedRequestQueue: any[] = [];
+let failedRequestQueue = [] as Array<{
+  onSuccess: (token: string) => void;
+  onFailure: (err: AxiosError) => void;
+}>;
 
-export function setupAPIClient() {
-  const token = localStorage.getItem('@NaHora:token');
-  const { signOut } = useAuth();
+type ModifyAxiosInstance = AxiosInstance & {
+  registerInterceptTokenManager(signOut: () => void): void;
+};
 
-  const api = axios.create({
-    baseURL: import.meta.env.VITE_API,
-    headers: {
-      Authorization: token ? `Bearer ${token}` : '',
-    },
-  });
+const api = axios.create({
+  baseURL: import.meta.env.VITE_API,
+}) as ModifyAxiosInstance;
 
+api.registerInterceptTokenManager = (signOut: () => void) => {
   api.interceptors.response.use(
-    (response) => {
+    (response: any) => {
       return response;
     },
-    (error: AxiosError) => {
+    async (error: any) => {
       if (error.response?.status === 401) {
         if (
-          error.response?.data?.message === 'Token expirou, refaça o login.'
+          error?.response?.data?.message === 'Token expirou, refaça o login.'
         ) {
-          const refreshToken = localStorage.getItem('@NaHora:refreshToken');
+          const refreshToken = await localStorage.getItem(
+            '@NaHora:refresh_token'
+          );
+
           const originalConfig = error.config;
 
           if (!isRefreshing) {
@@ -34,22 +37,25 @@ export function setupAPIClient() {
               .post('/sessions/refresh-token', {
                 current_refresh_token: refreshToken,
               })
-              .then((response) => {
-                const { token: newToken, refresh_token: newRefreshToken } =
-                  response.data;
+              .then(async (response: any) => {
+                const { token, refresh_token: refreshToken } = response.data;
 
-                localStorage.setItem('@NaHora:token', newToken);
-                localStorage.setItem('@NaHora:refreshToken', newRefreshToken);
+                await localStorage.multiSet([
+                  ['@NaHora:token', token],
+                  ['@NaHora:refresh_token', refreshToken],
+                ]);
 
-                api.defaults.headers['Authorization'] = `Bearer ${newToken}`;
+                api.defaults.headers.authorization = `Bearer ${token}`;
 
                 failedRequestQueue.forEach((request) =>
-                  request.onSuccess(newToken)
+                  request.onSuccess(token)
                 );
                 failedRequestQueue = [];
               })
               .catch((err) => {
-                failedRequestQueue.forEach((request) => request.onFailure(err));
+                failedRequestQueue.forEach((request) =>
+                  request?.onFailure(err)
+                );
                 failedRequestQueue = [];
 
                 signOut();
@@ -61,12 +67,9 @@ export function setupAPIClient() {
 
           return new Promise((resolve, reject) => {
             failedRequestQueue.push({
-              onSuccess: (newToken: string) => {
-                if (originalConfig?.headers) {
-                  originalConfig.headers[
-                    'Authorization'
-                  ] = `Bearer ${newToken}`;
-                }
+              onSuccess: (token: string) => {
+                originalConfig.headers.authorization = `Bearer ${token}`;
+
                 resolve(api(originalConfig));
               },
               onFailure: (err: AxiosError) => {
@@ -74,14 +77,14 @@ export function setupAPIClient() {
               },
             });
           });
-        } else {
-          signOut();
         }
+
+        signOut();
       }
 
       return Promise.reject(error);
     }
   );
+};
 
-  return api;
-}
+export default api;

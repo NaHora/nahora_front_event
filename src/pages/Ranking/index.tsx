@@ -26,7 +26,7 @@ import MilitaryTechIcon from '@mui/icons-material/MilitaryTech';
 import { CircularProgress, useMediaQuery } from '@mui/material';
 import { theme } from '../../styles/global';
 import { Workout } from '../Filter';
-import { api } from '../../services/apiClient';
+import api from '../../services/api';
 
 type Rank = {
   category: string;

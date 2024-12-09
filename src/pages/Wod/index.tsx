@@ -53,7 +53,7 @@ import { secondToTimeFormater, timeToSecondFormater } from '../../utils/time';
 import { theme } from '../../styles/global';
 import { LoadingButton } from '@mui/lab';
 import Navbar from '../../components/navbar';
-import { api } from '../../services/apiClient';
+import api from '../../services/api';
 
 type SelectPropsDTO = {
   id: string;

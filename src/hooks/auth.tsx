@@ -7,7 +7,7 @@ import React, {
 } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { User } from '../dtos';
-import { api } from '../services/apiClient';
+import api from '../services/api';
 
 interface AuthState {
   token: string;

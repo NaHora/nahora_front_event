@@ -9,7 +9,7 @@ import {
 } from 'react';
 import { EventDTO, SelectProps } from '../dtos';
 import { useAuth } from '../hooks/auth';
-import { api } from '../services/apiClient';
+import api from '../services/api';
 
 type EventProviderProps = {
   children: ReactNode;
@@ -84,7 +84,7 @@ export function EventProvider({ children }: EventProviderProps) {
   }, [currentEvent]);
 
   useEffect(() => {
-    if (user) {
+    if (user?.id) {
       getMyEvents();
     }
   }, [user]);
