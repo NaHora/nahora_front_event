@@ -2,12 +2,16 @@ import {
   Box,
   Divider,
   Drawer,
+  FormControl,
   IconButton,
+  InputLabel,
   List,
   ListItem,
   ListItemButton,
   ListItemIcon,
   ListItemText,
+  MenuItem,
+  Select,
 } from '@mui/material';
 import React, { useState } from 'react';
 import MenuIcon from '@mui/icons-material/Menu';
@@ -18,13 +22,17 @@ import FormatListNumberedIcon from '@mui/icons-material/FormatListNumbered';
 import CategoryIcon from '@mui/icons-material/Category';
 import PeopleAltIcon from '@mui/icons-material/PeopleAlt';
 import { useNavigate } from 'react-router-dom';
+import { useEvent } from '../contexts/EventContext';
+
 const Navbar: React.FC = () => {
   const [open, setOpen] = useState(false);
   const navigate = useNavigate();
+  const { currentEvent, events, isLoading, setCurrentEvent } = useEvent();
 
   const toggleDrawer = (status: boolean) => {
     setOpen(status);
   };
+
   return (
     <React.Fragment>
       <Box sx={{ justifyContent: 'flex', justifyItems: 'left', width: '100%' }}>
@@ -47,6 +55,20 @@ const Navbar: React.FC = () => {
           onClick={() => toggleDrawer(false)}
           onKeyDown={() => toggleDrawer(false)}
         >
+          <FormControl variant="outlined" style={{ minWidth: 200 }}>
+            <Select
+              labelId="select-event-label"
+              value={currentEvent}
+              onChange={setCurrentEvent}
+              label="Evento"
+            >
+              {events.map((event) => (
+                <MenuItem key={event.value} value={event.value}>
+                  {event.label}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
           <List>
             {[
               { name: 'Resultados', page: '/panel', icon: <ScoreboardIcon /> },
