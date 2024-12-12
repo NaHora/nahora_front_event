@@ -11,6 +11,7 @@ import { PairCreate } from '../pages/PairCreate';
 import { Category } from '../pages/Category';
 import { CreateAccount } from '../pages/CreateAccount';
 import { RegisteredTeams } from '../pages/RegisteredTeams';
+import { Events } from '../pages/Events';
 
 const defaultProtectedRouteProps: Omit<ProtectedRouteProps, 'outlet'> = {
   authenticationPath: '/admin',
@@ -62,6 +63,13 @@ export default function AppRoutes() {
         path="/categorias"
         element={
           <PrivateRoute {...defaultProtectedRouteProps} outlet={<Category />} />
+        }
+      />
+
+      <Route
+        path="/events"
+        element={
+          <PrivateRoute {...defaultProtectedRouteProps} outlet={<Events />} />
         }
       />
 

@@ -6,6 +6,9 @@ export type SelectProps = {
 export interface EventDTO {
   id: string;
   name: string;
+  start_date: string;
+  end_date: string;
+  max_sales: string;
 }
 
 export interface User {

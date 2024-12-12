@@ -23,11 +23,14 @@ import CategoryIcon from '@mui/icons-material/Category';
 import PeopleAltIcon from '@mui/icons-material/PeopleAlt';
 import { useNavigate } from 'react-router-dom';
 import { useEvent } from '../contexts/EventContext';
+import { useAuth } from '../hooks/auth';
+import ExitToAppIcon from '@mui/icons-material/ExitToApp';
 
 const Navbar: React.FC = () => {
   const [open, setOpen] = useState(false);
   const navigate = useNavigate();
   const { currentEvent, events, isLoading, setCurrentEvent } = useEvent();
+  const { signOut } = useAuth();
 
   const toggleDrawer = (status: boolean) => {
     setOpen(status);
@@ -50,25 +53,37 @@ const Navbar: React.FC = () => {
       </Box>
       <Drawer anchor={'left'} open={open} onClose={() => toggleDrawer(false)}>
         <Box
-          sx={{ width: 250 }}
+          sx={{ width: 250, paddingTop: '16px' }}
           role="presentation"
           onClick={() => toggleDrawer(false)}
           onKeyDown={() => toggleDrawer(false)}
         >
-          <FormControl variant="outlined" style={{ minWidth: 200 }}>
-            <Select
-              labelId="select-event-label"
-              value={currentEvent}
-              onChange={setCurrentEvent}
-              label="Evento"
-            >
-              {events.map((event) => (
-                <MenuItem key={event.value} value={event.value}>
-                  {event.label}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
+          <Box
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'flex',
+              width: '100%',
+              paddingRight: '16px',
+              paddingLeft: '16px',
+            }}
+          >
+            <FormControl variant="outlined" style={{ width: '100%' }}>
+              <InputLabel id="select-event-label">Evento</InputLabel>
+              <Select
+                labelId="select-event-label"
+                value={currentEvent}
+                onChange={setCurrentEvent}
+                label="Evento"
+              >
+                {events.map((event) => (
+                  <MenuItem key={event.value} value={event.value}>
+                    {event.label}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          </Box>
           <List>
             {[
               { name: 'Resultados', page: '/panel', icon: <ScoreboardIcon /> },
@@ -92,6 +107,12 @@ const Navbar: React.FC = () => {
                 </ListItemButton>
               </ListItem>
             ))}
+            <ListItemButton onClick={() => signOut()}>
+              <ListItemIcon>
+                <ExitToAppIcon />
+              </ListItemIcon>
+              <ListItemText>Sair</ListItemText>
+            </ListItemButton>
           </List>
         </Box>
       </Drawer>

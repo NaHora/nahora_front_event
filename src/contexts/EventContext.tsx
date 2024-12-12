@@ -35,7 +35,7 @@ export function EventProvider({ children }: EventProviderProps) {
   const getMyEvents = async () => {
     setIsLoading(true);
     try {
-      const response = await api.get('/events');
+      const response = await api.get('/event');
 
       const newFormatEvents = response.data.map((event: EventDTO) => ({
         value: event.id,
