@@ -12,6 +12,7 @@ import { Category } from '../pages/Category';
 import { CreateAccount } from '../pages/CreateAccount';
 import { RegisteredTeams } from '../pages/RegisteredTeams';
 import { Events } from '../pages/Events';
+import SortTeam from '../pages/sortTeam';
 
 const defaultProtectedRouteProps: Omit<ProtectedRouteProps, 'outlet'> = {
   authenticationPath: '/admin',
@@ -25,6 +26,7 @@ export default function AppRoutes() {
 
       <Route path="/rank" element={<Ranking />} />
       <Route path="/inscritos" element={<RegisteredTeams />} />
+      <Route path="/pelada" element={<SortTeam />} />
 
       <Route
         path="/panel"
