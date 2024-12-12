@@ -12,6 +12,7 @@ type Team = Player[];
 const SortTeam: React.FC = () => {
   const [players, setPlayers] = useState<Player[]>([]);
   const [playerName, setPlayerName] = useState<string>('');
+  const [bulkNames, setBulkNames] = useState<string>('');
   const [teams, setTeams] = useState<Team[]>([]);
   const [numTeams, setNumTeams] = useState<number>(2);
 
@@ -33,12 +34,29 @@ const SortTeam: React.FC = () => {
     if (playerName.trim()) {
       const newPlayer: Player = {
         id: Date.now(),
-        name: playerName,
+        name: playerName.trim(),
         rating: 3, // Default rating of 3
       };
       setPlayers([...players, newPlayer]);
       setPlayerName('');
     }
+  };
+
+  // Add players in bulk
+  const addPlayersInBulk = () => {
+    const names = bulkNames
+      .split('\n') // Split by lines
+      .map((line) => line.replace(/^\d+-/, '').trim()) // Remove numbering (e.g., "1-") and trim whitespace
+      .filter((name) => name && name !== '-'); // Exclude empty or invalid names
+
+    const newPlayers = names.map((name, index) => ({
+      id: Date.now() + Math.random(), // Unique ID for each player
+      name,
+      rating: 3, // Default rating
+    }));
+
+    setPlayers([...players, ...newPlayers]);
+    setBulkNames('');
   };
 
   // Update player rating
@@ -104,10 +122,12 @@ const SortTeam: React.FC = () => {
       style={{
         padding: '20px',
         fontFamily: 'Arial, sans-serif',
-        background: '#fff',
+        backgroundColor: '#FFFFFF',
+        minHeight: '100vh',
+        margin: '0',
       }}
     >
-      <h1>Player Manager</h1>
+      <h1>SortTeam</h1>
       <div>
         <input
           type="text"
@@ -117,11 +137,22 @@ const SortTeam: React.FC = () => {
         />
         <button onClick={addPlayer}>Add Player</button>
       </div>
+      <div>
+        <textarea
+          placeholder="Paste your player list here"
+          value={bulkNames}
+          onChange={(e) => setBulkNames(e.target.value)}
+          style={{ width: '100%', height: '100px', marginTop: '10px' }}
+        />
+        <button onClick={addPlayersInBulk} style={{ marginTop: '10px' }}>
+          Add Players from List
+        </button>
+      </div>
       <h2>Players</h2>
       <ul>
-        {players.map((player) => (
+        {players.map((player, index) => (
           <li key={player.id}>
-            {player.name} - Rating: {player.rating}
+            {index + 1}- {player.name} - Rating: {player.rating}
             <button onClick={() => updateRating(player.id, 1)}>+</button>
             <button onClick={() => updateRating(player.id, -1)}>-</button>
             <button onClick={() => deletePlayer(player.id)}>Delete</button>
