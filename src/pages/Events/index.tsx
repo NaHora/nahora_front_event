@@ -425,27 +425,31 @@ export const Events = () => {
             <Thead>
               <Tr>
                 <Th>Evento</Th>
+                <Th>Data de Início</Th>
+                <Th>Data de Fim</Th>
+                <Th>Máximo de Vendas</Th>
                 <Th style={{ textAlign: 'center' }}>Ações</Th>
               </Tr>
             </Thead>
 
             <Tbody>
-              <Tr>
-                <Td></Td>
-              </Tr>
               {eventList?.map((event) => (
                 <Tr key={event.id}>
                   <Td>
                     <PairName>{event?.name}</PairName>
                   </Td>
-
+                  <Td>
+                    <PairName>{event?.start_date}</PairName>
+                  </Td>
+                  <Td>
+                    <PairName>{event?.end_date}</PairName>
+                  </Td>
+                  <Td>
+                    <PairName>{event?.max_sales}</PairName>
+                  </Td>
                   <Td>
                     <FlexRow>
-                      <Delete
-                        onClick={() => {
-                          openDialog(event.id);
-                        }}
-                      >
+                      <Delete onClick={() => openDialog(event.id)}>
                         <DeleteForeverIcon
                           fontSize={isMobile ? 'small' : 'medium'}
                           sx={{ marginRight: '4px' }}
