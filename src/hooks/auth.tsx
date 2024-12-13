@@ -4,9 +4,10 @@ import React, {
   useState,
   useContext,
   ReactNode,
+  useEffect,
 } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { User } from '../dtos';
+import { EnterpriseDTO, User } from '../dtos';
 import api from '../services/api';
 
 interface AuthState {
@@ -33,12 +34,17 @@ interface AuthContextData {
   user: User;
   signIn(credentials: SignInCredentials): Promise<void>;
   signOut(): void;
+  userEnterprise: EnterpriseDTO;
 }
 
 const AuthContext = createContext<AuthContextData>({} as AuthContextData);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const navigate = useNavigate();
+  const [userEnterprise, setUserEnterprise] = useState<EnterpriseDTO>(
+    {} as EnterpriseDTO
+  );
+
   const [data, setData] = useState<AuthState>(() => {
     const refresh_token = localStorage.getItem('@NaHora:refresh_token');
     const token = localStorage.getItem('@NaHora:token');
@@ -59,7 +65,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       password,
     });
 
-    const enterprise = await api.get('/enterprise/mine');
+    const enterprise = await api.get('/enterprises/mine');
 
     const { token, user, refresh_token } = response.data;
 
@@ -82,8 +88,31 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setData({} as AuthState);
   }, []);
 
+  useEffect(() => {
+    if (data.user) {
+      const getEnterprise = async () => {
+        try {
+          const response = await api.get('/enterprises/mine');
+          const enterpriseData = response.data;
+
+          setUserEnterprise(enterpriseData);
+          localStorage.setItem(
+            '@NaHora:enterprise',
+            JSON.stringify(enterpriseData)
+          );
+        } catch (err) {
+          console.error('Erro ao buscar dados da empresa:', err);
+        }
+      };
+
+      getEnterprise();
+    }
+  }, [data.user]);
+
   return (
-    <AuthContext.Provider value={{ user: data.user, signIn, signOut }}>
+    <AuthContext.Provider
+      value={{ user: data.user, signIn, signOut, userEnterprise }}
+    >
       {children}
     </AuthContext.Provider>
   );

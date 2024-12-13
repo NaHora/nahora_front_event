@@ -19,6 +19,7 @@
     "@mui/x-data-grid": "^5.17.20",
     "axios": "^1.2.4",
     "babel-runtime": "^6.26.0",
+    "date-fns": "^4.1.0",
     "react": "^18.2.0",
     "react-credit-cards-2": "^1.0.3",
     "react-dom": "^18.2.0",

@@ -20,3 +20,22 @@ export interface User {
   avatar_url: string;
   gender: string;
 }
+
+export interface EnterpriseDTO {
+  active: number;
+  address: string;
+  area: string;
+  close_hour: string;
+  id: string;
+  isPrivate: number;
+  lat: string;
+  logo: string;
+  logo_url: string;
+  long: string;
+  name: string;
+  open_hour: string;
+  owner_id: string;
+  phone: string;
+  primary_color: string;
+  secondary_color: string;
+}

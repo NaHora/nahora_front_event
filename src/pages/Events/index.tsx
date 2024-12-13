@@ -54,6 +54,8 @@ import { LoadingButton } from '@mui/lab';
 import Navbar from '../../components/navbar';
 import api from '../../services/api';
 import { EventDTO } from '../../dtos';
+import { useAuth } from '../../hooks/auth';
+import { getFormatDate } from '../../utils/date';
 
 type SelectPropsDTO = {
   id: string;
@@ -88,6 +90,7 @@ export const Events = () => {
     max_sales: '',
   });
   const [drawerType, setDrawerType] = useState('');
+  const { userEnterprise } = useAuth();
 
   const openDrawer = (drawerType: string, item: EventDTO) => {
     if (drawerType === 'edit') {
@@ -158,7 +161,7 @@ export const Events = () => {
 
       const body = {
         name: values?.name,
-        enterprise_id: '1f0fd51d-cd1c-43a9-80ed-00d039571520',
+        enterprise_id: userEnterprise.id,
         start_date: values?.start_date,
         end_date: values?.end_date,
         max_sales: values?.max_sales,
@@ -166,7 +169,7 @@ export const Events = () => {
 
       const response = await api.post(`/event`, body);
       setErrors({});
-      toast.success('Categoria criada com sucesso!');
+      toast.success('Evento criado com sucesso!');
       getEvents();
       setIsDrawerOpen(false);
     } catch (err: any) {
@@ -177,7 +180,7 @@ export const Events = () => {
       if (err?.response) {
         return toast.error(
           err?.response?.data?.message ||
-            'Ocorreu um erro ao adicionar a categoria, tente novamente'
+            'Ocorreu um erro ao adicionar o evento, tente novamente'
         );
       }
     } finally {
@@ -187,7 +190,7 @@ export const Events = () => {
 
   const putData = async () => {
     const schema = Yup.object().shape({
-      name: Yup.string().required('Nome da categoria obrigatória'),
+      name: Yup.string().required('Nome do evento obrigatório'),
     });
 
     await schema.validate(values, {
@@ -205,7 +208,7 @@ export const Events = () => {
 
       await api.put('/event', body);
       setErrors({});
-      toast.success('Categoria atualizada com sucesso!');
+      toast.success('Evento atualizado com sucesso!');
       getEvents();
       setIsDrawerOpen(false);
     } catch (err: any) {
@@ -216,7 +219,7 @@ export const Events = () => {
       if (err?.response) {
         return toast.error(
           err?.response?.data?.message ||
-            'Ocorreu um erro ao atualizar a categoria, tente novamente'
+            'Ocorreu um erro ao atualizar o evento, tente novamente'
         );
       }
     } finally {
@@ -231,15 +234,15 @@ export const Events = () => {
     try {
       //desestruturando o estado, pegando os valores que guardamos la, atraves dos inputs
 
-      await api.delete(`/category/${eventSelected}`);
-      toast.success('Categoria deletada com sucesso!');
+      await api.delete(`/event/${eventSelected}`);
+      toast.success('Evento deletado com sucesso!');
       setOpenDeleteDialog(false);
       getEvents();
     } catch (err: any) {
       if (err?.response) {
         return toast.error(
           err?.response?.data?.message ||
-            'Ocorreu um erro ao remover a categoria, tente novamente'
+            'Ocorreu um erro ao remover o evento, tente novamente'
         );
       }
     } finally {
@@ -335,7 +338,7 @@ export const Events = () => {
               }}
             />
 
-            <InputLabel>Data de Fim</InputLabel>
+            <InputLabel>Data de Término</InputLabel>
             <TextField
               id="end-date"
               type="date"
@@ -425,9 +428,8 @@ export const Events = () => {
             <Thead>
               <Tr>
                 <Th>Evento</Th>
-                <Th>Data de Início</Th>
-                <Th>Data de Fim</Th>
-                <Th>Máximo de Vendas</Th>
+                <Th>Início</Th>
+                <Th>Término</Th>
                 <Th style={{ textAlign: 'center' }}>Ações</Th>
               </Tr>
             </Thead>
@@ -439,13 +441,10 @@ export const Events = () => {
                     <PairName>{event?.name}</PairName>
                   </Td>
                   <Td>
-                    <PairName>{event?.start_date}</PairName>
+                    <PairName>{getFormatDate(event?.start_date)}</PairName>
                   </Td>
                   <Td>
-                    <PairName>{event?.end_date}</PairName>
-                  </Td>
-                  <Td>
-                    <PairName>{event?.max_sales}</PairName>
+                    <PairName>{getFormatDate(event?.end_date)}</PairName>
                   </Td>
                   <Td>
                     <FlexRow>
