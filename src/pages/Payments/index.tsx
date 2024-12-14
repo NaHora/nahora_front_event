@@ -77,6 +77,15 @@ export const Payments = () => {
     return team.payments.length > 0 ? team.payments[0].amount / 100 : 0;
   };
 
+  const getTotalPayments = () => {
+    return teamList
+      .reduce((total, team) => {
+        const paymentAmount = getPaymentAmount(team);
+        return total + paymentAmount;
+      }, 0)
+      .toFixed(2);
+  };
+
   return (
     <Container>
       <Navbar />
@@ -118,6 +127,17 @@ export const Payments = () => {
                   </Tr>
                 );
               })}
+              <Tr>
+                <Td>
+                  <PairName style={{ fontWeight: 'bold' }}>Total</PairName>
+                </Td>
+                <Td>
+                  <PairName style={{ fontWeight: 'bold' }}>
+                    R${getTotalPayments()}
+                  </PairName>
+                </Td>
+                <Td colSpan={2}></Td>
+              </Tr>
             </Tbody>
           </Table>
         </TableContainer>
