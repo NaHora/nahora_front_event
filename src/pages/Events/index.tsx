@@ -138,6 +138,7 @@ export const Events = () => {
     try {
       const schema = Yup.object().shape({
         name: Yup.string().required('Nome do evento é obrigatório'),
+        address: Yup.string().required('Endereço do evento é obrigatório'),
         start_date: Yup.string().required('Data de início é obrigatória'),
         end_date: Yup.string()
           .required('Data de fim é obrigatória')
@@ -151,9 +152,6 @@ export const Events = () => {
               );
             }
           ),
-        max_sales: Yup.number()
-          .required('Máximo de vendas é obrigatório')
-          .positive('Deve ser um número positivo'),
       });
       await schema.validate(values, {
         abortEarly: false,
@@ -161,10 +159,10 @@ export const Events = () => {
 
       const body = {
         name: values?.name,
+        address: values?.address,
         enterprise_id: userEnterprise.id,
         start_date: values?.start_date,
         end_date: values?.end_date,
-        max_sales: values?.max_sales,
       };
 
       const response = await api.post(`/event`, body);
@@ -257,7 +255,6 @@ export const Events = () => {
 
   return (
     <Container>
-      <Navbar />
       <Dialog
         open={openDeleteDialog}
         onClose={() => setOpenDeleteDialog(false)}
@@ -316,6 +313,25 @@ export const Events = () => {
                 },
               }}
             />
+            <InputLabel>Endereço completo</InputLabel>
+            <TextField
+              id="address"
+              size="small"
+              onChange={(e) =>
+                setValues({ ...values, address: e.target.value })
+              }
+              value={values.address}
+              error={!!errors.address}
+              variant="outlined"
+              helperText={errors.address}
+              sx={{ width: '100%', borderRadius: '10px' }}
+              InputProps={{
+                style: {
+                  borderRadius: '10px',
+                  backgroundColor: '#121214',
+                },
+              }}
+            />
 
             <InputLabel>Data de Início</InputLabel>
             <TextField
@@ -350,27 +366,6 @@ export const Events = () => {
               error={!!errors.end_date}
               variant="outlined"
               helperText={errors.end_date}
-              sx={{ width: '100%', borderRadius: '10px' }}
-              InputProps={{
-                style: {
-                  borderRadius: '10px',
-                  backgroundColor: '#121214',
-                },
-              }}
-            />
-
-            <InputLabel>Máximo de atletas</InputLabel>
-            <TextField
-              id="max-sales"
-              type="number"
-              size="small"
-              onChange={(e) =>
-                setValues({ ...values, max_sales: e.target.value })
-              }
-              value={values.max_sales}
-              error={!!errors.max_sales}
-              variant="outlined"
-              helperText={errors.max_sales}
               sx={{ width: '100%', borderRadius: '10px' }}
               InputProps={{
                 style: {

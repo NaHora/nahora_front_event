@@ -58,32 +58,34 @@ const Navbar: React.FC = () => {
           onClick={() => toggleDrawer(false)}
           onKeyDown={() => toggleDrawer(false)}
         >
-          <Box
-            sx={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'flex',
-              width: '100%',
-              paddingRight: '16px',
-              paddingLeft: '16px',
-            }}
-          >
-            <FormControl variant="outlined" style={{ width: '100%' }}>
-              <InputLabel id="select-event-label">Evento</InputLabel>
-              <Select
-                labelId="select-event-label"
-                value={currentEvent}
-                onChange={setCurrentEvent}
-                label="Evento"
-              >
-                {events.map((event) => (
-                  <MenuItem key={event.value} value={event.value}>
-                    {event.label}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-          </Box>
+          {events.length > 0 && (
+            <Box
+              sx={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'flex',
+                width: '100%',
+                paddingRight: '16px',
+                paddingLeft: '16px',
+              }}
+            >
+              <FormControl variant="outlined" style={{ width: '100%' }}>
+                <InputLabel id="select-event-label">Evento</InputLabel>
+                <Select
+                  labelId="select-event-label"
+                  value={currentEvent}
+                  onChange={setCurrentEvent}
+                  label="Evento"
+                >
+                  {events.map((event) => (
+                    <MenuItem key={event.value} value={event.value}>
+                      {event.label}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </Box>
+          )}
           <List>
             {[
               { name: 'Resultados', page: '/panel', icon: <ScoreboardIcon /> },

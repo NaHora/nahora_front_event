@@ -8,7 +8,7 @@ export interface EventDTO {
   name: string;
   start_date: string;
   end_date: string;
-  max_sales: string;
+  address: string;
 }
 
 export interface User {

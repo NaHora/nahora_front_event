@@ -1,26 +1,27 @@
-/* eslint-disable react/require-default-props */
-import React from "react";
-import {
-  Route,
-  RouteProps as ReactDOMRouteProps,
-  Navigate,
-  useLocation,
-} from "react-router-dom";
-import { useAuth } from "../hooks/auth";
+import React from 'react';
+import { Navigate } from 'react-router-dom';
+import { useAuth } from '../hooks/auth';
 
-export type ProtectedRouteProps = {
-  authenticationPath: string;
-  outlet: JSX.Element;
+type ProtectedRouteProps = {
+  children: JSX.Element;
+  type: 'private' | 'public';
+  redirectTo: string;
 };
 
-export default function PrivateRoute({
-  authenticationPath,
-  outlet,
-}: ProtectedRouteProps) {
+export const ProtectedRoute = ({
+  children,
+  type,
+  redirectTo,
+}: ProtectedRouteProps) => {
   const { user } = useAuth();
-  if (!!user) {
-    return outlet;
-  } else {
-    return <Navigate to={{ pathname: authenticationPath }} />;
+
+  if (type === 'private') {
+    return user ? children : <Navigate to={redirectTo} />;
   }
-}
+
+  if (type === 'public') {
+    return !user ? children : <Navigate to={redirectTo} />;
+  }
+
+  return null;
+};

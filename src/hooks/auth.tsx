@@ -65,14 +65,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       password,
     });
 
-    const enterprise = await api.get('/enterprises/mine');
-
     const { token, user, refresh_token } = response.data;
 
     localStorage.setItem('@NaHora:refresh_token', refresh_token);
     localStorage.setItem('@NaHora:token', token);
     localStorage.setItem('@NaHora:user', JSON.stringify(user));
-    localStorage.setItem('@NaHora:enterprise', JSON.stringify(enterprise.data));
 
     api.defaults.headers.authorization = `Bearer ${token}`;
 
