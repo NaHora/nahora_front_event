@@ -75,7 +75,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     api.defaults.headers.authorization = `Bearer ${token}`;
 
     setData({ token, user, refresh_token });
-    navigate('events');
+    navigate('eventos');
   }, []);
 
   const signOut = useCallback(() => {
