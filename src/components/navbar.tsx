@@ -73,7 +73,7 @@ const Navbar: React.FC = () => {
                 <InputLabel id="select-event-label">Evento</InputLabel>
                 <Select
                   labelId="select-event-label"
-                  value={currentEvent}
+                  value={currentEvent?.label}
                   onChange={setCurrentEvent}
                   label="Evento"
                 >

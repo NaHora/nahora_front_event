@@ -7,6 +7,7 @@ import {
   useEffect,
   useState,
 } from 'react';
+import { key } from '../config/key';
 import { EventDTO, SelectProps } from '../dtos';
 import { useAuth } from '../hooks/auth';
 import api from '../services/api';
@@ -45,7 +46,7 @@ export function EventProvider({ children }: EventProviderProps) {
       setEvents(newFormatEvents);
       setEventsData(response.data);
 
-      const myEventSavedStorage = localStorage.getItem('@NaHora:CurrentEvent');
+      const myEventSavedStorage = localStorage.getItem(key.currentEvent);
 
       if (myEventSavedStorage) {
         const parsedEvent = JSON.parse(myEventSavedStorage);
@@ -63,7 +64,6 @@ export function EventProvider({ children }: EventProviderProps) {
     }
   };
 
-  // Retorna o evento correspondente ao `currentEvent` ou um objeto padrão
   const getCurrentEventsData = eventsData.find(
     (event) => event.id === currentEvent?.value
   ) || {
@@ -73,13 +73,9 @@ export function EventProvider({ children }: EventProviderProps) {
     date: '',
   };
 
-  // Salva o evento atual no localStorage sempre que mudar
   useEffect(() => {
     if (currentEvent?.value) {
-      localStorage.setItem(
-        '@NaHora:CurrentEvent',
-        JSON.stringify(currentEvent)
-      );
+      localStorage.setItem(key.currentEvent, JSON.stringify(currentEvent));
     }
   }, [currentEvent]);
 

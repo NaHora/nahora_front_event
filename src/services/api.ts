@@ -1,4 +1,5 @@
 import axios, { AxiosError, AxiosInstance } from 'axios';
+import { key } from '../config/key';
 
 let isRefreshing = false;
 let failedRequestQueue = [] as Array<{
@@ -24,9 +25,7 @@ api.registerInterceptTokenManager = (signOut: () => void) => {
         if (
           error?.response?.data?.message === 'Token expirou, refaça o login.'
         ) {
-          const refreshToken = await localStorage.getItem(
-            '@NaHora:refresh_token'
-          );
+          const refreshToken = await localStorage.getItem(key.refreshToken);
 
           const originalConfig = error.config;
 
@@ -41,8 +40,8 @@ api.registerInterceptTokenManager = (signOut: () => void) => {
                 const { token, refresh_token: refreshToken } = response.data;
 
                 await localStorage.multiSet([
-                  ['@NaHora:token', token],
-                  ['@NaHora:refresh_token', refreshToken],
+                  [key.token, token],
+                  [key.refreshToken, refreshToken],
                 ]);
 
                 api.defaults.headers.authorization = `Bearer ${token}`;
