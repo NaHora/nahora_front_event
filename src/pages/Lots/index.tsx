@@ -53,73 +53,68 @@ import { theme } from '../../styles/global';
 import { LoadingButton } from '@mui/lab';
 import Navbar from '../../components/navbar';
 import api from '../../services/api';
-import { EventDTO } from '../../dtos';
+import { EventDTO, LotsDTO } from '../../dtos';
 import { useAuth } from '../../hooks/auth';
 import { getFormatDate } from '../../utils/date';
-
-type SelectPropsDTO = {
-  id: string;
-  name: string;
-  category_id?: string;
-  event_id?: string;
-};
-
-type CategoryDTO = {
-  id: string;
-  name: string;
-  event_id?: string;
-};
 
 interface StateProps {
   [key: string]: any;
 }
 
-export const Events = () => {
+export const Lots = () => {
   const [loading, setLoading] = useState(false);
-  const [eventList, setEventList] = useState<EventDTO[]>([]);
+  const [lotList, setLotList] = useState<LotsDTO[]>([]);
   const [categoryFiltered, setCategoryFiltered] = useState('');
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [errors, setErrors] = useState<StateProps>({} as StateProps);
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
-  const [eventSelected, setEventSelected] = useState('');
-  const [values, setValues] = useState<EventDTO>({
+  const [lotSelected, setLotSelected] = useState('');
+  const [values, setValues] = useState<LotsDTO>({
     id: '',
-    name: '',
+    amount: 0,
     start_date: '',
     end_date: '',
-    address: '',
+    max_sales: 0,
+    event_id: '',
   });
   const [drawerType, setDrawerType] = useState('');
   const { userEnterprise } = useAuth();
 
-  const openDrawer = (drawerType: string, item: EventDTO) => {
+  const openDrawer = (drawerType: string, item: LotsDTO) => {
     if (drawerType === 'edit') {
       setValues({
         id: item?.id,
-        name: item?.name,
+        amount: item?.amount,
         start_date: item?.start_date,
         end_date: item?.end_date,
-        address: item?.address,
+        max_sales: item?.max_sales,
+        event_id: item?.event_id,
       });
       setDrawerType(drawerType);
       setIsDrawerOpen(true);
     } else {
       setValues({
         ...values,
-        name: '',
+        amount: 0,
+        start_date: '',
+        end_date: '',
+        max_sales: 0,
+        event_id: '',
       });
       setDrawerType(drawerType);
       setIsDrawerOpen(true);
     }
   };
 
-  const getEvents = async () => {
+  const getData = async () => {
     setLoading(true);
 
     try {
-      const response = await api.get(`/event`);
+      const response = await api.get(
+        `/event/list/1f0fd51d-cd1c-43a9-80ed-00d039571520`
+      );
 
-      setEventList(response.data);
+      setLotList(response.data);
       setCategoryFiltered(response.data[0].id);
     } catch (err) {
     } finally {
@@ -128,17 +123,21 @@ export const Events = () => {
   };
 
   useEffect(() => {
-    getEvents();
+    getData();
   }, []);
 
-  const postEvent = async () => {
+  const postData = async () => {
     setErrors({});
     setLoading(true);
 
     try {
       const schema = Yup.object().shape({
-        name: Yup.string().required('Nome do evento é obrigatório'),
-        address: Yup.string().required('Endereço do evento é obrigatório'),
+        max_sales: Yup.number()
+          .required('Quantidade de vendas do evento é obrigatório')
+          .min(1, 'Quantidade mínima do lote deve ser de 1 venda'),
+        amount: Yup.string()
+          .required('Endereço do evento é obrigatório')
+          .min(1, 'O valor do lote não pode ser menor que R$1'),
         start_date: Yup.string().required('Data de início é obrigatória'),
         end_date: Yup.string()
           .required('Data de fim é obrigatória')
@@ -158,17 +157,20 @@ export const Events = () => {
       });
 
       const body = {
-        name: values?.name,
-        address: values?.address,
-        enterprise_id: userEnterprise.id,
+        max_Sales: values?.max_sales,
+        amount: values?.amount,
+        event_id: userEnterprise.id,
         start_date: values?.start_date,
         end_date: values?.end_date,
       };
 
-      const response = await api.post(`/event`, body);
+      const response = await api.post(
+        `/event/list/1f0fd51d-cd1c-43a9-80ed-00d039571520`,
+        body
+      );
       setErrors({});
-      toast.success('Evento criado com sucesso!');
-      getEvents();
+      toast.success('Lote criado com sucesso!');
+      getData();
       setIsDrawerOpen(false);
     } catch (err: any) {
       if (err instanceof Yup.ValidationError) {
@@ -178,7 +180,7 @@ export const Events = () => {
       if (err?.response) {
         return toast.error(
           err?.response?.data?.message ||
-            'Ocorreu um erro ao adicionar o evento, tente novamente'
+            'Ocorreu um erro ao adicionar o lote, tente novamente'
         );
       }
     } finally {
@@ -188,26 +190,46 @@ export const Events = () => {
 
   const putData = async () => {
     const schema = Yup.object().shape({
-      name: Yup.string().required('Nome do evento obrigatório'),
+      max_sales: Yup.number()
+        .required('Quantidade de vendas do evento é obrigatório')
+        .min(1, 'Quantidade mínima do lote deve ser de 1 venda'),
+      amount: Yup.string()
+        .required('Endereço do evento é obrigatório')
+        .min(1, 'O valor do lote não pode ser menor que R$1'),
+      start_date: Yup.string().required('Data de início é obrigatória'),
+      end_date: Yup.string()
+        .required('Data de fim é obrigatória')
+        .test(
+          'end_date',
+          'A data de fim não pode ser menor que a data de início',
+          function (value) {
+            const { start_date } = this.parent;
+            return (
+              !start_date || !value || new Date(value) >= new Date(start_date)
+            );
+          }
+        ),
     });
-
     await schema.validate(values, {
       abortEarly: false,
     });
 
     setLoading(true);
     try {
-      const { name, id } = values;
+      const { max_sales, amount, start_date, end_date, id } = values;
 
       const body = {
-        name: name,
-        categoryId: id,
+        max_sales: max_sales,
+        amount: amount,
+        start_date: start_date,
+        end_date: end_date,
+        event_id: id,
       };
 
-      await api.put('/event', body);
+      await api.put('/event/list/1f0fd51d-cd1c-43a9-80ed-00d039571520', body);
       setErrors({});
-      toast.success('Evento atualizado com sucesso!');
-      getEvents();
+      toast.success('Lote atualizado com sucesso!');
+      getData();
       setIsDrawerOpen(false);
     } catch (err: any) {
       if (err instanceof Yup.ValidationError) {
@@ -217,7 +239,7 @@ export const Events = () => {
       if (err?.response) {
         return toast.error(
           err?.response?.data?.message ||
-            'Ocorreu um erro ao atualizar o evento, tente novamente'
+            'Ocorreu um erro ao atualizar o lote, tente novamente'
         );
       }
     } finally {
@@ -227,20 +249,18 @@ export const Events = () => {
 
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
-  const deletePair = async () => {
+  const deleteData = async () => {
     setLoading(true);
     try {
-      //desestruturando o estado, pegando os valores que guardamos la, atraves dos inputs
-
-      await api.delete(`/event/${eventSelected}`);
-      toast.success('Evento deletado com sucesso!');
+      await api.delete(`/event/list/${lotSelected}`);
+      toast.success('Lote deletado com sucesso!');
       setOpenDeleteDialog(false);
-      getEvents();
+      getData();
     } catch (err: any) {
       if (err?.response) {
         return toast.error(
           err?.response?.data?.message ||
-            'Ocorreu um erro ao remover o evento, tente novamente'
+            'Ocorreu um erro ao remover o lote, tente novamente'
         );
       }
     } finally {
@@ -249,7 +269,7 @@ export const Events = () => {
   };
 
   const openDialog = (item_id: string) => {
-    setEventSelected(item_id);
+    setLotSelected(item_id);
     setOpenDeleteDialog(true);
   };
 
@@ -262,7 +282,7 @@ export const Events = () => {
         aria-describedby="alert-dialog-description"
       >
         <DialogTitle id="alert-dialog-title">
-          Deseja excluir o evento?
+          Deseja excluir o lote?
         </DialogTitle>
         <DialogContent>
           <DialogContentText id="alert-dialog-description">
@@ -280,7 +300,7 @@ export const Events = () => {
           <LoadingButton
             loading={loading}
             variant="contained"
-            onClick={deletePair}
+            onClick={deleteData}
             autoFocus
           >
             Confirmar
@@ -294,17 +314,19 @@ export const Events = () => {
         onClose={() => setIsDrawerOpen(false)}
       >
         <DrawerContainer>
-          <DrawerTitle>Criar Evento</DrawerTitle>
+          <DrawerTitle>Criar Lote</DrawerTitle>
           <ResultForm>
-            <InputLabel>Nome</InputLabel>
+            <InputLabel>Quantidade de Vendas</InputLabel>
             <TextField
-              id="event-name"
+              id="max_sales"
               size="small"
-              onChange={(e) => setValues({ ...values, name: e.target.value })}
-              value={values.name}
-              error={!!errors.name}
+              onChange={(e) =>
+                setValues({ ...values, max_sales: Number(e.target.value) })
+              }
+              value={values.max_sales}
+              error={!!errors.max_sales}
               variant="outlined"
-              helperText={errors.name}
+              helperText={errors.max_sales}
               sx={{ width: '100%', borderRadius: '10px' }}
               InputProps={{
                 style: {
@@ -313,17 +335,17 @@ export const Events = () => {
                 },
               }}
             />
-            <InputLabel>Endereço completo</InputLabel>
+            <InputLabel>Valor</InputLabel>
             <TextField
-              id="address"
+              id="amount"
               size="small"
               onChange={(e) =>
-                setValues({ ...values, address: e.target.value })
+                setValues({ ...values, amount: Number(e.target.value) })
               }
-              value={values.address}
-              error={!!errors.address}
+              value={values.amount}
+              error={!!errors.amount}
               variant="outlined"
-              helperText={errors.address}
+              helperText={errors.amount}
               sx={{ width: '100%', borderRadius: '10px' }}
               InputProps={{
                 style: {
@@ -385,7 +407,7 @@ export const Events = () => {
               }}
               fullWidth
               loading={loading}
-              onClick={drawerType === 'edit' ? putData : postEvent}
+              onClick={drawerType === 'edit' ? putData : postData}
             >
               {drawerType === 'edit' ? 'Editar' : 'Adicionar'}
             </LoadingButton>
@@ -407,14 +429,15 @@ export const Events = () => {
             onClick={() =>
               openDrawer('create', {
                 id: '',
-                name: '',
+                amount: 0,
+                max_sales: 0,
                 start_date: '',
                 end_date: '',
-                address: '',
+                event_id: '',
               })
             }
           >
-            Criar Evento
+            Criar Lote
           </Button>
         </ContentHeader>
 
@@ -422,7 +445,8 @@ export const Events = () => {
           <Table>
             <Thead>
               <Tr>
-                <Th>Evento</Th>
+                <Th>Quantidade para venda</Th>
+                <Th>Valor</Th>
                 <Th>Início</Th>
                 <Th>Término</Th>
                 <Th style={{ textAlign: 'center' }}>Ações</Th>
@@ -430,20 +454,23 @@ export const Events = () => {
             </Thead>
 
             <Tbody>
-              {eventList?.map((event) => (
-                <Tr key={event.id}>
+              {lotList?.map((lot) => (
+                <Tr key={lot.id}>
                   <Td>
-                    <PairName>{event?.name}</PairName>
+                    <PairName>{lot?.max_sales}</PairName>
                   </Td>
                   <Td>
-                    <PairName>{getFormatDate(event?.start_date)}</PairName>
+                    <PairName>{lot?.amount}</PairName>
                   </Td>
                   <Td>
-                    <PairName>{getFormatDate(event?.end_date)}</PairName>
+                    <PairName>{getFormatDate(lot?.start_date)}</PairName>
+                  </Td>
+                  <Td>
+                    <PairName>{getFormatDate(lot?.end_date)}</PairName>
                   </Td>
                   <Td>
                     <FlexRow>
-                      <Delete onClick={() => openDialog(event.id)}>
+                      <Delete onClick={() => openDialog(lot.id)}>
                         <DeleteForeverIcon
                           fontSize={isMobile ? 'small' : 'medium'}
                           sx={{ marginRight: '4px' }}
@@ -452,8 +479,8 @@ export const Events = () => {
                       </Delete>
                       <Edit
                         onClick={() => {
-                          openDrawer('edit', event);
-                          setEventSelected(event.id);
+                          openDrawer('edit', lot);
+                          setLotSelected(lot.id);
                         }}
                       >
                         <EditIcon

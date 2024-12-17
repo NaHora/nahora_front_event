@@ -12,6 +12,8 @@ import { Ranking } from '../pages/Ranking';
 import { ProtectedRoute } from './Route';
 import SortTeam from '../pages/sortTeam';
 import { Payments } from '../pages/Payments';
+import { Filter } from '../pages/Filter';
+import { Lots } from '../pages/Lots';
 
 export default function AppRoutes() {
   return (
@@ -20,7 +22,7 @@ export default function AppRoutes() {
       <Route
         path="/admin"
         element={
-          <ProtectedRoute type="public" redirectTo="/events">
+          <ProtectedRoute type="public" redirectTo="/eventos">
             <SignIn />
           </ProtectedRoute>
         }
@@ -29,7 +31,7 @@ export default function AppRoutes() {
       <Route
         path="/"
         element={
-          <ProtectedRoute type="public" redirectTo="/events">
+          <ProtectedRoute type="public" redirectTo="/eventos">
             <CreateAccount />
           </ProtectedRoute>
         }
@@ -37,7 +39,7 @@ export default function AppRoutes() {
 
       {/* Rotas privadas */}
       <Route
-        path="/panel"
+        path="/painel"
         element={
           <ProtectedRoute type="private" redirectTo="/admin">
             <Panel />
@@ -85,13 +87,14 @@ export default function AppRoutes() {
         }
       />
       <Route
-        path="/inscritos"
+        path="/lotes"
         element={
           <ProtectedRoute type="private" redirectTo="/admin">
-            <RegisteredTeams />
+            <Lots />
           </ProtectedRoute>
         }
       />
+      <Route path="/inscritos" element={<RegisteredTeams />} />
       <Route
         path="/pagamentos"
         element={
@@ -108,14 +111,8 @@ export default function AppRoutes() {
           </ProtectedRoute>
         }
       />
-      <Route
-        path="/rank"
-        element={
-          <ProtectedRoute type="public" redirectTo="/events">
-            <Ranking />
-          </ProtectedRoute>
-        }
-      />
+      <Route path="/rank" element={<Ranking />} />
+      <Route path="/resultados" element={<Filter />} />
     </Routes>
   );
 }

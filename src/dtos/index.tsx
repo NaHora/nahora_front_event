@@ -11,6 +11,15 @@ export interface EventDTO {
   address: string;
 }
 
+export interface LotsDTO {
+  id: string;
+  max_sales: number;
+  amount: number;
+  start_date: string;
+  end_date: string;
+  event_id: string;
+}
+
 export interface User {
   id: string;
   name: string;
