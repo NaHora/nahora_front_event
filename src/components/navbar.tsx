@@ -25,7 +25,10 @@ import { useNavigate } from 'react-router-dom';
 import { useEvent } from '../contexts/EventContext';
 import { useAuth } from '../hooks/auth';
 import ExitToAppIcon from '@mui/icons-material/ExitToApp';
-
+import { EvStationOutlined } from '@mui/icons-material';
+import StadiumIcon from '@mui/icons-material/Stadium';
+import ConfirmationNumberIcon from '@mui/icons-material/ConfirmationNumber';
+import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
 const Navbar: React.FC = () => {
   const [open, setOpen] = useState(false);
   const navigate = useNavigate();
@@ -89,6 +92,21 @@ const Navbar: React.FC = () => {
           <List>
             {[
               { name: 'Resultados', page: '/panel', icon: <ScoreboardIcon /> },
+              {
+                name: 'Eventos',
+                page: '/eventos',
+                icon: <StadiumIcon />,
+              },
+              {
+                name: 'Lotes',
+                page: '/lotes',
+                icon: <ConfirmationNumberIcon />,
+              },
+              {
+                name: 'Pagamentos',
+                page: '/pagamentos',
+                icon: <AttachMoneyIcon />,
+              },
               {
                 name: 'Categorias',
                 page: '/categorias',

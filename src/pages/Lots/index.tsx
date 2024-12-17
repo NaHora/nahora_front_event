@@ -275,6 +275,7 @@ export const Lots = () => {
 
   return (
     <Container>
+      <Navbar />
       <Dialog
         open={openDeleteDialog}
         onClose={() => setOpenDeleteDialog(false)}
