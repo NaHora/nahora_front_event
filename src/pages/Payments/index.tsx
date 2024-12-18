@@ -16,6 +16,7 @@ import EventLogo from '../../assets/event-logo.png';
 import api from '../../services/api';
 import { useEvent } from '../../contexts/EventContext';
 import Navbar from '../../components/navbar';
+import { useParams } from 'react-router-dom';
 
 type PaymentDto = {
   id: string;
@@ -43,6 +44,7 @@ type TeamsDTO = {
 };
 
 export const Payments = () => {
+  const { id } = useParams<{ id: string }>();
   const [loading, setLoading] = useState(false);
   const [teamList, setTeamsList] = useState<TeamsDTO[]>([]);
   const { currentEvent } = useEvent();
@@ -63,8 +65,10 @@ export const Payments = () => {
   };
 
   useEffect(() => {
-    getRegisteredTeams();
-  }, []);
+    if (id) {
+      getRegisteredTeams();
+    }
+  }, [id]);
 
   const getCaptainData = (team: TeamsDTO) => {
     const captain = team.athletes.find(

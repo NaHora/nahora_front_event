@@ -96,7 +96,7 @@ export default function AppRoutes() {
       />
       <Route path="/inscritos" element={<RegisteredTeams />} />
       <Route
-        path="/pagamentos"
+        path="/pagamentos/:id"
         element={
           <ProtectedRoute type="private" redirectTo="/admin">
             <Payments />

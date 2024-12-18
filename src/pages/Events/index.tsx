@@ -56,6 +56,7 @@ import api from '../../services/api';
 import { EventDTO } from '../../dtos';
 import { useAuth } from '../../hooks/auth';
 import { getFormatDate } from '../../utils/date';
+import { useNavigate } from 'react-router-dom';
 
 type SelectPropsDTO = {
   id: string;
@@ -76,6 +77,7 @@ interface StateProps {
 
 export const Events = () => {
   const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
   const [eventList, setEventList] = useState<EventDTO[]>([]);
   const [categoryFiltered, setCategoryFiltered] = useState('');
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
@@ -255,7 +257,6 @@ export const Events = () => {
 
   return (
     <Container>
-      {eventList.length > 0 && <Navbar />}
       <Dialog
         open={openDeleteDialog}
         onClose={() => setOpenDeleteDialog(false)}
@@ -433,7 +434,7 @@ export const Events = () => {
             <Tbody>
               {eventList?.map((event) => (
                 <Tr key={event.id}>
-                  <Td>
+                  <Td onClick={() => navigate(`/pagamentos/${event.id}`)}>
                     <PairName>{event?.name}</PairName>
                   </Td>
                   <Td>
