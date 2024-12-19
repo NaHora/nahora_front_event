@@ -15,10 +15,12 @@ import { Payments } from '../pages/Payments';
 import { Filter } from '../pages/Filter';
 import { Lots } from '../pages/Lots';
 
+
 export default function AppRoutes() {
   return (
     <Routes>
       {/* Rotas públicas */}
+
       <Route
         path="/admin"
         element={
