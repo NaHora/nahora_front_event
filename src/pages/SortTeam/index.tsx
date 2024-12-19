@@ -152,9 +152,11 @@ const SortTeam: React.FC = () => {
       <ul>
         {players.map((player, index) => (
           <li key={player.id}>
-            {index + 1}- {player.name} - Rating: {player.rating}
-            <button onClick={() => updateRating(player.id, 1)}>+</button>
+            {index + 1}- {player.name}:
             <button onClick={() => updateRating(player.id, -1)}>-</button>
+            {player.rating}
+            <button onClick={() => updateRating(player.id, 1)}>+</button>
+            {' => '}
             <button onClick={() => deletePlayer(player.id)}>Delete</button>
           </li>
         ))}
