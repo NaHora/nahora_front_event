@@ -10,6 +10,7 @@ import { useNavigate } from 'react-router-dom';
 import { key } from '../config/key';
 import { EnterpriseDTO, User } from '../dtos';
 import api from '../services/api';
+import { toast } from 'react-toastify';
 
 interface AuthState {
   token: string;
@@ -96,7 +97,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           setUserEnterprise(enterpriseData);
           localStorage.setItem(key.enterprise, JSON.stringify(enterpriseData));
         } catch (err) {
-          console.error('Erro ao buscar dados da empresa:', err);
+          signOut();
+          toast.error('Erro ao buscar dados da empresa do usuario');
         }
       };
 

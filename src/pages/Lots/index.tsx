@@ -112,7 +112,7 @@ export const Lots = () => {
     setLoading(true);
 
     try {
-      const response = await api.get(`/event/list/${currentEvent}`);
+      const response = await api.get(`/lots/list/${currentEvent}`);
 
       setLotList(response.data);
       setCategoryFiltered(response.data[0].id);
@@ -159,12 +159,12 @@ export const Lots = () => {
       const body = {
         max_sales: values?.max_sales,
         amount: values?.amount,
-        event_id: userEnterprise.id,
+        event_id: currentEvent,
         start_date: values?.start_date,
         end_date: values?.end_date,
       };
 
-      const response = await api.post(`/event`, body);
+      const response = await api.post(`/lots`, body);
       setErrors({});
       toast.success('Lote criado com sucesso!');
       getData();
@@ -223,7 +223,7 @@ export const Lots = () => {
         event_id: id,
       };
 
-      await api.put('/event/list/1f0fd51d-cd1c-43a9-80ed-00d039571520', body);
+      await api.put('/lots', body);
       setErrors({});
       toast.success('Lote atualizado com sucesso!');
       getData();
@@ -249,7 +249,7 @@ export const Lots = () => {
   const deleteData = async () => {
     setLoading(true);
     try {
-      await api.delete(`/event/list/${lotSelected}`);
+      await api.delete(`/lots/${lotSelected}`);
       toast.success('Lote deletado com sucesso!');
       setOpenDeleteDialog(false);
       getData();
@@ -452,6 +452,9 @@ export const Lots = () => {
             </Thead>
 
             <Tbody>
+              <Tr>
+                <Td></Td>
+              </Tr>
               {lotList?.map((lot) => (
                 <Tr key={lot.id}>
                   <Td>
