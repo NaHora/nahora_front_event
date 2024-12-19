@@ -10,11 +10,10 @@ import { Events } from '../pages/Events';
 import { SignIn } from '../pages/SignIn';
 import { Ranking } from '../pages/Ranking';
 import { ProtectedRoute } from './Route';
-import SortTeam from '../pages/sortTeam';
 import { Payments } from '../pages/Payments';
 import { Filter } from '../pages/Filter';
 import { Lots } from '../pages/Lots';
-
+import SortTeam from '../pages/SortTeam';
 
 export default function AppRoutes() {
   return (
@@ -22,7 +21,7 @@ export default function AppRoutes() {
       {/* Rotas públicas */}
 
       <Route
-        path="/admin"
+        path="/"
         element={
           <ProtectedRoute type="public" redirectTo="/eventos">
             <SignIn />
@@ -34,7 +33,7 @@ export default function AppRoutes() {
       <Route
         path="/painel"
         element={
-          <ProtectedRoute type="private" redirectTo="/admin">
+          <ProtectedRoute type="private" redirectTo="/">
             <Panel />
           </ProtectedRoute>
         }
@@ -42,7 +41,7 @@ export default function AppRoutes() {
       <Route
         path="/wod"
         element={
-          <ProtectedRoute type="private" redirectTo="/admin">
+          <ProtectedRoute type="private" redirectTo="/">
             <Wod />
           </ProtectedRoute>
         }
@@ -50,7 +49,7 @@ export default function AppRoutes() {
       <Route
         path="/wod-descricao"
         element={
-          <ProtectedRoute type="private" redirectTo="/admin">
+          <ProtectedRoute type="private" redirectTo="/">
             <WodDescription />
           </ProtectedRoute>
         }
@@ -58,7 +57,7 @@ export default function AppRoutes() {
       <Route
         path="/duplas"
         element={
-          <ProtectedRoute type="private" redirectTo="/admin">
+          <ProtectedRoute type="private" redirectTo="/">
             <PairCreate />
           </ProtectedRoute>
         }
@@ -66,7 +65,7 @@ export default function AppRoutes() {
       <Route
         path="/categorias"
         element={
-          <ProtectedRoute type="private" redirectTo="/admin">
+          <ProtectedRoute type="private" redirectTo="/">
             <Category />
           </ProtectedRoute>
         }
@@ -74,7 +73,7 @@ export default function AppRoutes() {
       <Route
         path="/eventos"
         element={
-          <ProtectedRoute type="private" redirectTo="/admin">
+          <ProtectedRoute type="private" redirectTo="/">
             <Events />
           </ProtectedRoute>
         }
@@ -82,7 +81,7 @@ export default function AppRoutes() {
       <Route
         path="/lotes"
         element={
-          <ProtectedRoute type="private" redirectTo="/admin">
+          <ProtectedRoute type="private" redirectTo="/">
             <Lots />
           </ProtectedRoute>
         }
@@ -90,7 +89,7 @@ export default function AppRoutes() {
       <Route
         path="/pagamentos"
         element={
-          <ProtectedRoute type="private" redirectTo="/admin">
+          <ProtectedRoute type="private" redirectTo="/">
             <Payments />
           </ProtectedRoute>
         }
@@ -99,7 +98,7 @@ export default function AppRoutes() {
       <Route
         path="/inscritos"
         element={
-          <ProtectedRoute type="private" redirectTo="/admin">
+          <ProtectedRoute type="private" redirectTo="/">
             <RegisteredTeams />
           </ProtectedRoute>
         }
