@@ -108,9 +108,9 @@ export const Category = () => {
 
   const getCategories = async () => {
     setLoading(true);
-    console.log(currentEvent?.value);
+    console.log(currentEvent);
     try {
-      const response = await api.get(`/category/event/${currentEvent?.value}`);
+      const response = await api.get(`/category/event/${currentEvent}`);
 
       setCategoryList(response.data);
       setCategoryFiltered(response.data[0].id);
@@ -122,7 +122,7 @@ export const Category = () => {
 
   useEffect(() => {
     getCategories();
-  }, [currentEvent?.value]);
+  }, [currentEvent]);
 
   const postCategory = async () => {
     setErrors({});
@@ -139,7 +139,7 @@ export const Category = () => {
 
       const body = {
         name: values?.name,
-        event_id: currentEvent?.value,
+        event_id: currentEvent,
       };
 
       const response = await api.post(`/category`, body);

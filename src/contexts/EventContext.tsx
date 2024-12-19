@@ -8,7 +8,7 @@ import {
   useState,
 } from 'react';
 import { key } from '../config/key';
-import { EventDTO, SelectProps } from '../dtos';
+import { EventDTO } from '../dtos';
 import { useAuth } from '../hooks/auth';
 import api from '../services/api';
 
@@ -18,44 +18,44 @@ type EventProviderProps = {
 
 type EventContextData = {
   isLoading: boolean;
-  events: SelectProps[];
-  setCurrentEvent: Dispatch<SetStateAction<SelectProps>>;
-  currentEvent: SelectProps;
+  events: EventDTO[];
+  setCurrentEvent: Dispatch<SetStateAction<string>>;
+  currentEvent: string;
   getCurrentEventsData: EventDTO;
+  getMyEvents: () => void;
 };
 
 export const EventContext = createContext({} as EventContextData);
 
 export function EventProvider({ children }: EventProviderProps) {
   const { user } = useAuth();
-  const [events, setEvents] = useState([] as SelectProps[]);
+  const [events, setEvents] = useState([] as EventDTO[]);
   const [isLoading, setIsLoading] = useState(false);
-  const [currentEvent, setCurrentEvent] = useState({} as SelectProps);
-  const [eventsData, setEventsData] = useState([] as EventDTO[]);
+  const [currentEvent, setCurrentEvent] = useState('');
 
   const getMyEvents = async () => {
     setIsLoading(true);
     try {
       const response = await api.get('/event');
+      console.log(response.data);
+      setEvents(response.data);
 
-      const newFormatEvents = response.data.map((event: EventDTO) => ({
-        value: event.id,
-        label: event.name,
-      }));
-
-      setEvents(newFormatEvents);
-      setEventsData(response.data);
-
-      const myEventSavedStorage = localStorage.getItem(key.currentEvent);
+      const myEventSavedStorage = localStorage.getItem(
+        key.currentEvent + user.id
+      );
 
       if (myEventSavedStorage) {
         const parsedEvent = JSON.parse(myEventSavedStorage);
-        const isValidEvent = newFormatEvents.some(
+        const isValidEvent = response.data.some(
           (event: any) => event.value === parsedEvent.value
         );
-        setCurrentEvent(isValidEvent ? parsedEvent : newFormatEvents[0] || {});
-      } else if (newFormatEvents.length > 0) {
-        setCurrentEvent(newFormatEvents[0]);
+        setCurrentEvent(isValidEvent ? parsedEvent : response.data[0].id || {});
+      } else if (response.data.length > 0) {
+        setCurrentEvent(response.data[0].id);
+        localStorage.setItem(
+          key.currentEvent + user.id,
+          JSON.stringify(response.data[0].id)
+        );
       }
     } catch (err) {
       console.error('Erro ao buscar eventos: ', err);
@@ -64,20 +64,16 @@ export function EventProvider({ children }: EventProviderProps) {
     }
   };
 
-  const getCurrentEventsData = eventsData.find(
-    (event) => event.id === currentEvent?.value
+  const getCurrentEventsData = events.find(
+    (event) => event.id === currentEvent
   ) || {
     id: '',
     name: 'Evento não definido',
     description: '',
-    date: '',
+    start_date: '',
+    end_date: '',
+    address: '',
   };
-
-  useEffect(() => {
-    if (currentEvent?.value) {
-      localStorage.setItem(key.currentEvent, JSON.stringify(currentEvent));
-    }
-  }, [currentEvent]);
 
   useEffect(() => {
     if (user?.id) {
@@ -93,6 +89,7 @@ export function EventProvider({ children }: EventProviderProps) {
         currentEvent,
         setCurrentEvent,
         getCurrentEventsData,
+        getMyEvents,
       }}
     >
       {children}

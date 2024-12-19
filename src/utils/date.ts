@@ -17,33 +17,33 @@ import {
   setMinutes,
   subMonths,
   subYears,
-} from "date-fns";
+} from 'date-fns';
 
 export function getWeekDay(date = new Date()) {
   const weekDays = [
-    "Domingo",
-    "Segunda",
-    "Terça",
-    "Quarta",
-    "Quinta",
-    "Sexta",
-    "Sábado",
+    'Domingo',
+    'Segunda',
+    'Terça',
+    'Quarta',
+    'Quinta',
+    'Sexta',
+    'Sábado',
   ];
   const currentWeekDay = getDay(new Date(date));
 
   return weekDays[currentWeekDay];
 }
 
-export function getFormatDate(date = new Date(), dateFormat = "dd/MM/yy") {
+export function getFormatDate(date = new Date(), dateFormat = 'dd/MM/yy') {
   return format(new Date(date), dateFormat);
 }
 
-export function getFormatDay(date = new Date(), dateFormat = "dd") {
+export function getFormatDay(date = new Date(), dateFormat = 'dd') {
   return format(new Date(date), dateFormat);
 }
 
 export function getFormatHours(date = new Date()) {
-  return format(new Date(date), "HH:mm");
+  return format(new Date(date), 'HH:mm');
 }
 
 export function getFormatAppointsHours(date = new Date(), hours: number) {
@@ -52,7 +52,7 @@ export function getFormatAppointsHours(date = new Date(), hours: number) {
   )}`;
 }
 
-export function getAddHoursToDate(date = new Date(), hours) {
+export function getAddHoursToDate(date = new Date(), hours: number) {
   return addHours(new Date(date), hours);
 }
 
@@ -100,36 +100,36 @@ export function getDifferenceInHours(date = new Date()) {
   return Number(differenceInHours(new Date(date), new Date()));
 }
 
-export function getDifferenceInMinutes(dateLeft, dateRight) {
+export function getDifferenceInMinutes(dateLeft: Date, dateRight: Date) {
   return Number(differenceInMinutes(dateLeft, dateRight));
 }
 
 export function getMonthName(date = new Date()) {
   const monthNames = [
-    "Janeiro",
-    "Fevereiro",
-    "Março",
-    "Abril",
-    "Maio",
-    "Junho",
-    "Julho",
-    "Agosto",
-    "Setembro",
-    "Outubro",
-    "Novembro",
-    "Dezembro",
+    'Janeiro',
+    'Fevereiro',
+    'Março',
+    'Abril',
+    'Maio',
+    'Junho',
+    'Julho',
+    'Agosto',
+    'Setembro',
+    'Outubro',
+    'Novembro',
+    'Dezembro',
   ];
   const currentMonthDay = getMonth(new Date(date));
 
   return monthNames[currentMonthDay];
 }
 
-export function setHoursToDate(dateFormatted, hours) {
-  console.log(dateFormatted, "currentDate");
+export function setHoursToDate(dateFormatted: Date, hours: number) {
+  console.log(dateFormatted, 'currentDate');
   const currentDate = new Date(dateFormatted);
-  console.log(currentDate, "currentDate");
+  console.log(currentDate, 'currentDate');
   const dateWithTime = addHours(currentDate, hours);
-  console.log(dateWithTime, "dateWithTime");
+  console.log(dateWithTime, 'dateWithTime');
 
   return dateWithTime;
 }

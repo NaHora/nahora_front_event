@@ -14,6 +14,8 @@ import {
 } from './styles';
 import EventLogo from '../../assets/event-logo.png';
 import api from '../../services/api';
+import { useEvent } from '../../contexts/EventContext';
+import Navbar from '../../components/navbar';
 
 type CategoryDTO = {
   id: string;
@@ -48,14 +50,13 @@ export const RegisteredTeams = () => {
   const [loading, setLoading] = useState(false);
   const [teamList, setTeamsList] = useState<TeamsDTO[]>([]);
   const [teamFiltered, setteamFiltered] = useState('');
+  const { currentEvent } = useEvent();
 
   const getRegisteredTeams = async () => {
     setLoading(true);
 
     try {
-      const response = await api.get(
-        `/teams/event/1f0fd51d-cd1c-43a9-80ed-00d039571520`
-      );
+      const response = await api.get(`/teams/event/${currentEvent}`);
 
       setTeamsList(response.data);
       setteamFiltered(response.data[0].id);
@@ -67,10 +68,11 @@ export const RegisteredTeams = () => {
 
   useEffect(() => {
     getRegisteredTeams();
-  }, []);
+  }, [currentEvent]);
 
   return (
     <Container>
+      <Navbar />
       <EventImage src={EventLogo} width={318} alt="event logo" />
       <Content>
         <TableContainer>

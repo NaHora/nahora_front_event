@@ -28,15 +28,6 @@ export default function AppRoutes() {
         }
       />
 
-      <Route
-        path="/"
-        element={
-          <ProtectedRoute type="public" redirectTo="/eventos">
-            <CreateAccount />
-          </ProtectedRoute>
-        }
-      />
-
       {/* Rotas privadas */}
       <Route
         path="/painel"
@@ -94,25 +85,28 @@ export default function AppRoutes() {
           </ProtectedRoute>
         }
       />
-      <Route path="/inscritos" element={<RegisteredTeams />} />
       <Route
-        path="/pagamentos/:id"
+        path="/pagamentos"
         element={
           <ProtectedRoute type="private" redirectTo="/admin">
             <Payments />
           </ProtectedRoute>
         }
       />
+
       <Route
-        path="/pelada"
+        path="/inscritos"
         element={
           <ProtectedRoute type="private" redirectTo="/admin">
-            <SortTeam />
+            <RegisteredTeams />
           </ProtectedRoute>
         }
       />
-      <Route path="/rank" element={<Ranking />} />
+      {/* rotas totalmente publicas */}
       <Route path="/resultados" element={<Filter />} />
+      <Route path="/rank" element={<Ranking />} />
+      <Route path="/pelada" element={<SortTeam />} />
+      <Route path="/inscricoes/:eventId" element={<CreateAccount />} />
     </Routes>
   );
 }

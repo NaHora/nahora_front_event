@@ -44,7 +44,6 @@ type TeamsDTO = {
 };
 
 export const Payments = () => {
-  const { id } = useParams<{ id: string }>();
   const [loading, setLoading] = useState(false);
   const [teamList, setTeamsList] = useState<TeamsDTO[]>([]);
   const { currentEvent } = useEvent();
@@ -52,9 +51,7 @@ export const Payments = () => {
   const getRegisteredTeams = async () => {
     setLoading(true);
     try {
-      const response = await api.get(
-        `/teams/event/1f0fd51d-cd1c-43a9-80ed-00d039571520`
-      );
+      const response = await api.get(`/teams/event/${currentEvent}`);
 
       setTeamsList(response.data);
     } catch (err) {
@@ -65,10 +62,10 @@ export const Payments = () => {
   };
 
   useEffect(() => {
-    if (id) {
+    if (currentEvent) {
       getRegisteredTeams();
     }
-  }, [id]);
+  }, [currentEvent]);
 
   const getCaptainData = (team: TeamsDTO) => {
     const captain = team.athletes.find(
@@ -108,6 +105,9 @@ export const Payments = () => {
             </Thead>
 
             <Tbody>
+              <Tr>
+                <Td></Td>
+              </Tr>
               {teamList.map((team) => {
                 const captain = getCaptainData(team);
                 const paymentAmount = getPaymentAmount(team);

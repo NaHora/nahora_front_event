@@ -56,6 +56,7 @@ import api from '../../services/api';
 import { EventDTO, LotsDTO } from '../../dtos';
 import { useAuth } from '../../hooks/auth';
 import { getFormatDate } from '../../utils/date';
+import { useEvent } from '../../contexts/EventContext';
 
 interface StateProps {
   [key: string]: any;
@@ -79,6 +80,7 @@ export const Lots = () => {
   });
   const [drawerType, setDrawerType] = useState('');
   const { userEnterprise } = useAuth();
+  const { currentEvent } = useEvent();
 
   const openDrawer = (drawerType: string, item: LotsDTO) => {
     if (drawerType === 'edit') {
@@ -110,9 +112,7 @@ export const Lots = () => {
     setLoading(true);
 
     try {
-      const response = await api.get(
-        `/event/list/1f0fd51d-cd1c-43a9-80ed-00d039571520`
-      );
+      const response = await api.get(`/event/list/${currentEvent}`);
 
       setLotList(response.data);
       setCategoryFiltered(response.data[0].id);
@@ -124,7 +124,7 @@ export const Lots = () => {
 
   useEffect(() => {
     getData();
-  }, []);
+  }, [currentEvent]);
 
   const postData = async () => {
     setErrors({});
@@ -157,17 +157,14 @@ export const Lots = () => {
       });
 
       const body = {
-        max_Sales: values?.max_sales,
+        max_sales: values?.max_sales,
         amount: values?.amount,
         event_id: userEnterprise.id,
         start_date: values?.start_date,
         end_date: values?.end_date,
       };
 
-      const response = await api.post(
-        `/event/list/1f0fd51d-cd1c-43a9-80ed-00d039571520`,
-        body
-      );
+      const response = await api.post(`/event`, body);
       setErrors({});
       toast.success('Lote criado com sucesso!');
       getData();
@@ -464,10 +461,14 @@ export const Lots = () => {
                     <PairName>{lot?.amount}</PairName>
                   </Td>
                   <Td>
-                    <PairName>{getFormatDate(lot?.start_date)}</PairName>
+                    <PairName>
+                      {getFormatDate(new Date(lot?.start_date))}
+                    </PairName>
                   </Td>
                   <Td>
-                    <PairName>{getFormatDate(lot?.end_date)}</PairName>
+                    <PairName>
+                      {getFormatDate(new Date(lot?.end_date))}
+                    </PairName>
                   </Td>
                   <Td>
                     <FlexRow>

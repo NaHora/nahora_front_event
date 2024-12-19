@@ -57,6 +57,7 @@ import { EventDTO } from '../../dtos';
 import { useAuth } from '../../hooks/auth';
 import { getFormatDate } from '../../utils/date';
 import { useNavigate } from 'react-router-dom';
+import { useEvent } from '../../contexts/EventContext';
 
 type SelectPropsDTO = {
   id: string;
@@ -78,8 +79,6 @@ interface StateProps {
 export const Events = () => {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
-  const [eventList, setEventList] = useState<EventDTO[]>([]);
-  const [categoryFiltered, setCategoryFiltered] = useState('');
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [errors, setErrors] = useState<StateProps>({} as StateProps);
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
@@ -93,6 +92,7 @@ export const Events = () => {
   });
   const [drawerType, setDrawerType] = useState('');
   const { userEnterprise } = useAuth();
+  const { setCurrentEvent, events, getMyEvents } = useEvent();
 
   const openDrawer = (drawerType: string, item: EventDTO) => {
     if (drawerType === 'edit') {
@@ -114,24 +114,6 @@ export const Events = () => {
       setIsDrawerOpen(true);
     }
   };
-
-  const getEvents = async () => {
-    setLoading(true);
-
-    try {
-      const response = await api.get(`/event`);
-
-      setEventList(response.data);
-      setCategoryFiltered(response.data[0].id);
-    } catch (err) {
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    getEvents();
-  }, []);
 
   const postEvent = async () => {
     setErrors({});
@@ -170,7 +152,7 @@ export const Events = () => {
       const response = await api.post(`/event`, body);
       setErrors({});
       toast.success('Evento criado com sucesso!');
-      getEvents();
+      getMyEvents();
       setIsDrawerOpen(false);
     } catch (err: any) {
       if (err instanceof Yup.ValidationError) {
@@ -209,7 +191,7 @@ export const Events = () => {
       await api.put('/event', body);
       setErrors({});
       toast.success('Evento atualizado com sucesso!');
-      getEvents();
+      getMyEvents();
       setIsDrawerOpen(false);
     } catch (err: any) {
       if (err instanceof Yup.ValidationError) {
@@ -237,7 +219,7 @@ export const Events = () => {
       await api.delete(`/event/${eventSelected}`);
       toast.success('Evento deletado com sucesso!');
       setOpenDeleteDialog(false);
-      getEvents();
+      getMyEvents();
     } catch (err: any) {
       if (err?.response) {
         return toast.error(
@@ -432,16 +414,29 @@ export const Events = () => {
             </Thead>
 
             <Tbody>
-              {eventList?.map((event) => (
+              <Tr>
+                <Td></Td>
+              </Tr>
+              {events?.map((event) => (
                 <Tr key={event.id}>
-                  <Td onClick={() => navigate(`/pagamentos/${event.id}`)}>
+                  <Td
+                    style={{ cursor: 'pointer' }}
+                    onClick={() => {
+                      setCurrentEvent(event.id);
+                      navigate(`/pagamentos`);
+                    }}
+                  >
                     <PairName>{event?.name}</PairName>
                   </Td>
                   <Td>
-                    <PairName>{getFormatDate(event?.start_date)}</PairName>
+                    <PairName>
+                      {getFormatDate(new Date(event?.start_date))}
+                    </PairName>
                   </Td>
                   <Td>
-                    <PairName>{getFormatDate(event?.end_date)}</PairName>
+                    <PairName>
+                      {getFormatDate(new Date(event?.end_date))}
+                    </PairName>
                   </Td>
                   <Td>
                     <FlexRow>

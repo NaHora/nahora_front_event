@@ -28,6 +28,8 @@ import { toast } from 'react-toastify';
 import { LoadingButton } from '@mui/lab';
 import * as animationData from '../../assets/lottie.json';
 import api from '../../services/api';
+import { useEvent } from '../../contexts/EventContext';
+import { useParams } from 'react-router-dom';
 
 const steps = ['Tipo de inscrição', 'Cadastro dos Atletas', 'Pagamento'];
 
@@ -74,6 +76,8 @@ type FormData = {
 };
 
 export const CreateAccount = () => {
+  const { eventId } = useParams<{ eventId: string }>();
+
   const [currentStep, setCurrentStep] = useState(0);
   const [loading, setLoading] = useState(false);
   const [loadingCategory, setLoadingCategory] = useState(false);
@@ -136,9 +140,7 @@ export const CreateAccount = () => {
   const getCategories = async () => {
     setLoadingCategory(true);
     try {
-      const response = await api.get(
-        '/category/event/1f0fd51d-cd1c-43a9-80ed-00d039571520'
-      );
+      const response = await api.get(`/category/event/${eventId}`);
       setCategories(response.data);
     } catch (error) {
       console.error('Erro ao buscar categorias:', error);
@@ -150,9 +152,7 @@ export const CreateAccount = () => {
   const getLots = async () => {
     setLoading(true);
     try {
-      const response = await api.get(
-        '/lots/event/1f0fd51d-cd1c-43a9-80ed-00d039571520'
-      );
+      const response = await api.get(`/lots/event/${eventId}`);
       setLot(response.data);
     } catch (error) {
       console.error('Erro ao buscar categorias:', error);

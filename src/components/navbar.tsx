@@ -12,10 +12,10 @@ import {
   ListItemText,
   MenuItem,
   Select,
+  SelectChangeEvent,
 } from '@mui/material';
 import React, { useState } from 'react';
 import MenuIcon from '@mui/icons-material/Menu';
-// import { Container } from './styles';
 import FitnessCenterIcon from '@mui/icons-material/FitnessCenter';
 import ScoreboardIcon from '@mui/icons-material/Scoreboard';
 import FormatListNumberedIcon from '@mui/icons-material/FormatListNumbered';
@@ -32,9 +32,12 @@ import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
 const Navbar: React.FC = () => {
   const [open, setOpen] = useState(false);
   const navigate = useNavigate();
-  const { currentEvent, events, isLoading, setCurrentEvent } = useEvent();
+  const { getCurrentEventsData, events, setCurrentEvent } = useEvent();
   const { signOut } = useAuth();
 
+  const handleChange = (event: SelectChangeEvent) => {
+    setCurrentEvent(event.target.value as string);
+  };
   const toggleDrawer = (status: boolean) => {
     setOpen(status);
   };
@@ -76,13 +79,13 @@ const Navbar: React.FC = () => {
                 <InputLabel id="select-event-label">Evento</InputLabel>
                 <Select
                   labelId="select-event-label"
-                  value={currentEvent?.label}
-                  onChange={setCurrentEvent}
+                  value={getCurrentEventsData.id}
+                  onChange={handleChange}
                   label="Evento"
                 >
                   {events.map((event) => (
-                    <MenuItem key={event.value} value={event.value}>
-                      {event.label}
+                    <MenuItem key={event.id} value={event.id}>
+                      {event.name}
                     </MenuItem>
                   ))}
                 </Select>
@@ -91,7 +94,7 @@ const Navbar: React.FC = () => {
           )}
           <List>
             {[
-              { name: 'Resultados', page: '/panel', icon: <ScoreboardIcon /> },
+              // { name: 'Resultados', page: '/painel', icon: <ScoreboardIcon /> },
               {
                 name: 'Eventos',
                 page: '/eventos',
@@ -107,18 +110,22 @@ const Navbar: React.FC = () => {
                 page: '/pagamentos',
                 icon: <AttachMoneyIcon />,
               },
+              // {
+              //   name: 'Categorias',
+              //   page: '/categorias',
+              //   icon: <CategoryIcon />,
+              // },
+              // { name: 'Wod', page: '/wod', icon: <FormatListNumberedIcon /> },
+              // {
+              //   name: 'Wod Descricao',
+              //   page: '/wod-descricao',
+              //   icon: <FitnessCenterIcon />,
+              // },
               {
-                name: 'Categorias',
-                page: '/categorias',
-                icon: <CategoryIcon />,
+                name: 'Inscritos',
+                page: '/inscritos',
+                icon: <PeopleAltIcon />,
               },
-              { name: 'Wod', page: '/wod', icon: <FormatListNumberedIcon /> },
-              {
-                name: 'Wod Descricao',
-                page: '/wod-descricao',
-                icon: <FitnessCenterIcon />,
-              },
-              { name: 'Duplas', page: '/duplas', icon: <PeopleAltIcon /> },
             ].map((text, index) => (
               <ListItem key={text.page} disablePadding>
                 <ListItemButton onClick={() => navigate(text.page)}>
