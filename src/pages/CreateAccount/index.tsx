@@ -31,7 +31,12 @@ import api from '../../services/api';
 import { useEvent } from '../../contexts/EventContext';
 import { useParams } from 'react-router-dom';
 
-const steps = ['Tipo de inscrição', 'Cadastro dos Atletas', 'Pagamento'];
+const steps = [
+  'Tipo de inscrição',
+  'Cadastro dos Atletas',
+  'Pagamento',
+  'Lote encererrado',
+];
 
 type Athlete = {
   [key: string]: any;
@@ -285,6 +290,7 @@ export const CreateAccount = () => {
       ...(paymentMethod === 'card' && { card: sanitizedCardData }),
       isPix: paymentMethod === 'pix',
       installments,
+      lot_id: lot.id,
     };
 
     setLoading(true);

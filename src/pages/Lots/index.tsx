@@ -158,7 +158,7 @@ export const Lots = () => {
 
       const body = {
         max_sales: values?.max_sales,
-        amount: values?.amount,
+        amount: values?.amount * 100,
         event_id: currentEvent,
         start_date: values?.start_date,
         end_date: values?.end_date,
@@ -469,7 +469,7 @@ export const Lots = () => {
                       {new Intl.NumberFormat('pt-BR', {
                         style: 'currency',
                         currency: 'BRL',
-                      }).format(lot?.amount || 0)}
+                      }).format(lot?.amount / 100 || 0)}
                     </PairName>
                   </Td>
                   <Td>
