@@ -87,8 +87,8 @@ export const Lots = () => {
       setValues({
         id: item?.id,
         amount: item?.amount,
-        start_date: item?.start_date,
-        end_date: item?.end_date,
+        start_date: new Date(item?.start_date).toISOString().split('T')[0],
+        end_date: new Date(item?.end_date).toISOString().split('T')[0],
         max_sales: item?.max_sales,
         event_id: item?.event_id,
       });
@@ -216,11 +216,12 @@ export const Lots = () => {
       const { max_sales, amount, start_date, end_date, id } = values;
 
       const body = {
-        max_sales: max_sales,
-        amount: amount,
-        start_date: start_date,
-        end_date: end_date,
-        event_id: id,
+        id,
+        max_sales,
+        amount,
+        start_date,
+        end_date,
+        event_id: currentEvent,
       };
 
       await api.put('/lots', body);
@@ -334,17 +335,22 @@ export const Lots = () => {
               }}
             />
             <InputLabel>Valor</InputLabel>
-            <TextField
+            <NumericFormat
+              customInput={TextField}
               id="amount"
               size="small"
-              onChange={(e) =>
-                setValues({ ...values, amount: Number(e.target.value) })
-              }
               value={values.amount}
+              onValueChange={(values) =>
+                setValues({ ...values, amount: Number(values.floatValue) })
+              }
               error={!!errors.amount}
-              variant="outlined"
               helperText={errors.amount}
               sx={{ width: '100%', borderRadius: '10px' }}
+              thousandSeparator="."
+              decimalSeparator=","
+              prefix="R$ "
+              decimalScale={2}
+              fixedDecimalScale
               InputProps={{
                 style: {
                   borderRadius: '10px',
@@ -352,7 +358,6 @@ export const Lots = () => {
                 },
               }}
             />
-
             <InputLabel>Data de Início</InputLabel>
             <TextField
               id="start-date"
@@ -394,7 +399,6 @@ export const Lots = () => {
                 },
               }}
             />
-
             <LoadingButton
               variant="contained"
               color="primary"
@@ -461,7 +465,12 @@ export const Lots = () => {
                     <PairName>{lot?.max_sales}</PairName>
                   </Td>
                   <Td>
-                    <PairName>{lot?.amount}</PairName>
+                    <PairName>
+                      {new Intl.NumberFormat('pt-BR', {
+                        style: 'currency',
+                        currency: 'BRL',
+                      }).format(lot?.amount || 0)}
+                    </PairName>
                   </Td>
                   <Td>
                     <PairName>

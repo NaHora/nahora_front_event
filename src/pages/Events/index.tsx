@@ -99,8 +99,8 @@ export const Events = () => {
       setValues({
         id: item?.id,
         name: item?.name,
-        start_date: item?.start_date,
-        end_date: item?.end_date,
+        start_date: new Date(item?.start_date).toISOString().split('T')[0],
+        end_date: new Date(item?.end_date).toISOString().split('T')[0],
         address: item?.address,
       });
       setDrawerType(drawerType);
@@ -108,7 +108,11 @@ export const Events = () => {
     } else {
       setValues({
         ...values,
+        id: '',
         name: '',
+        start_date: '',
+        end_date: '',
+        address: '',
       });
       setDrawerType(drawerType);
       setIsDrawerOpen(true);
@@ -181,11 +185,15 @@ export const Events = () => {
 
     setLoading(true);
     try {
-      const { name, id } = values;
+      const { name, id, start_date, end_date, address } = values;
 
       const body = {
-        name: name,
-        categoryId: id,
+        id,
+        name,
+        address,
+        start_date,
+        end_date,
+        enterprise_id: userEnterprise.id,
       };
 
       await api.put('/event', body);
