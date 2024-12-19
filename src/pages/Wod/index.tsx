@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react';
-import api from '../../services/api';
 import { NumericFormat, PatternFormat } from 'react-number-format';
 import {
   Container,
@@ -54,6 +53,8 @@ import { secondToTimeFormater, timeToSecondFormater } from '../../utils/time';
 import { theme } from '../../styles/global';
 import { LoadingButton } from '@mui/lab';
 import Navbar from '../../components/navbar';
+import api from '../../services/api';
+import { useEvent } from '../../contexts/EventContext';
 
 type SelectPropsDTO = {
   id: string;
@@ -91,6 +92,7 @@ interface StateProps {
 }
 
 export const Wod = () => {
+  const { currentEvent } = useEvent();
   const [workoutFiltered, setWorkoutFiltered] = useState('');
   const [categoryFiltered, setCategoryFiltered] = useState('');
   const [categorySelected, setCategorySelected] = useState('');
@@ -170,7 +172,7 @@ export const Wod = () => {
         number: values.number,
         name: values.name,
         type: 'REP',
-        event_id: '1f0fd51d-cd1c-43a9-80ed-00d039571520',
+        event_id: currentEvent,
       };
 
       const response = await api.post(`/workout`, body);

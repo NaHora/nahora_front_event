@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react';
-import api from '../../services/api';
 import { NumericFormat, PatternFormat } from 'react-number-format';
 import {
   Container,
@@ -53,6 +52,8 @@ import { secondToTimeFormater, timeToSecondFormater } from '../../utils/time';
 import { theme } from '../../styles/global';
 import { LoadingButton } from '@mui/lab';
 import Navbar from '../../components/navbar';
+import api from '../../services/api';
+import { useEvent } from '../../contexts/EventContext';
 
 type SelectPropsDTO = {
   id: string;
@@ -85,6 +86,7 @@ export const Category = () => {
     event_id: '',
   });
   const [drawerType, setDrawerType] = useState('');
+  const { currentEvent } = useEvent();
 
   const openDrawer = (drawerType: string, item: CategoryDTO) => {
     if (drawerType === 'edit') {
@@ -106,9 +108,9 @@ export const Category = () => {
 
   const getCategories = async () => {
     setLoading(true);
-
+    console.log(currentEvent);
     try {
-      const response = await api.get(`/category`);
+      const response = await api.get(`/category/event/${currentEvent}`);
 
       setCategoryList(response.data);
       setCategoryFiltered(response.data[0].id);
@@ -120,7 +122,7 @@ export const Category = () => {
 
   useEffect(() => {
     getCategories();
-  }, []);
+  }, [currentEvent]);
 
   const postCategory = async () => {
     setErrors({});
@@ -137,7 +139,7 @@ export const Category = () => {
 
       const body = {
         name: values?.name,
-        event_id: '1f0fd51d-cd1c-43a9-80ed-00d039571520',
+        event_id: currentEvent,
       };
 
       const response = await api.post(`/category`, body);

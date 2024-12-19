@@ -53,102 +53,68 @@ import { theme } from '../../styles/global';
 import { LoadingButton } from '@mui/lab';
 import Navbar from '../../components/navbar';
 import api from '../../services/api';
-
-type SelectPropsDTO = {
-  id: string;
-  name: string;
-  category_id?: string;
-  event_id?: string;
-};
-
-type WorkoutDTO = {
-  event_id: string;
-  id: string;
-  name: string;
-  number: string;
-  type: 'REP' | 'FORTIME';
-};
-
-type ScoreDTO = {
-  id: string;
-  pair_id: string;
-  score: number;
-  tieBreak: string;
-  workout_id: string;
-  pair?: PairDTO;
-};
-
-type ScoreInputDTO = {
-  id: string;
-  pair_id: string;
-  score?: number | string;
-  tieBreak: string;
-  workout_id: string;
-  pair?: PairDTO;
-};
-
-type PairDTO = {
-  category_id: string;
-  first_member: string;
-  id: string;
-  name: string;
-  second_member: string;
-};
+import { EventDTO, LotsDTO } from '../../dtos';
+import { useAuth } from '../../hooks/auth';
+import { getFormatDate } from '../../utils/date';
+import { useEvent } from '../../contexts/EventContext';
 
 interface StateProps {
   [key: string]: any;
 }
 
-export const PairCreate = () => {
-  const [categorySelected, setCategorySelected] = useState('');
+export const Lots = () => {
   const [loading, setLoading] = useState(false);
-  const [categoryList, setCategoryList] = useState<SelectPropsDTO[]>([]);
+  const [lotList, setLotList] = useState<LotsDTO[]>([]);
   const [categoryFiltered, setCategoryFiltered] = useState('');
-  const [pairList, setPairList] = useState<PairDTO[]>([]);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [errors, setErrors] = useState<StateProps>({} as StateProps);
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
-  const [pairSelected, setPairSelected] = useState('');
-  const [values, setValues] = useState<PairDTO>({
+  const [lotSelected, setLotSelected] = useState('');
+  const [values, setValues] = useState<LotsDTO>({
     id: '',
-    first_member: '',
-    second_member: '',
-    category_id: '',
-    name: '',
+    amount: 0,
+    start_date: '',
+    end_date: '',
+    max_sales: 0,
+    event_id: '',
   });
   const [drawerType, setDrawerType] = useState('');
+  const { userEnterprise } = useAuth();
+  const { currentEvent } = useEvent();
 
-  const openDrawer = (drawerType: string, item: PairDTO) => {
+  const openDrawer = (drawerType: string, item: LotsDTO) => {
     if (drawerType === 'edit') {
       setValues({
         id: item?.id,
-        first_member: item?.first_member,
-        second_member: item?.second_member,
-        category_id: item?.category_id,
-        name: item?.name,
+        amount: item?.amount,
+        start_date: item?.start_date,
+        end_date: item?.end_date,
+        max_sales: item?.max_sales,
+        event_id: item?.event_id,
       });
-      setCategorySelected(item?.category_id as string);
       setDrawerType(drawerType);
       setIsDrawerOpen(true);
     } else {
       setValues({
         ...values,
-        first_member: '',
-        second_member: '',
-        name: '',
+        amount: 0,
+        start_date: '',
+        end_date: '',
+        max_sales: 0,
+        event_id: '',
       });
       setDrawerType(drawerType);
       setIsDrawerOpen(true);
     }
   };
 
-  const getCategories = async () => {
+  const getData = async () => {
     setLoading(true);
 
     try {
-      const response = await api.get(`/category`);
+      const response = await api.get(`/event/list/${currentEvent}`);
 
-      setCategoryList(response.data);
+      setLotList(response.data);
       setCategoryFiltered(response.data[0].id);
     } catch (err) {
     } finally {
@@ -156,57 +122,52 @@ export const PairCreate = () => {
     }
   };
 
-  const getPairs = async () => {
-    setLoading(true);
-
-    try {
-      const response = await api.get(
-        `/pair/listByCategory/${categoryFiltered}`
-      );
-
-      setPairList(response.data);
-    } catch (err) {
-    } finally {
-      setLoading(false);
-    }
-  };
-
   useEffect(() => {
-    getCategories();
-  }, []);
+    getData();
+  }, [currentEvent]);
 
-  useEffect(() => {
-    if (categoryFiltered) {
-      getPairs();
-    }
-  }, [categoryFiltered]);
-
-  const postPair = async () => {
+  const postData = async () => {
     setErrors({});
     setLoading(true);
 
     try {
       const schema = Yup.object().shape({
-        // first_member: Yup.string().required('Membro 1 obrigatório'),
-        // second_member: Yup.string().required('Membro 1 obrigatório'),
-        name: Yup.string().required('Nome da dupla obrigatório'),
+        max_sales: Yup.number()
+          .required('Quantidade de vendas do evento é obrigatório')
+          .min(1, 'Quantidade mínima do lote deve ser de 1 venda'),
+        amount: Yup.string()
+          .required('Endereço do evento é obrigatório')
+          .min(1, 'O valor do lote não pode ser menor que R$1'),
+        start_date: Yup.string().required('Data de início é obrigatória'),
+        end_date: Yup.string()
+          .required('Data de fim é obrigatória')
+          .test(
+            'end_date',
+            'A data de fim não pode ser menor que a data de início',
+            function (value) {
+              const { start_date } = this.parent;
+              return (
+                !start_date || !value || new Date(value) >= new Date(start_date)
+              );
+            }
+          ),
       });
-
       await schema.validate(values, {
         abortEarly: false,
       });
 
       const body = {
-        first_member: values?.first_member,
-        second_member: values?.second_member,
-        name: values?.name,
-        category_id: values?.category_id,
+        max_sales: values?.max_sales,
+        amount: values?.amount,
+        event_id: userEnterprise.id,
+        start_date: values?.start_date,
+        end_date: values?.end_date,
       };
 
-      const response = await api.post(`/pair`, body);
+      const response = await api.post(`/event`, body);
       setErrors({});
-      toast.success('Dupla criada com sucesso!');
-      getPairs();
+      toast.success('Lote criado com sucesso!');
+      getData();
       setIsDrawerOpen(false);
     } catch (err: any) {
       if (err instanceof Yup.ValidationError) {
@@ -216,7 +177,7 @@ export const PairCreate = () => {
       if (err?.response) {
         return toast.error(
           err?.response?.data?.message ||
-            'Ocorreu um erro ao adicionar a dupla, tente novamente'
+            'Ocorreu um erro ao adicionar o lote, tente novamente'
         );
       }
     } finally {
@@ -226,26 +187,46 @@ export const PairCreate = () => {
 
   const putData = async () => {
     const schema = Yup.object().shape({
-      name: Yup.string().required('Nome da dupla obrigatório'),
+      max_sales: Yup.number()
+        .required('Quantidade de vendas do evento é obrigatório')
+        .min(1, 'Quantidade mínima do lote deve ser de 1 venda'),
+      amount: Yup.string()
+        .required('Endereço do evento é obrigatório')
+        .min(1, 'O valor do lote não pode ser menor que R$1'),
+      start_date: Yup.string().required('Data de início é obrigatória'),
+      end_date: Yup.string()
+        .required('Data de fim é obrigatória')
+        .test(
+          'end_date',
+          'A data de fim não pode ser menor que a data de início',
+          function (value) {
+            const { start_date } = this.parent;
+            return (
+              !start_date || !value || new Date(value) >= new Date(start_date)
+            );
+          }
+        ),
     });
-
     await schema.validate(values, {
       abortEarly: false,
     });
 
     setLoading(true);
     try {
-      const { name, id } = values;
+      const { max_sales, amount, start_date, end_date, id } = values;
 
       const body = {
-        name: name,
-        pairId: id,
+        max_sales: max_sales,
+        amount: amount,
+        start_date: start_date,
+        end_date: end_date,
+        event_id: id,
       };
 
-      await api.put('/pair', body);
+      await api.put('/event/list/1f0fd51d-cd1c-43a9-80ed-00d039571520', body);
       setErrors({});
-      toast.success('Dupla atualizada com sucesso!');
-      getPairs();
+      toast.success('Lote atualizado com sucesso!');
+      getData();
       setIsDrawerOpen(false);
     } catch (err: any) {
       if (err instanceof Yup.ValidationError) {
@@ -255,7 +236,7 @@ export const PairCreate = () => {
       if (err?.response) {
         return toast.error(
           err?.response?.data?.message ||
-            'Ocorreu um erro ao atualizar a dupla, tente novamente'
+            'Ocorreu um erro ao atualizar o lote, tente novamente'
         );
       }
     } finally {
@@ -263,33 +244,20 @@ export const PairCreate = () => {
     }
   };
 
-  const filterPair = () => {
-    if (categoryFiltered) {
-      return pairList?.filter(
-        (currentPair) =>
-          categoryFiltered && currentPair?.category_id === categoryFiltered
-      );
-    } else {
-      return pairList;
-    }
-  };
-
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
-  const deletePair = async () => {
+  const deleteData = async () => {
     setLoading(true);
     try {
-      //desestruturando o estado, pegando os valores que guardamos la, atraves dos inputs
-
-      await api.delete(`/pair/${pairSelected}`);
-      toast.success('Dupla deletada com sucesso!');
+      await api.delete(`/event/list/${lotSelected}`);
+      toast.success('Lote deletado com sucesso!');
       setOpenDeleteDialog(false);
-      getPairs();
+      getData();
     } catch (err: any) {
       if (err?.response) {
         return toast.error(
           err?.response?.data?.message ||
-            'Ocorreu um erro ao remover a dupla, tente novamente'
+            'Ocorreu um erro ao remover o lote, tente novamente'
         );
       }
     } finally {
@@ -298,7 +266,7 @@ export const PairCreate = () => {
   };
 
   const openDialog = (item_id: string) => {
-    setPairSelected(item_id);
+    setLotSelected(item_id);
     setOpenDeleteDialog(true);
   };
 
@@ -312,7 +280,7 @@ export const PairCreate = () => {
         aria-describedby="alert-dialog-description"
       >
         <DialogTitle id="alert-dialog-title">
-          Deseja excluir a dupla?
+          Deseja excluir o lote?
         </DialogTitle>
         <DialogContent>
           <DialogContentText id="alert-dialog-description">
@@ -330,7 +298,7 @@ export const PairCreate = () => {
           <LoadingButton
             loading={loading}
             variant="contained"
-            onClick={deletePair}
+            onClick={deleteData}
             autoFocus
           >
             Confirmar
@@ -344,55 +312,39 @@ export const PairCreate = () => {
         onClose={() => setIsDrawerOpen(false)}
       >
         <DrawerContainer>
-          <DrawerTitle>Adicionar Dupla</DrawerTitle>
+          <DrawerTitle>Criar Lote</DrawerTitle>
           <ResultForm>
-            <InputLabel>Categoria</InputLabel>
+            <InputLabel>Quantidade de Vendas</InputLabel>
             <TextField
-              id="outlined-basic"
-              label=""
+              id="max_sales"
               size="small"
-              value={values?.category_id}
               onChange={(e) =>
-                setValues({ ...values, category_id: e.target.value })
+                setValues({ ...values, max_sales: Number(e.target.value) })
               }
-              error={errors.category_id}
+              value={values.max_sales}
+              error={!!errors.max_sales}
               variant="outlined"
-              disabled={drawerType === 'edit'}
-              select
-              sx={{
-                width: '100%',
-                borderRadius: '10px',
-              }}
+              helperText={errors.max_sales}
+              sx={{ width: '100%', borderRadius: '10px' }}
               InputProps={{
                 style: {
                   borderRadius: '10px',
                   backgroundColor: '#121214',
                 },
               }}
-            >
-              {categoryList?.map((category) => {
-                return (
-                  <MenuItem key={category.id} value={category.id}>
-                    {category.name}
-                  </MenuItem>
-                );
-              })}
-            </TextField>
-
-            <InputLabel>Nome</InputLabel>
+            />
+            <InputLabel>Valor</InputLabel>
             <TextField
-              id="outlined-basic"
-              label=""
+              id="amount"
               size="small"
-              onChange={(e) => setValues({ ...values, name: e.target.value })}
-              value={values.name}
-              error={errors.name}
+              onChange={(e) =>
+                setValues({ ...values, amount: Number(e.target.value) })
+              }
+              value={values.amount}
+              error={!!errors.amount}
               variant="outlined"
-              helperText={errors.name}
-              sx={{
-                width: '100%',
-                borderRadius: '10px',
-              }}
+              helperText={errors.amount}
+              sx={{ width: '100%', borderRadius: '10px' }}
               InputProps={{
                 style: {
                   borderRadius: '10px',
@@ -401,23 +353,19 @@ export const PairCreate = () => {
               }}
             />
 
-            <InputLabel>Membro 1</InputLabel>
+            <InputLabel>Data de Início</InputLabel>
             <TextField
-              id="outlined-basic"
-              label=""
+              id="start-date"
+              type="date"
               size="small"
               onChange={(e) =>
-                setValues({ ...values, first_member: e.target.value })
+                setValues({ ...values, start_date: e.target.value })
               }
-              value={values.first_member}
-              error={errors.first_member}
+              value={values.start_date}
+              error={!!errors.start_date}
               variant="outlined"
-              helperText={errors.first_member}
-              disabled={drawerType === 'edit'}
-              sx={{
-                width: '100%',
-                borderRadius: '10px',
-              }}
+              helperText={errors.start_date}
+              sx={{ width: '100%', borderRadius: '10px' }}
               InputProps={{
                 style: {
                   borderRadius: '10px',
@@ -426,23 +374,19 @@ export const PairCreate = () => {
               }}
             />
 
-            <InputLabel>Membro 2</InputLabel>
+            <InputLabel>Data de Término</InputLabel>
             <TextField
-              id="outlined-basic"
-              label=""
+              id="end-date"
+              type="date"
               size="small"
               onChange={(e) =>
-                setValues({ ...values, second_member: e.target.value })
+                setValues({ ...values, end_date: e.target.value })
               }
-              value={values.second_member}
-              error={errors.second_member}
+              value={values.end_date}
+              error={!!errors.end_date}
               variant="outlined"
-              helperText={errors.second_member}
-              disabled={drawerType === 'edit'}
-              sx={{
-                width: '100%',
-                borderRadius: '10px',
-              }}
+              helperText={errors.end_date}
+              sx={{ width: '100%', borderRadius: '10px' }}
               InputProps={{
                 style: {
                   borderRadius: '10px',
@@ -461,7 +405,7 @@ export const PairCreate = () => {
               }}
               fullWidth
               loading={loading}
-              onClick={drawerType === 'edit' ? putData : postPair}
+              onClick={drawerType === 'edit' ? putData : postData}
             >
               {drawerType === 'edit' ? 'Editar' : 'Adicionar'}
             </LoadingButton>
@@ -473,36 +417,7 @@ export const PairCreate = () => {
       <Content>
         <ContentHeader>
           <FilteredContainer>
-            <FilteredSelect>
-              <InputLabel style={{ marginTop: 0 }}>Categorias:</InputLabel>
-              <TextField
-                id="outlined-basic"
-                label=""
-                size="small"
-                onChange={(e) => setCategoryFiltered(e.target.value)}
-                value={categoryFiltered}
-                variant="outlined"
-                select
-                sx={{
-                  width: '250px',
-                  borderRadius: '10px',
-                }}
-                InputProps={{
-                  style: {
-                    borderRadius: '10px',
-                    backgroundColor: '#121214',
-                  },
-                }}
-              >
-                {categoryList.map((category) => {
-                  return (
-                    <MenuItem key={category.id} value={category.id}>
-                      {category.name}
-                    </MenuItem>
-                  );
-                })}
-              </TextField>
-            </FilteredSelect>
+            <FilteredSelect></FilteredSelect>
           </FilteredContainer>
           <Button
             variant="contained"
@@ -512,14 +427,15 @@ export const PairCreate = () => {
             onClick={() =>
               openDrawer('create', {
                 id: '',
-                first_member: '',
-                second_member: '',
-                name: '',
-                category_id: '',
+                amount: 0,
+                max_sales: 0,
+                start_date: '',
+                end_date: '',
+                event_id: '',
               })
             }
           >
-            Adicionar Dupla
+            Criar Lote
           </Button>
         </ContentHeader>
 
@@ -527,35 +443,36 @@ export const PairCreate = () => {
           <Table>
             <Thead>
               <Tr>
-                <Th>Equipe</Th>
-                <Th>Membro 1</Th>
-                <Th>Membro 2</Th>
+                <Th>Quantidade para venda</Th>
+                <Th>Valor</Th>
+                <Th>Início</Th>
+                <Th>Término</Th>
                 <Th style={{ textAlign: 'center' }}>Ações</Th>
               </Tr>
             </Thead>
 
             <Tbody>
-              <Tr>
-                <Td></Td>
-              </Tr>
-              {filterPair()?.map((pair) => (
-                <Tr key={pair.id}>
+              {lotList?.map((lot) => (
+                <Tr key={lot.id}>
                   <Td>
-                    <PairName>{pair?.name}</PairName>
+                    <PairName>{lot?.max_sales}</PairName>
                   </Td>
                   <Td>
-                    <PairName>{pair?.first_member}</PairName>
+                    <PairName>{lot?.amount}</PairName>
                   </Td>
                   <Td>
-                    <PairName>{pair?.second_member}</PairName>
+                    <PairName>
+                      {getFormatDate(new Date(lot?.start_date))}
+                    </PairName>
+                  </Td>
+                  <Td>
+                    <PairName>
+                      {getFormatDate(new Date(lot?.end_date))}
+                    </PairName>
                   </Td>
                   <Td>
                     <FlexRow>
-                      <Delete
-                        onClick={() => {
-                          openDialog(pair.id);
-                        }}
-                      >
+                      <Delete onClick={() => openDialog(lot.id)}>
                         <DeleteForeverIcon
                           fontSize={isMobile ? 'small' : 'medium'}
                           sx={{ marginRight: '4px' }}
@@ -564,8 +481,8 @@ export const PairCreate = () => {
                       </Delete>
                       <Edit
                         onClick={() => {
-                          openDrawer('edit', pair);
-                          setPairSelected(pair.id);
+                          openDrawer('edit', lot);
+                          setLotSelected(lot.id);
                         }}
                       >
                         <EditIcon
