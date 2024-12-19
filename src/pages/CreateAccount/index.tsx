@@ -154,6 +154,9 @@ export const CreateAccount = () => {
     try {
       const response = await api.get(`/lots/event/${eventId}`);
       setLot(response.data);
+      if (response.data.length > 0) {
+        setCurrentStep(4);
+      }
     } catch (error) {
       console.error('Erro ao buscar categorias:', error);
     } finally {
@@ -162,9 +165,7 @@ export const CreateAccount = () => {
   };
 
   useEffect(() => {
-    if (currentStep === 2) {
-      getLots();
-    }
+    getLots();
   }, [currentStep]);
 
   const handleCategoryChange = (categoryId: string) => {
