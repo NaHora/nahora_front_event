@@ -70,7 +70,7 @@ export const Lots = () => {
   const [errors, setErrors] = useState<StateProps>({} as StateProps);
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
   const [lotSelected, setLotSelected] = useState('');
-  const [values, setValues] = useState<LotsDTO>({
+  const [values, setValues] = useState<StateProps>({
     id: '',
     amount: 0,
     start_date: '',

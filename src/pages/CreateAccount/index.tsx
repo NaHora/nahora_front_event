@@ -28,15 +28,9 @@ import { toast } from 'react-toastify';
 import { LoadingButton } from '@mui/lab';
 import * as animationData from '../../assets/lottie.json';
 import api from '../../services/api';
-import { useEvent } from '../../contexts/EventContext';
 import { useParams } from 'react-router-dom';
 
-const steps = [
-  'Tipo de inscrição',
-  'Cadastro dos Atletas',
-  'Pagamento',
-  'Lote encererrado',
-];
+const steps = ['Tipo de inscrição', 'Cadastro dos Atletas', 'Pagamento'];
 
 type Athlete = {
   [key: string]: any;
@@ -112,7 +106,7 @@ export const CreateAccount = () => {
 
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [installments, setInstallments] = useState(1);
-  const [lot, setLot] = useState({ amount: 0 });
+  const [lot, setLot] = useState({ id: 0, amount: 0 });
   const [paymentMethod, setPaymentMethod] = useState<'pix' | 'card' | ''>('');
   const [cardData, setCardData] = useState<CardData>({
     number: '',
@@ -159,8 +153,11 @@ export const CreateAccount = () => {
     try {
       const response = await api.get(`/lots/event/${eventId}`);
       setLot(response.data);
-      if (response.data.length > 0) {
+      if (!response.data) {
+        console.log('nada', response.data);
         setCurrentStep(4);
+      } else {
+        setCurrentStep(1);
       }
     } catch (error) {
       console.error('Erro ao buscar categorias:', error);
@@ -171,7 +168,7 @@ export const CreateAccount = () => {
 
   useEffect(() => {
     getLots();
-  }, [currentStep]);
+  }, []);
 
   const handleCategoryChange = (categoryId: string) => {
     const category_id = categories.find((cat: any) => cat.id === categoryId);
@@ -290,7 +287,7 @@ export const CreateAccount = () => {
       ...(paymentMethod === 'card' && { card: sanitizedCardData }),
       isPix: paymentMethod === 'pix',
       installments,
-      lot_id: lot.id,
+      lot_id: lot?.id,
     };
 
     setLoading(true);

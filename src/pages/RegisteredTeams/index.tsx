@@ -11,11 +11,16 @@ import {
   Thead,
   PairName,
   TableContainer,
+  Edit,
 } from './styles';
 import EventLogo from '../../assets/event-logo.png';
 import api from '../../services/api';
 import { useEvent } from '../../contexts/EventContext';
 import Navbar from '../../components/navbar';
+import { toast } from 'react-toastify';
+import CopyIcon from '@mui/icons-material/CopyAll';
+import { useMediaQuery } from '@mui/material';
+import { theme } from '../../styles/global';
 
 type CategoryDTO = {
   id: string;
@@ -70,12 +75,33 @@ export const RegisteredTeams = () => {
     getRegisteredTeams();
   }, [currentEvent]);
 
+  const handleCopy = async () => {
+    try {
+      await navigator.clipboard.writeText(
+        'https://' + window.location.hostname + '/inscricoes/' + currentEvent
+      );
+      toast.success('Copiado com sucesso!');
+    } catch (err) {
+      console.error('Erro ao copiar o texto: ', err);
+      toast.error('Falha ao copiar o texto.');
+    }
+  };
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+
   return (
     <Container>
       <Navbar />
       <EventImage src={EventLogo} width={318} alt="event logo" />
       <Content>
         <TableContainer>
+          <Edit onClick={handleCopy}>
+            <CopyIcon
+              fontSize={isMobile ? 'small' : 'medium'}
+              sx={{ marginRight: '4px' }}
+            />
+            {!isMobile && 'Copiar Link'}
+          </Edit>
+          <br />
           <Table>
             <Thead>
               <Tr>
