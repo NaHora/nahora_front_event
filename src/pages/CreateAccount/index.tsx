@@ -157,7 +157,7 @@ export const CreateAccount = () => {
         console.log('nada', response.data);
         setCurrentStep(4);
       } else {
-        setCurrentStep(1);
+        setCurrentStep(0);
       }
     } catch (error) {
       console.error('Erro ao buscar categorias:', error);
