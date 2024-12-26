@@ -110,11 +110,11 @@ const Navbar: React.FC = () => {
                 page: '/pagamentos',
                 icon: <AttachMoneyIcon />,
               },
-              // {
-              //   name: 'Categorias',
-              //   page: '/categorias',
-              //   icon: <CategoryIcon />,
-              // },
+              {
+                name: 'Categorias',
+                page: '/categorias',
+                icon: <CategoryIcon />,
+              },
               // { name: 'Wod', page: '/wod', icon: <FormatListNumberedIcon /> },
               // {
               //   name: 'Wod Descricao',
