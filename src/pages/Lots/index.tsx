@@ -77,10 +77,35 @@ export const Lots = () => {
     end_date: '',
     max_sales: 0,
     event_id: '',
+    start_time: '',
+    end_time: '',
   });
   const [drawerType, setDrawerType] = useState('');
   const { userEnterprise } = useAuth();
   const { currentEvent } = useEvent();
+
+  const combineDateAndTime = (date: string, time: string): string => {
+    const combined = new Date(`${date}T${time}`);
+    return combined.toISOString();
+  };
+
+  const adjustToLocalTime = (isoString: string): string => {
+    const date = new Date(isoString);
+    const localDate = new Date(
+      date.getTime() - date.getTimezoneOffset() * 60000
+    );
+    return localDate.toISOString().split('T')[1].slice(0, 5);
+  };
+
+  const formatDateTime = (isoString: string): string => {
+    const date = new Date(isoString);
+    const formattedDate = date.toLocaleDateString('pt-BR');
+    const formattedTime = date.toLocaleTimeString('pt-BR', {
+      hour: '2-digit',
+      minute: '2-digit',
+    });
+    return `${formattedDate} - ${formattedTime}h`;
+  };
 
   const openDrawer = (drawerType: string, item: LotsDTO) => {
     if (drawerType === 'edit') {
@@ -89,8 +114,10 @@ export const Lots = () => {
         amount: item?.amount,
         start_date: new Date(item?.start_date).toISOString().split('T')[0],
         end_date: new Date(item?.end_date).toISOString().split('T')[0],
+        start_time: adjustToLocalTime(item?.start_date),
+        end_time: adjustToLocalTime(item?.end_date),
         max_sales: item?.max_sales,
-        event_id: item?.event_id,
+        lotId: lotSelected,
       });
       setDrawerType(drawerType);
       setIsDrawerOpen(true);
@@ -151,6 +178,8 @@ export const Lots = () => {
               );
             }
           ),
+        start_time: Yup.string().required('Hora de início é obrigatória'),
+        end_time: Yup.string().required('Hora de fim é obrigatória'),
       });
       await schema.validate(values, {
         abortEarly: false,
@@ -160,8 +189,8 @@ export const Lots = () => {
         max_sales: values?.max_sales,
         amount: values?.amount * 100,
         event_id: currentEvent,
-        start_date: values?.start_date,
-        end_date: values?.end_date,
+        start_date: combineDateAndTime(values.start_date, values.start_time),
+        end_date: combineDateAndTime(values.end_date),
       };
 
       const response = await api.post(`/lots`, body);
@@ -206,6 +235,8 @@ export const Lots = () => {
             );
           }
         ),
+      start_time: Yup.string().required('Hora de início é obrigatória'),
+      end_time: Yup.string().required('Hora de fim é obrigatória'),
     });
     await schema.validate(values, {
       abortEarly: false,
@@ -213,15 +244,14 @@ export const Lots = () => {
 
     setLoading(true);
     try {
-      const { max_sales, amount, start_date, end_date, id } = values;
-
       const body = {
-        id,
-        max_sales,
-        amount,
-        start_date,
-        end_date,
+        id: values.id,
+        max_sales: values.max_sales,
+        amount: values.amount,
+        start_date: combineDateAndTime(values.start_date, values.start_time),
+        end_date: combineDateAndTime(values.end_date, values.end_time),
         event_id: currentEvent,
+        lotId: lotSelected,
       };
 
       await api.put('/lots', body);
@@ -379,6 +409,27 @@ export const Lots = () => {
               }}
             />
 
+            <InputLabel>Horário de Início</InputLabel>
+            <TextField
+              id="start_time"
+              type="time"
+              size="small"
+              onChange={(e) =>
+                setValues({ ...values, start_time: e.target.value })
+              }
+              value={values.start_time}
+              error={!!errors.start_time}
+              variant="outlined"
+              helperText={errors.start_time}
+              sx={{ width: '100%', borderRadius: '10px' }}
+              InputProps={{
+                style: {
+                  borderRadius: '10px',
+                  backgroundColor: '#121214',
+                },
+              }}
+            />
+
             <InputLabel>Data de Término</InputLabel>
             <TextField
               id="end-date"
@@ -391,6 +442,26 @@ export const Lots = () => {
               error={!!errors.end_date}
               variant="outlined"
               helperText={errors.end_date}
+              sx={{ width: '100%', borderRadius: '10px' }}
+              InputProps={{
+                style: {
+                  borderRadius: '10px',
+                  backgroundColor: '#121214',
+                },
+              }}
+            />
+            <InputLabel>Horário de Término</InputLabel>
+            <TextField
+              id="end_time"
+              type="time"
+              size="small"
+              onChange={(e) =>
+                setValues({ ...values, end_time: e.target.value })
+              }
+              value={values.end_time}
+              error={!!errors.end_time}
+              variant="outlined"
+              helperText={errors.end_time}
               sx={{ width: '100%', borderRadius: '10px' }}
               InputProps={{
                 style: {
@@ -436,6 +507,8 @@ export const Lots = () => {
                 start_date: '',
                 end_date: '',
                 event_id: '',
+                start_time: '',
+                end_time: '',
               })
             }
           >
@@ -473,14 +546,10 @@ export const Lots = () => {
                     </PairName>
                   </Td>
                   <Td>
-                    <PairName>
-                      {getFormatDate(new Date(lot?.start_date))}
-                    </PairName>
+                    <PairName>{formatDateTime(lot?.start_date)}</PairName>
                   </Td>
                   <Td>
-                    <PairName>
-                      {getFormatDate(new Date(lot?.end_date))}
-                    </PairName>
+                    <PairName>{formatDateTime(lot?.end_date)}</PairName>
                   </Td>
                   <Td>
                     <FlexRow>

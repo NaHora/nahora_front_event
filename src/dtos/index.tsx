@@ -20,6 +20,8 @@ export interface LotsDTO {
   start_date: string;
   end_date: string;
   event_id: string;
+  start_time: string;
+  end_time: string;
 }
 
 export interface User {

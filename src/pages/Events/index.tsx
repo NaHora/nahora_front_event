@@ -96,6 +96,14 @@ export const Events = () => {
   const { userEnterprise } = useAuth();
   const { setCurrentEvent, events, getMyEvents } = useEvent();
 
+  const adjustToLocalTime = (isoString: string): string => {
+    const date = new Date(isoString);
+    const localDate = new Date(
+      date.getTime() - date.getTimezoneOffset() * 60000
+    );
+    return localDate.toISOString().split('T')[1].slice(0, 5);
+  };
+
   const openDrawer = (drawerType: string, item: EventDTO) => {
     if (drawerType === 'edit') {
       setValues({
@@ -103,8 +111,8 @@ export const Events = () => {
         name: item?.name,
         start_date: new Date(item?.start_date).toISOString().split('T')[0],
         end_date: new Date(item?.end_date).toISOString().split('T')[0],
-        start_time: item?.start_time,
-        end_time: item?.end_time,
+        start_time: adjustToLocalTime(item?.start_date),
+        end_time: adjustToLocalTime(item?.end_date),
         address: item?.address,
       });
       setDrawerType(drawerType);
@@ -123,6 +131,21 @@ export const Events = () => {
       setDrawerType(drawerType);
       setIsDrawerOpen(true);
     }
+  };
+
+  const combineDateAndTime = (date: string, time: string): string => {
+    const combined = new Date(`${date}T${time}`);
+    return combined.toISOString();
+  };
+
+  const formatDateTime = (isoString: string): string => {
+    const date = new Date(isoString);
+    const formattedDate = date.toLocaleDateString('pt-BR');
+    const formattedTime = date.toLocaleTimeString('pt-BR', {
+      hour: '2-digit',
+      minute: '2-digit',
+    });
+    return `${formattedDate} - ${formattedTime}h`;
   };
 
   const postEvent = async () => {
@@ -149,6 +172,7 @@ export const Events = () => {
         start_time: Yup.string().required('Hora de início é obrigatória'),
         end_time: Yup.string().required('Hora de fim é obrigatória'),
       });
+
       await schema.validate(values, {
         abortEarly: false,
       });
@@ -157,13 +181,11 @@ export const Events = () => {
         name: values?.name,
         address: values?.address,
         enterprise_id: userEnterprise.id,
-        start_date: values?.start_date,
-        end_date: values?.end_date,
-        start_time: values?.start_date,
-        end_time: values?.end_date,
+        start_date: combineDateAndTime(values.start_date, values.start_time),
+        end_date: combineDateAndTime(values.end_date, values.end_time),
       };
 
-      const response = await api.post(`/event`, body);
+      await api.post(`/event`, body);
       setErrors({});
       toast.success('Evento criado com sucesso!');
       getMyEvents();
@@ -195,18 +217,14 @@ export const Events = () => {
 
     setLoading(true);
     try {
-      const { name, id, start_date, end_date, address, start_time, end_time } =
-        values;
-
       const body = {
-        id,
-        name,
-        address,
-        start_date,
-        end_date,
-        start_time,
-        end_time,
+        id: values.id,
+        name: values.name,
+        address: values.address,
+        start_date: combineDateAndTime(values.start_date, values.start_time),
+        end_date: combineDateAndTime(values.end_date, values.end_time),
         enterprise_id: userEnterprise.id,
+        eventId: eventSelected,
       };
 
       await api.put('/event', body);
@@ -229,7 +247,6 @@ export const Events = () => {
       setLoading(false);
     }
   };
-
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
   const deletePair = async () => {
@@ -457,6 +474,8 @@ export const Events = () => {
                 start_date: '',
                 end_date: '',
                 address: '',
+                start_time: '',
+                end_time: '',
               })
             }
           >
@@ -491,16 +510,10 @@ export const Events = () => {
                     <PairName>{event?.name}</PairName>
                   </Td>
                   <Td>
-                    <PairName>
-                      {getFormatDate(new Date(event?.start_date))} -
-                      {event?.start_time}
-                    </PairName>
+                    <PairName>{formatDateTime(event?.start_date)}</PairName>
                   </Td>
                   <Td>
-                    <PairName>
-                      {getFormatDate(new Date(event?.end_date))} -
-                      {event?.end_time}
-                    </PairName>
+                    <PairName>{formatDateTime(event?.end_date)}</PairName>
                   </Td>
                   <Td>
                     <FlexRow>
