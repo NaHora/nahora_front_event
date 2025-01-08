@@ -88,6 +88,8 @@ export const Events = () => {
     name: '',
     start_date: '',
     end_date: '',
+    start_time: '',
+    end_time: '',
     address: '',
   });
   const [drawerType, setDrawerType] = useState('');
@@ -101,6 +103,8 @@ export const Events = () => {
         name: item?.name,
         start_date: new Date(item?.start_date).toISOString().split('T')[0],
         end_date: new Date(item?.end_date).toISOString().split('T')[0],
+        start_time: item?.start_time,
+        end_time: item?.end_time,
         address: item?.address,
       });
       setDrawerType(drawerType);
@@ -112,6 +116,8 @@ export const Events = () => {
         name: '',
         start_date: '',
         end_date: '',
+        start_time: '',
+        end_time: '',
         address: '',
       });
       setDrawerType(drawerType);
@@ -140,6 +146,8 @@ export const Events = () => {
               );
             }
           ),
+        start_time: Yup.string().required('Hora de início é obrigatória'),
+        end_time: Yup.string().required('Hora de fim é obrigatória'),
       });
       await schema.validate(values, {
         abortEarly: false,
@@ -151,6 +159,8 @@ export const Events = () => {
         enterprise_id: userEnterprise.id,
         start_date: values?.start_date,
         end_date: values?.end_date,
+        start_time: values?.start_date,
+        end_time: values?.end_date,
       };
 
       const response = await api.post(`/event`, body);
@@ -185,7 +195,8 @@ export const Events = () => {
 
     setLoading(true);
     try {
-      const { name, id, start_date, end_date, address } = values;
+      const { name, id, start_date, end_date, address, start_time, end_time } =
+        values;
 
       const body = {
         id,
@@ -193,6 +204,8 @@ export const Events = () => {
         address,
         start_date,
         end_date,
+        start_time,
+        end_time,
         enterprise_id: userEnterprise.id,
       };
 
@@ -345,6 +358,26 @@ export const Events = () => {
                 },
               }}
             />
+            <InputLabel>Horário de Início</InputLabel>
+            <TextField
+              id="start_time"
+              type="time"
+              size="small"
+              onChange={(e) =>
+                setValues({ ...values, start_time: e.target.value })
+              }
+              value={values.start_time}
+              error={!!errors.start_time}
+              variant="outlined"
+              helperText={errors.start_time}
+              sx={{ width: '100%', borderRadius: '10px' }}
+              InputProps={{
+                style: {
+                  borderRadius: '10px',
+                  backgroundColor: '#121214',
+                },
+              }}
+            />
 
             <InputLabel>Data de Término</InputLabel>
             <TextField
@@ -358,6 +391,27 @@ export const Events = () => {
               error={!!errors.end_date}
               variant="outlined"
               helperText={errors.end_date}
+              sx={{ width: '100%', borderRadius: '10px' }}
+              InputProps={{
+                style: {
+                  borderRadius: '10px',
+                  backgroundColor: '#121214',
+                },
+              }}
+            />
+
+            <InputLabel>Horário de Término</InputLabel>
+            <TextField
+              id="end_time"
+              type="time"
+              size="small"
+              onChange={(e) =>
+                setValues({ ...values, end_time: e.target.value })
+              }
+              value={values.end_time}
+              error={!!errors.end_time}
+              variant="outlined"
+              helperText={errors.end_time}
               sx={{ width: '100%', borderRadius: '10px' }}
               InputProps={{
                 style: {
@@ -438,12 +492,14 @@ export const Events = () => {
                   </Td>
                   <Td>
                     <PairName>
-                      {getFormatDate(new Date(event?.start_date))}
+                      {getFormatDate(new Date(event?.start_date))} -
+                      {event?.start_time}
                     </PairName>
                   </Td>
                   <Td>
                     <PairName>
-                      {getFormatDate(new Date(event?.end_date))}
+                      {getFormatDate(new Date(event?.end_date))} -
+                      {event?.end_time}
                     </PairName>
                   </Td>
                   <Td>

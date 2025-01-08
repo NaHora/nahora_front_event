@@ -9,6 +9,8 @@ export interface EventDTO {
   start_date: string;
   end_date: string;
   address: string;
+  start_time: string;
+  end_time: string;
 }
 
 export interface LotsDTO {
