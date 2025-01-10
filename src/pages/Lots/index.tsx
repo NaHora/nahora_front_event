@@ -190,7 +190,7 @@ export const Lots = () => {
         amount: values?.amount * 100,
         event_id: currentEvent,
         start_date: combineDateAndTime(values.start_date, values.start_time),
-        end_date: combineDateAndTime(values.end_date),
+        end_date: combineDateAndTime(values.end_date, values.end_time),
       };
 
       const response = await api.post(`/lots`, body);
