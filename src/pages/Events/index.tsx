@@ -504,7 +504,7 @@ export const Events = () => {
                     style={{ cursor: 'pointer' }}
                     onClick={() => {
                       setCurrentEvent(event.id);
-                      navigate(`/pagamentos`);
+                      navigate(`/dashboard`);
                     }}
                   >
                     <PairName>{event?.name}</PairName>
