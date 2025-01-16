@@ -94,7 +94,7 @@ const Navbar: React.FC = () => {
           )}
           <List>
             {[
-              // { name: 'Resultados', page: '/painel', icon: <ScoreboardIcon /> },
+              { name: 'Resultados', page: '/painel', icon: <ScoreboardIcon /> },
               {
                 name: 'Eventos',
                 page: '/eventos',
@@ -115,12 +115,12 @@ const Navbar: React.FC = () => {
                 page: '/categorias',
                 icon: <CategoryIcon />,
               },
-              // { name: 'Wod', page: '/wod', icon: <FormatListNumberedIcon /> },
-              // {
-              //   name: 'Wod Descricao',
-              //   page: '/wod-descricao',
-              //   icon: <FitnessCenterIcon />,
-              // },
+              { name: 'Wod', page: '/wod', icon: <FormatListNumberedIcon /> },
+              {
+                name: 'Wod Descricao',
+                page: '/wod-descricao',
+                icon: <FitnessCenterIcon />,
+              },
               {
                 name: 'Inscritos',
                 page: '/inscritos',

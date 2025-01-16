@@ -19,7 +19,7 @@ type EventProviderProps = {
 type EventContextData = {
   isLoading: boolean;
   events: EventDTO[];
-  setCurrentEvent: Dispatch<SetStateAction<string>>;
+  setCurrentEvent: (eventId: string) => void;
   currentEvent: string;
   getCurrentEventsData: EventDTO;
   getMyEvents: () => void;
@@ -31,7 +31,7 @@ export function EventProvider({ children }: EventProviderProps) {
   const { user } = useAuth();
   const [events, setEvents] = useState([] as EventDTO[]);
   const [isLoading, setIsLoading] = useState(false);
-  const [currentEvent, setCurrentEvent] = useState('');
+  const [currentEvent, setToStateCurrentEvent] = useState('');
 
   const getMyEvents = async () => {
     setIsLoading(true);
@@ -64,6 +64,12 @@ export function EventProvider({ children }: EventProviderProps) {
     }
   };
 
+  function setCurrentEvent(eventId: string) {
+    localStorage.setItem(key.currentEvent + user.id, JSON.stringify(eventId));
+
+    setToStateCurrentEvent(eventId);
+  }
+
   const getCurrentEventsData = events.find(
     (event) => event.id === currentEvent
   ) || {
@@ -74,7 +80,6 @@ export function EventProvider({ children }: EventProviderProps) {
     end_date: '',
     address: '',
   };
-
   useEffect(() => {
     if (user?.id) {
       getMyEvents();

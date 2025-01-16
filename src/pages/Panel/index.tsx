@@ -53,6 +53,7 @@ import { theme } from '../../styles/global';
 import { LoadingButton } from '@mui/lab';
 import Navbar from '../../components/navbar';
 import api from '../../services/api';
+import { useEvent } from '../../contexts/EventContext';
 
 type SelectPropsDTO = {
   id: string;
@@ -71,28 +72,33 @@ type WorkoutDTO = {
 
 type ScoreDTO = {
   id: string;
-  pair_id: string;
+  team_id: string;
   score: number;
   tieBreak: string;
   workout_id: string;
-  pair?: PairDTO;
+  team?: TeamDTO;
 };
 
 type ScoreInputDTO = {
   id: string;
-  pair_id: string;
+  team_id: string;
   score?: number | string;
   tieBreak: string;
   workout_id: string;
-  pair?: PairDTO;
+  team?: TeamDTO;
 };
 
-type PairDTO = {
+type TeamDTO = {
   category_id: string;
-  first_member: string;
   id: string;
   name: string;
-  second_member: string;
+  athletes: AthleteDTO[];
+};
+
+type AthleteDTO = {
+  team_id: string;
+  id: string;
+  name: string;
 };
 
 interface StateProps {
@@ -100,13 +106,14 @@ interface StateProps {
 }
 
 export const Panel = () => {
+  const { currentEvent } = useEvent();
   const [workoutFiltered, setWorkoutFiltered] = useState('');
   const [categoryFiltered, setCategoryFiltered] = useState('');
   const [categorySelected, setCategorySelected] = useState('');
   const [loading, setLoading] = useState(false);
   const [workoutList, setWorkoutList] = useState<WorkoutDTO[]>([]);
   const [categoryList, setCategoryList] = useState<SelectPropsDTO[]>([]);
-  const [pairList, setPairList] = useState<SelectPropsDTO[]>([]);
+  const [teamList, setTeamList] = useState<SelectPropsDTO[]>([]);
   const [scoreList, setScoreList] = useState<ScoreDTO[]>([]);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [errors, setErrors] = useState<StateProps>({} as StateProps);
@@ -115,7 +122,7 @@ export const Panel = () => {
   const [scoreSelected, setScoreSelected] = useState('');
   const [values, setValues] = useState<ScoreInputDTO>({
     id: '',
-    pair_id: '',
+    team_id: '',
     score: '',
     tieBreak: '',
     workout_id: '',
@@ -126,7 +133,7 @@ export const Panel = () => {
     if (drawerType === 'edit') {
       setValues({
         id: item?.id,
-        pair_id: item?.pair_id,
+        team_id: item?.team_id,
         score:
           getWorkoutById(item?.workout_id) === 'FORTIME'
             ? secondToTimeFormater(item?.score!)
@@ -134,13 +141,13 @@ export const Panel = () => {
         tieBreak: secondToTimeFormater(item?.tieBreak),
         workout_id: item?.workout_id,
       });
-      setCategorySelected(item?.pair?.category_id as string);
+      setCategorySelected(item?.team?.category_id as string);
       setDrawerType(drawerType);
       setIsDrawerOpen(true);
     } else {
       setValues({
         ...values,
-        pair_id: '',
+        team_id: '',
         score: '',
         tieBreak: '',
       });
@@ -153,7 +160,7 @@ export const Panel = () => {
     setLoading(true);
 
     try {
-      const response = await api.get(`/score`);
+      const response = await api.get(`/score/event/${currentEvent}`);
 
       setScoreList(response.data);
     } catch (err) {
@@ -166,7 +173,7 @@ export const Panel = () => {
     setLoading(true);
 
     try {
-      const response = await api.get(`/workout`);
+      const response = await api.get(`/workout/event/${currentEvent}`);
 
       setWorkoutList(response.data);
     } catch (err) {
@@ -179,7 +186,7 @@ export const Panel = () => {
     setLoading(true);
 
     try {
-      const response = await api.get(`/category`);
+      const response = await api.get(`/category/event/${currentEvent}`);
 
       setCategoryList(response.data);
     } catch (err) {
@@ -188,15 +195,15 @@ export const Panel = () => {
     }
   };
 
-  const getPairs = async () => {
+  const getTeams = async () => {
     setLoading(true);
 
     try {
       const response = await api.get(
-        `/pair/listByCategory/${categorySelected}`
+        `/teams/listByCategory/${categorySelected}`
       );
 
-      setPairList(response.data);
+      setTeamList(response.data);
     } catch (err) {
     } finally {
       setLoading(false);
@@ -207,11 +214,11 @@ export const Panel = () => {
     getWorkout();
     getCategories();
     getScore();
-  }, []);
+  }, [currentEvent]);
 
   useEffect(() => {
     if (categorySelected) {
-      getPairs();
+      getTeams();
     }
   }, [categorySelected]);
 
@@ -226,7 +233,7 @@ export const Panel = () => {
           getWorkoutById(values.workout_id) === 'FORTIME'
             ? Yup.string().required('Score obrigatório')
             : Yup.number().required('Score obrigatório'),
-        pair_id: Yup.string().required('Dupla obrigatória'),
+        team_id: Yup.string().required('Dupla obrigatória'),
         tieBreak: Yup.string().optional(),
       });
 
@@ -240,7 +247,7 @@ export const Panel = () => {
             ? timeToSecondFormater(values.score as string)
             : values.score,
         tieBreak: timeToSecondFormater(values.tieBreak),
-        pair_id: values.pair_id,
+        team_id: values.team_id,
         workout_id: values.workout_id,
       };
 
@@ -332,7 +339,7 @@ export const Panel = () => {
         ?.filter(
           (currentScore) =>
             categoryFiltered &&
-            currentScore.pair?.category_id === categoryFiltered
+            currentScore.team?.category_id === categoryFiltered
         );
     } else if (workoutFiltered && !categoryFiltered) {
       return scoreList?.filter(
@@ -343,7 +350,7 @@ export const Panel = () => {
       return scoreList?.filter(
         (currentScore) =>
           categoryFiltered &&
-          currentScore.pair?.category_id === categoryFiltered
+          currentScore.team?.category_id === categoryFiltered
       );
     } else {
       return scoreList;
@@ -486,18 +493,18 @@ export const Panel = () => {
               })}
             </TextField>
 
-            <InputLabel>Dupla</InputLabel>
+            <InputLabel>Time</InputLabel>
             <TextField
               id="outlined-basic"
               label=""
               size="small"
               onChange={(e) =>
-                setValues({ ...values, pair_id: e.target.value })
+                setValues({ ...values, team_id: e.target.value })
               }
-              value={values.pair_id}
-              error={errors.pair_id}
+              value={values.team_id}
+              error={errors.team_id}
               variant="outlined"
-              helperText={errors.pair_id}
+              helperText={errors.team_id}
               disabled={drawerType === 'edit'}
               select
               sx={{
@@ -511,10 +518,10 @@ export const Panel = () => {
                 },
               }}
             >
-              {pairList?.map((pair) => {
+              {teamList?.map((team) => {
                 return (
-                  <MenuItem key={pair.id} value={pair.id}>
-                    {pair.name}
+                  <MenuItem key={team.id} value={team.id}>
+                    {team.name}
                   </MenuItem>
                 );
               })}
@@ -699,7 +706,7 @@ export const Panel = () => {
             onClick={() =>
               openDrawer('create', {
                 id: '',
-                pair_id: '',
+                team_id: '',
                 score: 0,
                 tieBreak: '',
                 workout_id: '',
@@ -729,10 +736,11 @@ export const Panel = () => {
                 <Tr key={score.id}>
                   <Td>
                     <FlexColumnAlignStart>
-                      <PairName>{score?.pair?.name}</PairName>
+                      <PairName>{score?.team?.name}</PairName>
                       <CompetitorsName>
-                        {score?.pair?.first_member} /{' '}
-                        {score?.pair?.second_member}
+                        {score?.team?.athletes
+                          .map((athlete) => athlete.name.split(' ')[0]) // Pega apenas o primeiro nome
+                          .join(' / ')}
                       </CompetitorsName>
                     </FlexColumnAlignStart>
                   </Td>

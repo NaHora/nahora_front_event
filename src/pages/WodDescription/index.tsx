@@ -54,6 +54,7 @@ import { theme } from '../../styles/global';
 import { LoadingButton } from '@mui/lab';
 import Navbar from '../../components/navbar';
 import api from '../../services/api';
+import { useEvent } from '../../contexts/EventContext';
 
 type SelectPropsDTO = {
   id: string;
@@ -91,13 +92,14 @@ interface StateProps {
 }
 
 export const WodDescription = () => {
+  const { currentEvent } = useEvent();
   const [workoutFiltered, setWorkoutFiltered] = useState('');
   const [categoryFiltered, setCategoryFiltered] = useState('');
   const [categorySelected, setCategorySelected] = useState('');
   const [loading, setLoading] = useState(false);
   const [workoutList, setWorkoutList] = useState<WorkoutDTO[]>([]);
   const [categoryList, setCategoryList] = useState<SelectPropsDTO[]>([]);
-  const [pairList, setPairList] = useState<SelectPropsDTO[]>([]);
+  const [teamList, setTeamList] = useState<SelectPropsDTO[]>([]);
   const [scoreList, setWodDescriptions] = useState<ScoreDTO[]>([]);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [errors, setErrors] = useState<StateProps>({} as StateProps);
@@ -140,7 +142,9 @@ export const WodDescription = () => {
     setLoading(true);
 
     try {
-      const response = await api.get(`/workout-description`);
+      const response = await api.get(
+        `/workout-description/event/${currentEvent}`
+      );
 
       setWodDescriptions(response.data);
     } catch (err) {
@@ -153,7 +157,7 @@ export const WodDescription = () => {
     setLoading(true);
 
     try {
-      const response = await api.get(`/workout`);
+      const response = await api.get(`/workout/event/${currentEvent}`);
 
       setWorkoutList(response.data);
     } catch (err) {
@@ -166,7 +170,7 @@ export const WodDescription = () => {
     setLoading(true);
 
     try {
-      const response = await api.get(`/category`);
+      const response = await api.get(`/category/event/${currentEvent}`);
 
       setCategoryList(response.data);
     } catch (err) {
@@ -175,15 +179,15 @@ export const WodDescription = () => {
     }
   };
 
-  const getPairs = async () => {
+  const getTeams = async () => {
     setLoading(true);
 
     try {
       const response = await api.get(
-        `/pair/listByCategory/${categorySelected}`
+        `/teams/listByCategory/${categorySelected}`
       );
 
-      setPairList(response.data);
+      setTeamList(response.data);
     } catch (err) {
     } finally {
       setLoading(false);
@@ -194,11 +198,11 @@ export const WodDescription = () => {
     getWorkout();
     getCategories();
     getWodDescriptions();
-  }, []);
+  }, [currentEvent]);
 
   useEffect(() => {
     if (categorySelected) {
-      getPairs();
+      getTeams();
     }
   }, [categorySelected]);
 

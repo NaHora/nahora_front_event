@@ -140,7 +140,7 @@ export const Wod = () => {
     setLoading(true);
 
     try {
-      const response = await api.get(`/workout`);
+      const response = await api.get(`/workout/event/${currentEvent}`);
 
       setWod(response.data);
     } catch (err) {
