@@ -94,26 +94,20 @@ const Navbar: React.FC = () => {
           )}
           <List>
             {[
-              { name: 'Resultados', page: '/painel', icon: <ScoreboardIcon /> },
               {
                 name: 'Eventos',
                 page: '/eventos',
                 icon: <StadiumIcon />,
               },
               {
-                name: 'Lotes',
-                page: '/lotes',
-                icon: <ConfirmationNumberIcon />,
-              },
-              {
-                name: 'Pagamentos',
-                page: '/pagamentos',
-                icon: <AttachMoneyIcon />,
-              },
-              {
                 name: 'Categorias',
                 page: '/categorias',
                 icon: <CategoryIcon />,
+              },
+              {
+                name: 'Lotes',
+                page: '/lotes',
+                icon: <ConfirmationNumberIcon />,
               },
               { name: 'Wod', page: '/wod', icon: <FormatListNumberedIcon /> },
               {
@@ -122,10 +116,16 @@ const Navbar: React.FC = () => {
                 icon: <FitnessCenterIcon />,
               },
               {
+                name: 'Pagamentos',
+                page: '/pagamentos',
+                icon: <AttachMoneyIcon />,
+              },
+              {
                 name: 'Inscritos',
                 page: '/inscritos',
                 icon: <PeopleAltIcon />,
               },
+              { name: 'Resultados', page: '/painel', icon: <ScoreboardIcon /> },
             ].map((text, index) => (
               <ListItem key={text.page} disablePadding>
                 <ListItemButton onClick={() => navigate(text.page)}>

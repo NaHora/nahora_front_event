@@ -277,6 +277,7 @@ export const Events = () => {
 
   return (
     <Container>
+      <Navbar />
       <Dialog
         open={openDeleteDialog}
         onClose={() => setOpenDeleteDialog(false)}
