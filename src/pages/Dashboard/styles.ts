@@ -283,3 +283,75 @@ export const InputLabel = styled.h2`
     margin-top: 20px;
   }
 `;
+
+export const Board = styled.div`
+  background-color: #121212;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  width: 100%;
+  max-width: 600px;
+  text-align: center;
+  padding: 20px;
+  margin-bottom: 20px;
+
+  @media only screen and (max-width: 768px) {
+    padding: 12px;
+    max-width: 100%;
+  }
+`;
+
+export const BoardTitle = styled.h2`
+  color: #ffffff;
+  font-size: 1.5rem;
+  margin-bottom: 20px;
+`;
+
+export const CardContainer = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  justify-content: center;
+`;
+
+export const Card = styled.div`
+  background: #f5f5f5;
+  border-radius: 8px;
+  padding: 16px;
+  width: 280px;
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+
+  @media (max-width: 768px) {
+    width: 100%;
+  }
+`;
+
+export const CardTitle = styled.h3`
+  color: #333;
+  font-size: 16px;
+  margin: 0;
+`;
+
+export const CardDetail = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  span {
+    font-size: 14px;
+    color: #555;
+  }
+
+  svg {
+    color: #555;
+    font-size: 18px;
+  }
+`;
+
+export const Highlight = styled.span`
+  color: #6a1b9a;
+  font-weight: bold;
+`;
