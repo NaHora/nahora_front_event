@@ -9,12 +9,7 @@ import {
   CardTitle,
   CardDetail,
   Highlight,
-  Title,
   EventInformationsBoard,
-  CardInformation,
-  CardInformationHeader,
-  BoardShirts,
-  InformationTitle,
   LotsBoard,
   CardsGroup,
   CardsCountainer,
@@ -23,9 +18,13 @@ import {
   TimeResult,
   TimeContainerTitle,
   TimeDiv,
-  TimeContainerFooter,
+  CategoryAndShirtsContainer,
+  CategoryContainer,
+  ShirtsContainer,
+  CategoryCard,
+  CardTime,
+  ShirtsInformationsBoard,
 } from './styles';
-import EventLogo from '../../assets/event-logo.png';
 import api from '../../services/api';
 import { useEvent } from '../../contexts/EventContext';
 import Navbar from '../../components/navbar';
@@ -36,7 +35,6 @@ import {
   XAxis,
   YAxis,
   Tooltip,
-  CartesianGrid,
   PieChart,
   Pie,
   Cell,
@@ -44,13 +42,14 @@ import {
   ResponsiveContainer,
 } from 'recharts';
 import { getFormatDate } from '../../utils/date';
-import FitnessCenterIcon from '@mui/icons-material/FitnessCenter';
 import PersonIcon from '@mui/icons-material/Person';
 import GroupsIcon from '@mui/icons-material/Groups';
 import CategoryIcon from '@mui/icons-material/Category';
 import CheckroomIcon from '@mui/icons-material/Checkroom';
 import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
+import BoyIcon from '@mui/icons-material/Boy';
+import WomanIcon from '@mui/icons-material/Woman';
 export const Dashboard = () => {
   const [loading, setLoading] = useState(false);
   const [lots, setLots] = useState<LotsByValueDTO[]>([]);
@@ -165,6 +164,14 @@ export const Dashboard = () => {
 
   const totalSales = lotsWithTotal.reduce((sum, lot) => sum + lot.totalSold, 0);
 
+  const totalMaleShirts = shirts
+    .filter((shirt) => shirt.gender === 'm')
+    .reduce((total, shirt) => total + (Number(shirt.count) || 0), 0);
+
+  const totalFemaleShirts = shirts
+    .filter((shirt) => shirt.gender === 'f')
+    .reduce((total, shirt) => total + (Number(shirt.count) || 0), 0);
+
   return (
     <Container>
       <Navbar />
@@ -251,7 +258,7 @@ export const Dashboard = () => {
               </CardContainer>
             </CardsGroup>
           </CardsCountainer>
-          <CardInformation>
+          <CardTime>
             <AccessTimeIcon color="primary" />
             <TimeContainer>
               <TimeContainerTitle>Faltam</TimeContainerTitle>
@@ -287,62 +294,64 @@ export const Dashboard = () => {
                 </TimeResult>
                 <TimeTitle>Segundos</TimeTitle>
               </TimeDiv>
-              <TimeContainerFooter>Para o evento começar!</TimeContainerFooter>
+              {/* <TimeContainerFooter>Para o evento começar!</TimeContainerFooter> */}
             </TimeContainer>
-          </CardInformation>
+          </CardTime>
         </LotsBoard>
-        <EventInformationsBoard>
-          <CardInformation>
-            <PersonIcon color="primary" />
-            <InformationTitle>
-              {eventsCategory.reduce(
-                (total, category) => total + category.athlete_number,
-                0
-              )}
-            </InformationTitle>
-            <InformationTitle>Atletas</InformationTitle>
-          </CardInformation>
-          <CardInformation>
-            <GroupsIcon color="primary" />
-            <InformationTitle>
-              {eventsCategory.reduce(
-                (total, category) => total + category.teams.length,
-                0
-              )}
-            </InformationTitle>
-            <InformationTitle>Equipes</InformationTitle>
-          </CardInformation>
-          <CardInformation>
-            <CategoryIcon color="primary" />
-            <InformationTitle>{eventsCategory.length}</InformationTitle>
-            <InformationTitle>Categorias</InformationTitle>
-          </CardInformation>
-          <CardInformation>
-            <CheckroomIcon color="primary" />
-            <InformationTitle>{totalShirts}</InformationTitle>
-            <InformationTitle>Camisas</InformationTitle>
-          </CardInformation>
-        </EventInformationsBoard>
-        <Board>
-          <BoardTitle>Categorias e Inscritos</BoardTitle>
-          <CardContainer>
-            {eventsCategory.map((category) => (
-              <Card key={category.id}>
+
+        <CategoryAndShirtsContainer>
+          <CategoryContainer>
+            <EventInformationsBoard>
+              <Card>
+                <PersonIcon color="primary" />
                 <CardDetail>
-                  <Highlight>{category.name} -</Highlight>
-                  <span>
-                    {' '}
-                    {category.athlete_number === 1 ? 'Individual' : 'Misto'} -
-                  </span>
-                  <Highlight>{category.teams.length}</Highlight>
-                  <span>
-                    {category.teams.length > 1 ? 'Equipes' : 'Equipe'} -
-                  </span>
-                  <Highlight>{category.athlete_number}</Highlight>
+                  <Highlight>
+                    {eventsCategory.reduce(
+                      (total, category) => total + category.athlete_number,
+                      0
+                    )}
+                  </Highlight>
                   <span>Atletas</span>
                 </CardDetail>
+              </Card>
+              <Card>
+                <GroupsIcon color="primary" />
+                <CardDetail>
+                  <Highlight>
+                    {eventsCategory.reduce(
+                      (total, category) => total + category.teams.length,
+                      0
+                    )}
+                  </Highlight>
+                  <span>Equipes</span>
+                </CardDetail>
+              </Card>
+              <Card>
+                <CategoryIcon color="primary" />
+                <CardDetail>
+                  <Highlight>{eventsCategory.length}</Highlight>
+                  <span>Categorias</span>
+                </CardDetail>
+              </Card>
+            </EventInformationsBoard>
+            <CardContainer>
+              {eventsCategory.map((category) => (
+                <CategoryCard key={category.id}>
+                  <CardDetail>
+                    <Highlight>{category.name} -</Highlight>
+                    <span>
+                      {' '}
+                      {category.athlete_number === 1 ? 'Individual' : 'Misto'} -
+                    </span>
+                    <Highlight>{category.teams.length}</Highlight>
+                    <span>
+                      {category.teams.length > 1 ? 'Equipes' : 'Equipe'} -
+                    </span>
+                    <Highlight>{category.athlete_number}</Highlight>
+                    <span>Atletas</span>
+                  </CardDetail>
 
-                {/* <CardDetail>
+                  {/* <CardDetail>
                   <Highlight>{category.teams.length}</Highlight>
                   <span>
                     {category.teams.length > 1 ? 'Equipes' : 'Equipe'} -
@@ -350,80 +359,105 @@ export const Dashboard = () => {
                   <Highlight>{category.athlete_number}</Highlight>
                   <span>Atletas</span>
                 </CardDetail> */}
+                </CategoryCard>
+              ))}
+            </CardContainer>
+          </CategoryContainer>
+          <ShirtsContainer>
+            <ShirtsInformationsBoard>
+              <Card>
+                <CheckroomIcon color="primary" />
+                <CardDetail>
+                  <Highlight>{totalShirts}</Highlight>
+                  <span>Camisas</span>
+                </CardDetail>
               </Card>
-            ))}
-          </CardContainer>
-        </Board>
-        <BoardShirts>
-          <Board>
-            <BoardTitle>Camisas Femininas</BoardTitle>
-            <ResponsiveContainer width="100%" height={300}>
-              <BarChart
-                width={600}
-                height={300}
-                data={shirts
-                  .filter((shirt) => shirt.gender === 'f')
-                  .map((shirt) => ({
-                    tamanho: shirt.shirt_size.toUpperCase(),
-                    quantidade: shirt.count,
-                  }))
-                  .sort(
-                    (a, b) =>
-                      shirtSizeOrder.indexOf(a.tamanho) -
-                      shirtSizeOrder.indexOf(b.tamanho)
-                  )}
-              >
-                <XAxis dataKey="tamanho" />
-                <YAxis
-                  allowDecimals={false}
-                  tickCount={
-                    Math.max(
-                      ...shirts
-                        .filter((shirt) => shirt.gender === 'f')
-                        .map((shirt) => shirt.count)
-                    ) + 1
-                  }
-                />
-                <Tooltip />
-                <Bar dataKey="quantidade" fill="#f04c12" />
-              </BarChart>
-            </ResponsiveContainer>
-          </Board>
-          <Board>
-            <BoardTitle>Camisas Masculinas</BoardTitle>
-            <ResponsiveContainer width="100%" height={300}>
-              <BarChart
-                width={600}
-                height={300}
-                data={shirts
-                  .filter((shirt) => shirt.gender === 'm')
-                  .map((shirt) => ({
-                    tamanho: shirt.shirt_size.toUpperCase(),
-                    quantidade: shirt.count,
-                  }))
-                  .sort(
-                    (a, b) =>
-                      shirtSizeOrder.indexOf(a.tamanho) -
-                      shirtSizeOrder.indexOf(b.tamanho)
-                  )}
-              >
-                <XAxis dataKey="tamanho" />
-                <YAxis
-                  allowDecimals={false}
-                  tickCount={
-                    Math.max(
-                      ...shirts
-                        .filter((shirt) => shirt.gender === 'f')
-                        .map((shirt) => shirt.count)
-                    ) + 1
-                  }
-                />
-                <Tooltip />
-                <Bar dataKey="quantidade" fill="#f04c12" />
-              </BarChart>
-            </ResponsiveContainer>
-          </Board>
-        </BoardShirts>
+              <Card>
+                <BoyIcon color="primary" />
+                <CardDetail>
+                  <Highlight>{totalMaleShirts}</Highlight>
+                  <span>Masculinas</span>
+                </CardDetail>
+              </Card>
+              <Card>
+                <WomanIcon color="primary" />
+                <CardDetail>
+                  <Highlight>{totalFemaleShirts}</Highlight>
+                  <span>Femininas</span>
+                </CardDetail>
+              </Card>
+            </ShirtsInformationsBoard>
+
+            <Board>
+              <BoardTitle>Masculinas</BoardTitle>
+              <ResponsiveContainer width="100%" height={240}>
+                <BarChart
+                  width={400}
+                  height={200}
+                  data={shirts
+                    .filter((shirt) => shirt.gender === 'm')
+                    .map((shirt) => ({
+                      tamanho: shirt.shirt_size.toUpperCase(),
+                      quantidade: shirt.count,
+                    }))
+                    .sort(
+                      (a, b) =>
+                        shirtSizeOrder.indexOf(a.tamanho) -
+                        shirtSizeOrder.indexOf(b.tamanho)
+                    )}
+                >
+                  <XAxis dataKey="tamanho" />
+                  <YAxis
+                    allowDecimals={false}
+                    tickCount={
+                      Math.max(
+                        ...shirts
+                          .filter((shirt) => shirt.gender === 'f')
+                          .map((shirt) => shirt.count)
+                      ) + 1
+                    }
+                  />
+                  <Tooltip />
+                  <Bar dataKey="quantidade" fill="#f04c12" barSize={40} />
+                </BarChart>
+              </ResponsiveContainer>
+            </Board>
+            <Board>
+              <BoardTitle>Femininas</BoardTitle>
+              <ResponsiveContainer width="100%" height={240}>
+                <BarChart
+                  width={400}
+                  height={200}
+                  data={shirts
+                    .filter((shirt) => shirt.gender === 'f')
+                    .map((shirt) => ({
+                      tamanho: shirt.shirt_size.toUpperCase(),
+                      quantidade: shirt.count,
+                    }))
+                    .sort(
+                      (a, b) =>
+                        shirtSizeOrder.indexOf(a.tamanho) -
+                        shirtSizeOrder.indexOf(b.tamanho)
+                    )}
+                >
+                  <XAxis dataKey="tamanho" />
+                  <YAxis
+                    allowDecimals={false}
+                    tickCount={
+                      Math.max(
+                        ...shirts
+                          .filter((shirt) => shirt.gender === 'f')
+                          .map((shirt) => shirt.count)
+                      ) + 1
+                    }
+                  />
+                  <Tooltip />
+                  <Bar dataKey="quantidade" fill="#f04c12" barSize={40} />
+                </BarChart>
+              </ResponsiveContainer>
+            </Board>
+          </ShirtsContainer>
+        </CategoryAndShirtsContainer>
       </Content>
     </Container>
   );
