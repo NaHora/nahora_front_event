@@ -328,22 +328,28 @@ export const Dashboard = () => {
           <CardContainer>
             {eventsCategory.map((category) => (
               <Card key={category.id}>
-                <CardTitle>{category.name}</CardTitle>
                 <CardDetail>
+                  <Highlight>{category.name} -</Highlight>
                   <span>
-                    {category.athlete_number === 1 ? 'Individual' : 'Misto'}
+                    {' '}
+                    {category.athlete_number === 1 ? 'Individual' : 'Misto'} -
                   </span>
-                </CardDetail>
-                <CardDetail>
+                  <Highlight>{category.teams.length}</Highlight>
+                  <span>
+                    {category.teams.length > 1 ? 'Equipes' : 'Equipe'} -
+                  </span>
                   <Highlight>{category.athlete_number}</Highlight>
                   <span>Atletas</span>
                 </CardDetail>
-                <CardDetail>
+
+                {/* <CardDetail>
                   <Highlight>{category.teams.length}</Highlight>
                   <span>
-                    {category.teams.length > 1 ? 'Equipes' : 'Equipe'}
+                    {category.teams.length > 1 ? 'Equipes' : 'Equipe'} -
                   </span>
-                </CardDetail>
+                  <Highlight>{category.athlete_number}</Highlight>
+                  <span>Atletas</span>
+                </CardDetail> */}
               </Card>
             ))}
           </CardContainer>

@@ -14,7 +14,6 @@ export const EventImage = styled.img``;
 export const Content = styled.div`
   background: #29282e;
   padding: 40px;
-  border-radius: 8px;
   max-width: 1120px;
   width: 100%;
   display: flex;
@@ -416,7 +415,7 @@ export const CardContainer = styled.div`
 `;
 
 export const Card = styled.div`
-  background: #f5f5f5;
+  background: #29282e;
   border-radius: 8px;
   padding: 12px;
   box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
@@ -433,7 +432,7 @@ export const Card = styled.div`
 `;
 
 export const CardTitle = styled.h3`
-  color: #333;
+  color: #f2f2f2;
   font-size: 16px;
   margin: 0;
 `;
@@ -445,7 +444,7 @@ export const CardDetail = styled.div`
 
   span {
     font-size: 14px;
-    color: #555;
+    color: #f2f2f2;
   }
 
   svg {
@@ -472,17 +471,19 @@ export const TimeDiv = styled.div`
 `;
 
 export const TimeContainerTitle = styled.span`
+  color: #f2f2f2;
   font-size: 24px;
   font-weight: bold;
 `;
 export const TimeContainerFooter = styled.span`
+  color: #f2f2f2;
   font-size: 20px;
   font-weight: bold;
 `;
 export const TimeTitle = styled.span`
   font-size: 14px;
   font-weight: bold;
-  color: #f04c12;
+  color: #f2f2f2;
 `;
 export const TimeResult = styled.span`
   font-size: 32px;
