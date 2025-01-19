@@ -29,6 +29,8 @@ import { EvStationOutlined } from '@mui/icons-material';
 import StadiumIcon from '@mui/icons-material/Stadium';
 import ConfirmationNumberIcon from '@mui/icons-material/ConfirmationNumber';
 import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
+import DashboardIcon from '@mui/icons-material/Dashboard';
+
 const Navbar: React.FC = () => {
   const [open, setOpen] = useState(false);
   const navigate = useNavigate();
@@ -94,6 +96,11 @@ const Navbar: React.FC = () => {
           )}
           <List>
             {[
+              {
+                name: 'Dashboard',
+                page: '/dashboard',
+                icon: <DashboardIcon />,
+              },
               { name: 'Resultados', page: '/painel', icon: <ScoreboardIcon /> },
               {
                 name: 'Eventos',

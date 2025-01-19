@@ -289,7 +289,6 @@ export const Board = styled.div`
   border-radius: 10px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
   width: 100%;
-  max-width: 600px;
   text-align: center;
   padding: 20px;
   margin-bottom: 20px;
@@ -300,8 +299,111 @@ export const Board = styled.div`
   }
 `;
 
+export const LotsBoard = styled.div`
+  display: flex;
+  gap: 20px;
+  width: 100%;
+  text-align: center;
+
+  @media only screen and (max-width: 768px) {
+    padding: 12px;
+    max-width: 100%;
+  }
+`;
+
+export const LotsContainer = styled.div`
+  gap: 24px;
+`;
+
+export const CardsGroup = styled.div`
+  background-color: #121212;
+  display: flex;
+  gap: 20px;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  width: 100%;
+  text-align: center;
+  padding: 12px;
+
+  @media only screen and (max-width: 768px) {
+    padding: 12px;
+    max-width: 100%;
+  }
+`;
+
+export const CardsCountainer = styled.div`
+  background-color: #121212;
+  border-radius: 10px;
+  gap: 20px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  width: 100%;
+  text-align: center;
+  padding: 12px;
+
+  @media only screen and (max-width: 768px) {
+    padding: 12px;
+    max-width: 100%;
+  }
+`;
+
+export const BoardShirts = styled.div`
+  background-color: #121212;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  width: 100%;
+  text-align: center;
+  padding: 20px;
+  margin-bottom: 20px;
+  display: flex;
+
+  @media only screen and (max-width: 768px) {
+    padding: 12px;
+    max-width: 100%;
+  }
+`;
+
+export const EventInformationsBoard = styled.div`
+  border-radius: 10px;
+  width: 100%;
+  padding: 20px;
+  margin-bottom: 20px;
+  display: flex;
+  justify-content: space-between;
+
+  @media only screen and (max-width: 768px) {
+    padding: 12px;
+    max-width: 100%;
+  }
+`;
+
+export const CardInformation = styled.div`
+  background: #121212;
+  border-radius: 8px;
+  padding: 16px;
+  width: 160px;
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+
+  @media (max-width: 768px) {
+    width: 100%;
+  }
+`;
+
+export const CardInformationHeader = styled.div`
+  display: flex;
+  gap: 16px;
+`;
+
 export const BoardTitle = styled.h2`
   color: #ffffff;
+  font-size: 1.5rem;
+  margin-bottom: 20px;
+`;
+export const InformationTitle = styled.h2`
+  color: #f04c12;
   font-size: 1.5rem;
   margin-bottom: 20px;
 `;
@@ -309,20 +411,21 @@ export const BoardTitle = styled.h2`
 export const CardContainer = styled.div`
   display: flex;
   flex-wrap: wrap;
-  gap: 16px;
+  gap: 20px;
   justify-content: center;
 `;
 
 export const Card = styled.div`
   background: #f5f5f5;
   border-radius: 8px;
-  padding: 16px;
-  width: 280px;
+  padding: 12px;
   box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
   display: flex;
   flex-direction: column;
   align-items: flex-start;
   gap: 8px;
+  border: 1px solid #f04c12;
+  width: 100%;
 
   @media (max-width: 768px) {
     width: 100%;
@@ -354,4 +457,35 @@ export const CardDetail = styled.div`
 export const Highlight = styled.span`
   color: #6a1b9a;
   font-weight: bold;
+`;
+
+export const TimeContainer = styled.div`
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-evenly;
+`;
+export const TimeDiv = styled.div`
+  display: flex;
+  flex-direction: column;
+`;
+
+export const TimeContainerTitle = styled.span`
+  font-size: 24px;
+  font-weight: bold;
+`;
+export const TimeContainerFooter = styled.span`
+  font-size: 20px;
+  font-weight: bold;
+`;
+export const TimeTitle = styled.span`
+  font-size: 14px;
+  font-weight: bold;
+  color: #f04c12;
+`;
+export const TimeResult = styled.span`
+  font-size: 32px;
+  font-weight: bold;
+  color: #f04c12;
 `;

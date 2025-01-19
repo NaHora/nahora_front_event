@@ -71,6 +71,8 @@ export interface LotsByValueDTO {
   amount: number;
   max_sales: number;
   payments: PaymentsDTO;
+  start_date: Date;
+  end_date: Date;
 }
 
 export interface PaymentsDTO {
