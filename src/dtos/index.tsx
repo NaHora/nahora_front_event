@@ -70,7 +70,7 @@ export interface LotsByValueDTO {
   id: string;
   amount: number;
   max_sales: number;
-  payments: PaymentsDTO;
+  payments: PaymentsDTO[];
   start_date: Date;
   end_date: Date;
 }

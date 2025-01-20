@@ -28,7 +28,12 @@ import {
 import api from '../../services/api';
 import { useEvent } from '../../contexts/EventContext';
 import Navbar from '../../components/navbar';
-import { CategoryByEventDTO, LotsByValueDTO, ShirtSizeDTO } from '../../dtos';
+import {
+  CategoryByEventDTO,
+  LotsByValueDTO,
+  PaymentsDTO,
+  ShirtSizeDTO,
+} from '../../dtos';
 import {
   BarChart,
   Bar,
@@ -101,7 +106,10 @@ export const Dashboard = () => {
 
   const lotsWithTotal = lots.map((lot, index) => {
     const totalValue =
-      lot.payments.reduce((sum, payment) => sum + payment.amount, 0) / 100;
+      lot.payments.reduce(
+        (sum: number, payment: PaymentsDTO) => sum + payment.amount,
+        0
+      ) / 100;
     const totalSold = lot.payments.length;
     return { ...lot, totalValue, totalSold, lotNumber: index + 1 };
   });
