@@ -9,8 +9,6 @@ export const Container = styled.div`
   color: #f5f5f5;
 `;
 
-export const EventImage = styled.img``;
-
 export const Content = styled.div`
   background: #29282e;
   padding: 40px;
@@ -23,263 +21,6 @@ export const Content = styled.div`
 
   @media only screen and (max-width: 768px) {
     padding: 12px;
-  }
-`;
-
-export const ContentHeader = styled.div`
-  width: 100%;
-  display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
-  margin-bottom: 16px;
-
-  @media only screen and (max-width: 768px) {
-    width: calc(100% - 20px);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-  }
-`;
-
-export const FilteredContainer = styled.div`
-  display: flex;
-
-  > :first-child {
-    margin-right: 24px;
-  }
-
-  @media only screen and (max-width: 768px) {
-    width: calc(100% - 20px);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    margin-bottom: 30px;
-
-    > :first-child {
-      margin-right: 0px;
-      margin-bottom: 16px;
-    }
-  }
-`;
-
-export const FilteredSelect = styled.div`
-  display: flex;
-  flex-direction: column;
-`;
-
-export const TableContainer = styled.div`
-  width: 100%;
-`;
-
-export const SelectLabel = styled.span`
-  font-weight: 700;
-  font-size: 16px;
-  color: #fff;
-  margin-bottom: 12px;
-`;
-
-export const Table = styled.table`
-  width: 100%;
-  border-collapse: collapse;
-
-  border-spacing: 0;
-
-  > tbody > tr:first-child {
-    background-color: #29282e;
-  }
-
-  > thead {
-    /* border: 2px solid #ef144d !important; */
-    border: 2px solid #f04c12 !important;
-  }
-`;
-
-export const Tbody = styled.tbody``;
-
-export const Thead = styled.thead`
-  border-spacing: 0px 18px;
-`;
-
-export const Tr = styled.tr`
-  background-color: #121214;
-`;
-
-export const Th = styled.th`
-  background-color: #121214;
-  padding: 16px 8px;
-  font-weight: 700;
-  width: 25%;
-  font-size: 16px;
-  text-align: left;
-
-  @media only screen and (max-width: 768px) {
-    font-size: 12px;
-  }
-`;
-
-export const Td = styled.td`
-  padding: 8px 8px;
-`;
-
-export const FlexRow = styled.div`
-  display: flex;
-  flex-direction: row;
-  justify-content: space-evenly;
-`;
-
-export const FlexColumnAlignStart = styled.div`
-  display: flex;
-  flex-direction: column;
-`;
-
-export const PairName = styled.span`
-  font-weight: 400;
-  font-size: 14px;
-
-  @media only screen and (max-width: 768px) {
-    font-size: 12px;
-  }
-`;
-export const Points = styled.span`
-  font-weight: 400;
-  font-size: 14px;
-
-  @media only screen and (max-width: 768px) {
-    font-size: 12px;
-  }
-`;
-export const TieBreak = styled.span`
-  font-weight: 400;
-  font-size: 14px;
-
-  @media only screen and (max-width: 768px) {
-    font-size: 12px;
-  }
-`;
-export const CompetitorsName = styled.span`
-  font-weight: 400;
-  font-size: 14px;
-  margin-top: 4px;
-
-  @media only screen and (max-width: 768px) {
-    font-size: 10px;
-  }
-`;
-
-export const Delete = styled.button`
-  border: none;
-  background: transparent;
-  color: #fff;
-  display: flex;
-  align-items: center;
-  padding: 8px 12px;
-  border-radius: 4px;
-  transition: all 0.2s;
-
-  :hover {
-    background-color: #f04c12;
-    color: #fff;
-  }
-`;
-
-export const Edit = styled.button`
-  border: none;
-  background: transparent;
-  color: #fff;
-  display: flex;
-  align-items: center;
-  padding: 8px 12px;
-  border-radius: 4px;
-  transition: all 0.2s;
-
-  :hover {
-    background-color: #f04c12;
-    color: #fff;
-  }
-`;
-
-export const Select = styled.select`
-  background-color: transparent;
-  border: none;
-  color: rgba(245, 245, 245, 0.3);
-  width: 100%;
-`;
-
-export const Input = styled.input`
-  background-color: transparent;
-  border: none;
-  color: #fff;
-  width: 100%;
-  font-size: 14px;
-
-  ::placeholder {
-    color: #fff;
-    font-size: 14px;
-  }
-`;
-
-export const DrawerSelect = styled.select`
-  background-color: transparent;
-  border: none;
-  color: #fff;
-  width: 100%;
-`;
-
-export const SelectDiv = styled.div`
-  width: 250px;
-  padding: 12px;
-  border-radius: 10px;
-  background-color: #121214;
-`;
-
-export const DrawerSelectDiv = styled.div`
-  width: 320px;
-  padding: 12px;
-  border-radius: 10px;
-  background-color: #121214;
-  margin-top: 40px;
-
-  @media only screen and (max-width: 768px) {
-    width: 240px;
-  }
-`;
-
-export const DrawerContainer = styled.div`
-  padding: 84px 62px;
-  background-color: #29282e;
-  flex: 1;
-
-  @media only screen and (max-width: 768px) {
-    padding: 40px 32px;
-  }
-`;
-
-export const ResultForm = styled.div`
-  width: 360px;
-
-  @media only screen and (max-width: 768px) {
-    width: 240px;
-  }
-`;
-
-export const SelectOption = styled.option`
-  color: black;
-`;
-
-export const DrawerTitle = styled.span`
-  font-weight: 400;
-  font-size: 16px;
-  color: #fff;
-`;
-
-export const InputLabel = styled.h2`
-  color: #f5f5f5;
-  font-size: 14px;
-  margin-top: 40px;
-  margin-bottom: 4px;
-
-  @media only screen and (max-width: 768px) {
-    margin-top: 20px;
   }
 `;
 
@@ -308,6 +49,7 @@ export const LotsBoard = styled.div`
   @media only screen and (max-width: 768px) {
     padding: 12px;
     max-width: 100%;
+    flex-direction: column-reverse;
   }
 `;
 
@@ -319,7 +61,7 @@ export const CategoryAndShirtsContainer = styled.div`
 
   @media only screen and (max-width: 768px) {
     padding: 12px;
-    max-width: 100%;
+    flex-direction: column;
   }
 `;
 
@@ -338,7 +80,7 @@ export const CategoryContainer = styled.div`
 
   @media only screen and (max-width: 768px) {
     padding: 12px;
-    max-width: 100%;
+    flex-direction: column;
   }
 `;
 export const ShirtsContainer = styled.div`
@@ -364,6 +106,7 @@ export const CardsGroup = styled.div`
   @media only screen and (max-width: 768px) {
     padding: 12px;
     max-width: 100%;
+    flex-direction: column;
   }
 `;
 
@@ -379,6 +122,8 @@ export const CardsCountainer = styled.div`
   @media only screen and (max-width: 768px) {
     padding: 12px;
     max-width: 100%;
+    display: flex;
+    flex-direction: column;
   }
 `;
 
@@ -407,8 +152,7 @@ export const EventInformationsBoard = styled.div`
   gap: 16px;
 
   @media only screen and (max-width: 768px) {
-    padding: 12px;
-    max-width: 100%;
+    flex-direction: column;
   }
 `;
 export const ShirtsInformationsBoard = styled.div`
@@ -420,8 +164,8 @@ export const ShirtsInformationsBoard = styled.div`
   margin-bottom: 20px;
 
   @media only screen and (max-width: 768px) {
-    padding: 12px;
     max-width: 100%;
+    flex-direction: column;
   }
 `;
 
@@ -481,6 +225,10 @@ export const CardContainer = styled.div`
   display: flex;
   flex-wrap: wrap;
   gap: 12px;
+
+  @media (max-width: 768px) {
+    flex-direction: column;
+  }
 `;
 
 export const Card = styled.div`
@@ -537,6 +285,10 @@ export const CardDetail = styled.div`
     color: #555;
     font-size: 18px;
   }
+
+  @media (max-width: 768px) {
+    width: 100%;
+  }
 `;
 
 export const Highlight = styled.span`
@@ -554,6 +306,13 @@ export const TimeContainer = styled.div`
 export const TimeDiv = styled.div`
   display: flex;
   flex-direction: column;
+
+  @media (max-width: 768px) {
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
 `;
 
 export const TimeContainerTitle = styled.span`
