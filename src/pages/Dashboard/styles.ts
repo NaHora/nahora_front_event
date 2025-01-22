@@ -8,7 +8,20 @@ export const Container = styled.div`
 
   color: #f5f5f5;
 `;
-
+export const Edit = styled.button`
+  border: none;
+  background: #f04c12;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  padding: 8px 12px;
+  border-radius: 4px;
+  transition: all 0.2s;
+  align-self: flex-start;
+  :hover {
+    background: rgb(236, 66, 4);
+  }
+`;
 export const Content = styled.div`
   background: #29282e;
   padding: 40px;

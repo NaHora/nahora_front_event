@@ -1,8 +1,10 @@
 import { useEffect, useState } from 'react';
+import CopyIcon from '@mui/icons-material/CopyAll';
 import {
   Container,
   Board,
   BoardTitle,
+  Edit,
   Content,
   CardContainer,
   Card,
@@ -55,6 +57,9 @@ import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import BoyIcon from '@mui/icons-material/Boy';
 import WomanIcon from '@mui/icons-material/Woman';
+import { toast } from 'react-toastify';
+import { useMediaQuery } from '@mui/material';
+import { theme } from '../../styles/global';
 export const Dashboard = () => {
   const [loading, setLoading] = useState(false);
   const [lots, setLots] = useState<LotsByValueDTO[]>([]);
@@ -188,12 +193,32 @@ export const Dashboard = () => {
       }, 0)
     );
   }, 0);
+  const handleCopy = async () => {
+    try {
+      await navigator.clipboard.writeText(
+        'https://' + window.location.hostname + '/inscricoes/' + currentEvent
+      );
+      toast.success('Copiado com sucesso!');
+    } catch (err) {
+      console.error('Erro ao copiar o texto: ', err);
+      toast.error('Falha ao copiar o texto.');
+    }
+  };
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
   return (
     <Container>
       <Navbar />
 
       <Content>
+        <Edit onClick={handleCopy}>
+          <CopyIcon
+            fontSize={isMobile ? 'small' : 'medium'}
+            sx={{ marginRight: '4px' }}
+          />
+          {!isMobile && 'Link de inscrição'}
+        </Edit>
+        <br />
         <LotsBoard>
           <CardsCountainer>
             <CardsGroup>
