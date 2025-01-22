@@ -113,8 +113,8 @@ export default function AppRoutes() {
         }
       />
       {/* rotas totalmente publicas */}
-      <Route path="/resultados" element={<Filter />} />
-      <Route path="/rank" element={<Ranking />} />
+      <Route path="/resultados/:eventId" element={<Filter />} />
+      <Route path="/rank/:eventId" element={<Ranking />} />
       <Route path="/pelada" element={<SortTeam />} />
       <Route path="/inscricoes/:eventId" element={<CreateAccount />} />
     </Routes>
