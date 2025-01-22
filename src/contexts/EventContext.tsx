@@ -79,6 +79,8 @@ export function EventProvider({ children }: EventProviderProps) {
     start_date: '',
     end_date: '',
     address: '',
+    start_time: '',
+    end_time: '',
   };
   useEffect(() => {
     if (user?.id) {
