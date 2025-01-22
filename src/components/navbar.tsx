@@ -128,11 +128,11 @@ const Navbar: React.FC = () => {
                 page: '/pagamentos',
                 icon: <AttachMoneyIcon />,
               },
-              {
-                name: 'Inscritos',
-                page: '/inscritos',
-                icon: <PeopleAltIcon />,
-              },
+              // {
+              //   name: 'Inscritos',
+              //   page: '/inscritos',
+              //   icon: <PeopleAltIcon />,
+              // },
               { name: 'Resultados', page: '/painel', icon: <ScoreboardIcon /> },
             ].map((text, index) => (
               <ListItem key={text.page} disablePadding>

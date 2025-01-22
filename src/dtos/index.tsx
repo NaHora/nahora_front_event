@@ -64,8 +64,12 @@ export interface TeamsDTO {
   active: boolean;
   name: string;
   box: string;
+  athletes: AthleteDto[];
 }
-
+type AthleteDto = {
+  id: string;
+  name: string;
+};
 export interface LotsByValueDTO {
   id: string;
   amount: number;

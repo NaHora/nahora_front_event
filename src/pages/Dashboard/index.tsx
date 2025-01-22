@@ -180,6 +180,15 @@ export const Dashboard = () => {
     .filter((shirt) => shirt.gender === 'f')
     .reduce((total, shirt) => total + (Number(shirt.count) || 0), 0);
 
+  const totalAthletes = eventsCategory.reduce((categoryTotal, category) => {
+    return (
+      categoryTotal +
+      category?.teams.reduce((teamTotal, team) => {
+        return teamTotal + team?.athletes.length;
+      }, 0)
+    );
+  }, 0);
+
   return (
     <Container>
       <Navbar />
@@ -240,14 +249,15 @@ export const Dashboard = () => {
                   <Card key={lot.id}>
                     <CardTitle>Lote {lot.lotNumber} </CardTitle>
                     <CardDetail>
+                      <span>Início: </span>
                       <Highlight>{getFormatDate(lot.start_date)}</Highlight>
-                      <span>Início</span>
                     </CardDetail>
                     <CardDetail>
+                      <span>Término:</span>
                       <Highlight>{getFormatDate(lot.end_date)}</Highlight>
-                      <span>Término</span>
                     </CardDetail>
                     <CardDetail>
+                      <span>Faturamento:</span>
                       <Highlight>
                         R${' '}
                         {lot.totalValue.toLocaleString('pt-BR', {
@@ -255,11 +265,10 @@ export const Dashboard = () => {
                           maximumFractionDigits: 2,
                         })}
                       </Highlight>
-                      <span>Faturamento</span>
                     </CardDetail>
                     <CardDetail>
+                      <span>Vendas:</span>
                       <Highlight>{lot.totalSold}</Highlight>
-                      <span>Vendas</span>
                     </CardDetail>
                   </Card>
                 ))}
@@ -313,12 +322,7 @@ export const Dashboard = () => {
               <Card>
                 <PersonIcon color="primary" />
                 <CardDetail>
-                  <Highlight>
-                    {eventsCategory.reduce(
-                      (total, category) => total + category.athlete_number,
-                      0
-                    )}
-                  </Highlight>
+                  <Highlight>{totalAthletes}</Highlight>
                   <span>Atletas</span>
                 </CardDetail>
               </Card>
@@ -355,7 +359,12 @@ export const Dashboard = () => {
                     <span>
                       {category.teams.length > 1 ? 'Equipes' : 'Equipe'} -
                     </span>
-                    <Highlight>{category.athlete_number}</Highlight>
+                    <Highlight>
+                      {category.teams.reduce(
+                        (total, team) => total + team.athletes.length,
+                        0
+                      )}
+                    </Highlight>
                     <span>Atletas</span>
                   </CardDetail>
 
