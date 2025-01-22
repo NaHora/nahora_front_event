@@ -14,6 +14,7 @@ import { Payments } from '../pages/Payments';
 import { Filter } from '../pages/Filter';
 import { Lots } from '../pages/Lots';
 import SortTeam from '../pages/SortTeam';
+import { Dashboard } from '../pages/Dashboard';
 
 export default function AppRoutes() {
   return (
@@ -30,6 +31,14 @@ export default function AppRoutes() {
       />
 
       {/* Rotas privadas */}
+      <Route
+        path="/dashboard"
+        element={
+          <ProtectedRoute type="private" redirectTo="/">
+            <Dashboard />
+          </ProtectedRoute>
+        }
+      />
       <Route
         path="/painel"
         element={

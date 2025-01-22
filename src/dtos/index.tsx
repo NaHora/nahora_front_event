@@ -52,3 +52,42 @@ export interface EnterpriseDTO {
   primary_color: string;
   secondary_color: string;
 }
+
+export interface CategoryByEventDTO {
+  id: string;
+  athlete_number: number;
+  name: string;
+  teams: TeamsDTO[];
+}
+export interface TeamsDTO {
+  id: string;
+  active: boolean;
+  name: string;
+  box: string;
+}
+
+export interface LotsByValueDTO {
+  id: string;
+  amount: number;
+  max_sales: number;
+  payments: PaymentsDTO[];
+  start_date: Date;
+  end_date: Date;
+}
+
+export interface PaymentsDTO {
+  id: string;
+  amount: number;
+  fee: number;
+  payment_method: string;
+  total: number;
+  status: string;
+  payment_date: Date;
+  installments: number;
+}
+
+export interface ShirtSizeDTO {
+  gender: string;
+  shirt_size: string;
+  count: number;
+}
