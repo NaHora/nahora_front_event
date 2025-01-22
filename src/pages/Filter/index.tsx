@@ -40,6 +40,7 @@ import {
   InputLabel,
 } from './styles';
 import { secondToTimeFormater } from '../../utils/time';
+import { useParams } from 'react-router-dom';
 
 type Category = {
   id: string;
@@ -91,6 +92,8 @@ type WorkoutDescription = {
 };
 
 export const Filter = () => {
+  const { eventId } = useParams<{ eventId: string }>();
+
   const [categories, setCategories] = useState<Category[]>([]);
   const [currentCategory, setCurrentCategory] = useState<string>('');
   const [workouts, setWorkouts] = useState<Workout[]>([]);
@@ -103,25 +106,25 @@ export const Filter = () => {
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
   async function getWorkoutDescriptions() {
-    const response = await api.get(`/workout-description`);
+    const response = await api.get(`/workout-description/event/${eventId}`);
     setWorkoutsDescription(response.data);
   }
 
   async function getRankGeral() {
     const response = await api.get(
-      `/score/rank/total/category_id/${currentCategory}`
+      `/score/rank/total/category_id/${currentCategory}/event/${eventId}`
     );
     setRankGeral(response.data);
   }
 
   async function getCategories() {
-    const response = await api.get('/category');
+    const response = await api.get(`/category/event/${eventId}`);
     setCategories(response.data);
     setCurrentCategory(response.data[0]?.id);
   }
 
   async function getWorkouts() {
-    const response = await api.get('/workout');
+    const response = await api.get(`/workout/event/${eventId}`);
     setWorkouts(response.data);
   }
 
@@ -144,7 +147,7 @@ export const Filter = () => {
 
   useEffect(() => {
     Promise.all([getCategories(), getWorkouts(), getWorkoutDescriptions()]);
-  }, []);
+  }, [eventId]);
 
   function getWorkoutPoint(index: number) {
     switch (index) {

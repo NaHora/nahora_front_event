@@ -27,6 +27,7 @@ import { CircularProgress, useMediaQuery } from '@mui/material';
 import { theme } from '../../styles/global';
 import { Workout } from '../Filter';
 import api from '../../services/api';
+import { useParams } from 'react-router-dom';
 
 type Rank = {
   category: string;
@@ -45,8 +46,10 @@ export const Ranking = () => {
   const [currentItems, setCurrentItems] = useState<number[]>([]);
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const [workouts, setWorkouts] = useState<Workout[]>([]);
+  const { eventId } = useParams<{ eventId: string }>();
+
   async function getWorkouts() {
-    const response = await api.get('/workout');
+    const response = await api.get(`/workout/event/${eventId}`);
     setWorkouts(response.data);
   }
   useEffect(() => {
@@ -62,7 +65,7 @@ export const Ranking = () => {
   }, []);
 
   async function getRankGeral() {
-    const response = await api.get('/score/rank/total');
+    const response = await api.get(`/score/rank/total/event/${eventId}`);
     setRankGeral(response.data);
     setCurrentRankGeral(response.data[0]);
     const rankSize = response.data[0].length;
@@ -77,7 +80,7 @@ export const Ranking = () => {
   useEffect(() => {
     getRankGeral();
     getWorkouts();
-  }, []);
+  }, [eventId]);
 
   useEffect(() => {
     // setCurrentOpacity(!currentOpacity);
