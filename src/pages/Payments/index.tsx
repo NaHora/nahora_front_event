@@ -204,7 +204,7 @@ export const Payments = () => {
               InputLabelProps={{ shrink: true }}
               value={startDate || ''}
               onChange={handleStartDateChange}
-              style={{ width: '150px', marginLeft: '10px' }}
+              style={{ width: '100%', maxWidth: '200px' }}
             />
 
             <TextField
@@ -213,14 +213,14 @@ export const Payments = () => {
               InputLabelProps={{ shrink: true }}
               value={endDate || ''}
               onChange={handleEndDateChange}
-              style={{ width: '150px', marginLeft: '10px' }}
+              style={{ width: '100%', maxWidth: '200px' }}
             />
 
             <Button
               variant="contained"
               color="primary"
               onClick={applyFilters}
-              style={{ marginLeft: '10px', height: '40px' }}
+              style={{ height: '100%' }}
             >
               Filtrar
             </Button>

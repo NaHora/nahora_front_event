@@ -74,6 +74,15 @@ export const HeaderContainer = styled.div`
   border: 2px solid #f04c12 !important;
   margin-bottom: 24px;
   padding: 16px;
+  display: flex;
+  gap: 24px;
+  align-items: center;
+
+  s @media only screen and (max-width: 768px) {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
 `;
 
 export const TableContainer = styled.div`
