@@ -78,7 +78,7 @@ export const HeaderContainer = styled.div`
   gap: 24px;
   align-items: center;
 
-  s @media only screen and (max-width: 768px) {
+  @media only screen and (max-width: 768px) {
     display: flex;
     flex-direction: column;
     gap: 12px;

@@ -64,6 +64,7 @@ export const Payments = () => {
   const [endDate, setEndDate] = useState<string | null>(null);
   const [filteredTeams, setFilteredTeams] = useState<TeamsDTO[]>([]);
   const [noResults, setNoResults] = useState(false);
+  const [isFilterDisabled, setIsFilterDisabled] = useState(false);
   const getRegisteredTeams = async () => {
     setLoading(true);
     try {
@@ -76,6 +77,14 @@ export const Payments = () => {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    if (startDate && endDate && new Date(endDate) < new Date(startDate)) {
+      setIsFilterDisabled(true);
+    } else {
+      setIsFilterDisabled(false);
+    }
+  }, [startDate, endDate]);
 
   const getCategories = async () => {
     setLoading(true);
@@ -182,7 +191,8 @@ export const Payments = () => {
     <Container>
       <Navbar />
 
-      <EventImage src={EventLogo} width={318} alt="event logo" />
+      {/* <EventImage src={EventLogo} width={318} alt="event logo" /> */}
+
       <Content>
         <TableContainer>
           <HeaderContainer>
@@ -221,6 +231,7 @@ export const Payments = () => {
               color="primary"
               onClick={applyFilters}
               style={{ height: '100%' }}
+              disabled={isFilterDisabled}
             >
               Filtrar
             </Button>
