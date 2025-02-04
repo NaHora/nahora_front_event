@@ -68,6 +68,23 @@ export const FilteredSelect = styled.div`
   flex-direction: column;
 `;
 
+export const HeaderContainer = styled.div`
+  width: 100%;
+  background-color: #121214;
+  border: 2px solid #f04c12 !important;
+  margin-bottom: 24px;
+  padding: 16px;
+  display: flex;
+  gap: 24px;
+  align-items: center;
+
+  @media only screen and (max-width: 768px) {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+`;
+
 export const TableContainer = styled.div`
   width: 100%;
 `;
