@@ -400,10 +400,7 @@ export const Dashboard = () => {
                 <CategoryCard key={category.id}>
                   <CardDetail>
                     <Highlight>{category.name} -</Highlight>
-                    <span>
-                      {' '}
-                      {category.athlete_number === 1 ? 'Individual' : 'Misto'} -
-                    </span>
+
                     <Highlight>{category.teams.length}</Highlight>
                     <span>
                       {category.teams.length > 1 ? 'Equipes' : 'Equipe'} -
