@@ -60,6 +60,7 @@ import WomanIcon from '@mui/icons-material/Woman';
 import { toast } from 'react-toastify';
 import { useMediaQuery } from '@mui/material';
 import { theme } from '../../styles/global';
+import { Box } from '@mui/system';
 export const Dashboard = () => {
   const [loading, setLoading] = useState(false);
   const [lots, setLots] = useState<LotsByValueDTO[]>([]);
@@ -193,10 +194,10 @@ export const Dashboard = () => {
       }, 0)
     );
   }, 0);
-  const handleCopy = async () => {
+  const handleCopy = async (link) => {
     try {
       await navigator.clipboard.writeText(
-        'https://' + window.location.hostname + '/inscricoes/' + currentEvent
+        'https://' + window.location.hostname + link + currentEvent
       );
       toast.success('Copiado com sucesso!');
     } catch (err) {
@@ -211,13 +212,36 @@ export const Dashboard = () => {
       <Navbar />
 
       <Content>
-        <Edit onClick={handleCopy}>
-          <CopyIcon
-            fontSize={isMobile ? 'small' : 'medium'}
-            sx={{ marginRight: '4px' }}
-          />
-          {!isMobile && 'Link de inscrição'}
-        </Edit>
+        <Box
+          sx={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            width: '100%',
+          }}
+        >
+          <Edit onClick={() => handleCopy('/inscricoes/')}>
+            <CopyIcon
+              fontSize={isMobile ? 'small' : 'medium'}
+              sx={{ marginRight: '4px' }}
+            />
+            {!isMobile && 'Link de inscrição'}
+          </Edit>
+          <Edit onClick={() => handleCopy('/resultados/')}>
+            <CopyIcon
+              fontSize={isMobile ? 'small' : 'medium'}
+              sx={{ marginRight: '4px' }}
+            />
+            {!isMobile && 'Link dos resultados'}
+          </Edit>
+          <Edit onClick={() => handleCopy('/rank/')}>
+            <CopyIcon
+              fontSize={isMobile ? 'small' : 'medium'}
+              sx={{ marginRight: '4px' }}
+            />
+            {!isMobile && 'Link do rank'}
+          </Edit>
+        </Box>
+
         <br />
         <LotsBoard>
           <CardsCountainer>

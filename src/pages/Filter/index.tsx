@@ -111,6 +111,7 @@ export const Filter = () => {
   }
 
   async function getRankGeral() {
+    setRankGeral([]);
     const response = await api.get(
       `/score/rank/total/category_id/${currentCategory}/event/${eventId}`
     );
