@@ -194,7 +194,7 @@ export const Dashboard = () => {
       }, 0)
     );
   }, 0);
-  const handleCopy = async (link) => {
+  const handleCopy = async (link: string) => {
     try {
       await navigator.clipboard.writeText(
         'https://' + window.location.hostname + link + currentEvent
