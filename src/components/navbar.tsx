@@ -133,7 +133,7 @@ const Navbar: React.FC = () => {
               //   page: '/inscritos',
               //   icon: <PeopleAltIcon />,
               // },
-              { name: 'Resultados', page: '/painel', icon: <ScoreboardIcon /> },
+              // { name: 'Resultados', page: '/painel', icon: <ScoreboardIcon /> },
             ].map((text, index) => (
               <ListItem key={text.page} disablePadding>
                 <ListItemButton onClick={() => navigate(text.page)}>

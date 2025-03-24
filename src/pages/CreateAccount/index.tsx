@@ -1055,7 +1055,7 @@ export const CreateAccount = () => {
             <StepTitle style={{ marginTop: 20 }}>
               🚨 Atenção, atletas!
               <br />
-              <br /> O 1º lote de inscrições está oficialmente encerrado. 🎉
+              <br /> O lote de inscrições está oficialmente encerrado. 🎉
               <br />
               <br />
               Fique de olho nas nossas redes para saber mais sobre o próximo

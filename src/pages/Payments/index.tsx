@@ -240,6 +240,7 @@ export const Payments = () => {
             <Thead>
               <Tr>
                 <Th>Time</Th>
+                <Th>Box</Th>
                 <Th>Categoria</Th>
                 <Th>Pagamento</Th>
                 <Th>Valor (R$)</Th>
@@ -261,6 +262,9 @@ export const Payments = () => {
                   <Tr key={team.id}>
                     <Td>
                       <PairName>{team.name}</PairName>
+                    </Td>
+                    <Td>
+                      <PairName>{team.box}</PairName>
                     </Td>
                     <Td>
                       <PairName>{team?.category?.name}</PairName>
@@ -307,7 +311,7 @@ export const Payments = () => {
                     R${getTotalPayments()}
                   </PairName>
                 </Td>
-                <Td colSpan={5}></Td>
+                <Td colSpan={6}></Td>
               </Tr>
             </Tbody>
           </Table>
