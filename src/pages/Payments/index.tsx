@@ -5,7 +5,6 @@ import {
   Tr,
   Th,
   Td,
-  EventImage,
   Content,
   Tbody,
   Thead,
@@ -43,6 +42,7 @@ type AthleteDto = {
 type TeamsDTO = {
   id: string;
   name: string;
+  box: string;
   captain_id: string;
   active: boolean;
   category_id: string;
