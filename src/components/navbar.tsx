@@ -30,7 +30,9 @@ import StadiumIcon from '@mui/icons-material/Stadium';
 import ConfirmationNumberIcon from '@mui/icons-material/ConfirmationNumber';
 import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
 import DashboardIcon from '@mui/icons-material/Dashboard';
-
+import GroupIcon from '@mui/icons-material/Group';
+import AccessibilityNewIcon from '@mui/icons-material/AccessibilityNew';
+import Diversity3Icon from '@mui/icons-material/Diversity3';
 const Navbar: React.FC = () => {
   const [open, setOpen] = useState(false);
   const navigate = useNavigate();
@@ -106,6 +108,16 @@ const Navbar: React.FC = () => {
                 name: 'Eventos',
                 page: '/eventos',
                 icon: <StadiumIcon />,
+              },
+              {
+                name: 'Atletas',
+                page: '/atletas',
+                icon: <AccessibilityNewIcon />,
+              },
+              {
+                name: 'Times',
+                page: '/times',
+                icon: <Diversity3Icon />,
               },
               {
                 name: 'Categorias',

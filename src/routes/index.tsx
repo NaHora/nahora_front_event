@@ -15,6 +15,8 @@ import { Filter } from '../pages/Filter';
 import { Lots } from '../pages/Lots';
 import SortTeam from '../pages/SortTeam';
 import { Dashboard } from '../pages/Dashboard';
+import { Athletes } from '../pages/Athletes';
+import { Teams } from '../pages/Teams';
 
 export default function AppRoutes() {
   return (
@@ -109,6 +111,22 @@ export default function AppRoutes() {
         element={
           <ProtectedRoute type="private" redirectTo="/">
             <RegisteredTeams />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/atletas"
+        element={
+          <ProtectedRoute type="private" redirectTo="/">
+            <Athletes />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/times"
+        element={
+          <ProtectedRoute type="private" redirectTo="/">
+            <Teams />
           </ProtectedRoute>
         }
       />
