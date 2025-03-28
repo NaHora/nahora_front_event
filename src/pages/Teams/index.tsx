@@ -14,23 +14,13 @@ import {
   DrawerTitle,
   DrawerContainer,
   InputLabel,
-  ResultForm,
   TableContainer,
 } from './styles';
 import EventLogo from '../../assets/event-logo.png';
 import { toast } from 'react-toastify';
 import * as Yup from 'yup';
-import InputMask from 'react-input-mask';
 
-import {
-  Drawer,
-  FormControlLabel,
-  MenuItem,
-  Radio,
-  RadioGroup,
-  TextField,
-  useMediaQuery,
-} from '@mui/material';
+import { Drawer, MenuItem, TextField, useMediaQuery } from '@mui/material';
 
 import EditIcon from '@mui/icons-material/Edit';
 import getValidationErrors from '../../utils';
@@ -39,13 +29,19 @@ import { LoadingButton } from '@mui/lab';
 import Navbar from '../../components/navbar';
 import api from '../../services/api';
 import { useEvent } from '../../contexts/EventContext';
-import React from 'react';
 
 interface TeamDTO {
   id: string;
   active?: boolean;
   name: string;
   box: string;
+  category_id: string;
+  categoryName?: string;
+}
+
+interface CategoryDTO {
+  id: string;
+  name: string;
 }
 
 interface StateProps {
@@ -55,48 +51,62 @@ interface StateProps {
 export const Teams = () => {
   const [loading, setLoading] = useState(false);
   const [teamsList, setTeamsList] = useState<TeamDTO[]>([]);
-  const [teams, setTeams] = useState<TeamDTO[]>([]);
-  const [athleteFiltered, setathleteFiltered] = useState('');
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [errors, setErrors] = useState<StateProps>({} as StateProps);
-  const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
-  const [teamselected, setteamselected] = useState('');
+  const [teamselected, setTeamselected] = useState('');
   const [values, setValues] = useState<TeamDTO>({
     id: '',
     name: '',
     box: '',
+    category_id: '',
+    categoryName: '',
   });
-  const [drawerType, setDrawerType] = useState('');
   const { currentEvent } = useEvent();
   const [filterTeam, setFilterTeam] = useState('');
   const [filteredTeams, setFilteredTeams] = useState<TeamDTO[]>([]);
+  const [categories, setCategories] = useState<CategoryDTO[]>([]);
 
   const openDrawer = (drawerType: string, item: TeamDTO) => {
     setValues({
       id: item?.id,
       name: item?.name,
       box: item?.box,
+      category_id: item?.category_id,
+      categoryName: item?.categoryName,
     });
-    setDrawerType(drawerType);
     setIsDrawerOpen(true);
   };
 
-  const getTeams = async () => {
+  const getTeamsAndCategories = async () => {
     setLoading(true);
     try {
-      const result = await api.get('/teams');
-      const activeTeams = result.data.filter((team: TeamDTO) => team.active);
+      const [teamsRes, categoriesRes] = await Promise.all([
+        api.get('/teams'),
+        api.get(`/category/event/${currentEvent}`),
+      ]);
 
-      setTeamsList(activeTeams);
+      const activeTeams = teamsRes.data.filter((team: TeamDTO) => team.active);
+      const categoriesData = categoriesRes.data;
+
+      const teamsWithCategory = activeTeams.map((team: TeamDTO) => ({
+        ...team,
+        categoryName:
+          categoriesData.find((cat: CategoryDTO) => cat.id === team.category_id)
+            ?.name || 'Sem categoria',
+      }));
+
+      setTeamsList(teamsWithCategory);
+      setFilteredTeams(teamsWithCategory);
+      setCategories(categoriesData); // Salva as categorias no estado
     } catch (err) {
-      toast.error('Erro ao buscar times');
+      toast.error('Erro ao buscar times ou categorias');
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    getTeams();
+    getTeamsAndCategories();
   }, [currentEvent]);
 
   useEffect(() => {
@@ -109,28 +119,29 @@ export const Teams = () => {
 
   const putData = async () => {
     const schema = Yup.object().shape({
-      name: Yup.string().required('Nome do atleta obrigatório'),
-      box: Yup.string().required('Nome do box obrigatória'),
+      name: Yup.string().required('Nome do time obrigatório'),
+      box: Yup.string().required('Nome do box obrigatório'),
+      category_id: Yup.string().required('Categoria obrigatória'),
     });
 
-    await schema.validate(values, {
-      abortEarly: false,
-    });
+    await schema.validate(values, { abortEarly: false });
 
     setLoading(true);
     try {
-      const { name, id, box } = values;
+      const { id, name, box, category_id } = values;
 
       const body = {
-        athleteId: id,
+        id,
         name,
         box,
+        category_id,
       };
 
       await api.put('/teams', body);
       setErrors({});
-      toast.success('Time atualizada com sucesso!');
+      toast.success('Time atualizado com sucesso!');
       setIsDrawerOpen(false);
+      getTeamsAndCategories();
     } catch (err: any) {
       if (err instanceof Yup.ValidationError) {
         setErrors(getValidationErrors(err));
@@ -139,7 +150,7 @@ export const Teams = () => {
       if (err?.response) {
         return toast.error(
           err?.response?.data?.message ||
-            'Ocorreu um erro ao atualizar time, tente novamente'
+            'Ocorreu um erro ao atualizar o time, tente novamente'
         );
       }
     } finally {
@@ -148,8 +159,6 @@ export const Teams = () => {
   };
 
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
-
-  console.log(teamsList);
 
   return (
     <Container>
@@ -178,6 +187,23 @@ export const Teams = () => {
             fullWidth
           />
 
+          <InputLabel>Categoria</InputLabel>
+          <TextField
+            select
+            size="small"
+            value={values.category_id || ''}
+            onChange={(e) =>
+              setValues({ ...values, category_id: e.target.value })
+            }
+            fullWidth
+          >
+            {categories.map((category) => (
+              <MenuItem key={category.id} value={category.id}>
+                {category.name}
+              </MenuItem>
+            ))}
+          </TextField>
+
           <LoadingButton
             variant="contained"
             color="primary"
@@ -205,6 +231,7 @@ export const Teams = () => {
               <Tr>
                 <Th>Time</Th>
                 <Th>Box</Th>
+                <Th>Categoria</Th>
                 <Th>Ações</Th>
               </Tr>
             </Thead>
@@ -213,20 +240,23 @@ export const Teams = () => {
               <Tr>
                 <Td></Td>
               </Tr>
-              {filteredTeams?.map((athlete) => (
-                <Tr key={athlete.id}>
+              {filteredTeams?.map((team) => (
+                <Tr key={team.id}>
                   <Td>
-                    <PairName>{athlete?.name}</PairName>
+                    <PairName>{team?.name}</PairName>
                   </Td>
                   <Td>
-                    <PairName>{athlete?.box}</PairName>
+                    <PairName>{team?.box}</PairName>
+                  </Td>
+                  <Td>
+                    <PairName>{team.categoryName}</PairName>{' '}
                   </Td>
 
                   <Td>
                     <Edit
                       onClick={() => {
-                        openDrawer('edit', athlete);
-                        setteamselected(athlete.id);
+                        openDrawer('edit', team);
+                        setTeamselected(team.id);
                       }}
                     >
                       <EditIcon

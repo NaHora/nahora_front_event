@@ -23,6 +23,7 @@ import * as Yup from 'yup';
 import InputMask from 'react-input-mask';
 
 import {
+  Box,
   Drawer,
   FormControlLabel,
   MenuItem,
@@ -51,6 +52,7 @@ type AthleteDTO = {
   email?: string;
   phone_number?: string;
   team_id?: string;
+  teamName?: string;
 };
 
 interface TeamDTO {
@@ -66,10 +68,8 @@ export const Athletes = () => {
   const [loading, setLoading] = useState(false);
   const [athletesList, setAthletesList] = useState<AthleteDTO[]>([]);
   const [teams, setTeams] = useState<TeamDTO[]>([]);
-  const [athleteFiltered, setathleteFiltered] = useState('');
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [errors, setErrors] = useState<StateProps>({} as StateProps);
-  const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
   const [athleteSelected, setAthleteSelected] = useState('');
   const [values, setValues] = useState<AthleteDTO>({
     id: '',
@@ -83,6 +83,7 @@ export const Athletes = () => {
   });
   const { currentEvent } = useEvent();
   const [filterName, setFilterName] = useState('');
+  const [filterTeam, setFilterTeam] = useState('');
   const [filteredAthletes, setFilteredAthletes] = useState<AthleteDTO[]>([]);
   const openDrawer = (drawerType: string, item: AthleteDTO) => {
     setValues({
@@ -106,13 +107,21 @@ export const Athletes = () => {
         api.get('/teams'),
       ]);
 
-      setTeams(teamsRes.data);
-      const activeTeams = teamsRes.data
-        .filter((team: TeamDTO) => team.active)
-        .map((team: TeamDTO) => team.id);
-      const filtered = athletesRes.data.filter((athlete: AthleteDTO) =>
-        activeTeams.includes(athlete.team_id)
-      );
+      const activeTeams = teamsRes.data.filter((team: TeamDTO) => team.active);
+      const activeTeamIds = activeTeams.map((team: TeamDTO) => team.id);
+
+      const filtered = athletesRes.data
+        .filter((athlete: AthleteDTO) =>
+          activeTeamIds.includes(athlete.team_id)
+        )
+        .map((athlete: AthleteDTO) => ({
+          ...athlete,
+          teamName:
+            activeTeams.find((team: TeamDTO) => team.id === athlete.team_id)
+              ?.name || 'Sem Time',
+        }));
+
+      setTeams(activeTeams);
       setAthletesList(filtered);
       setFilteredAthletes(filtered);
     } catch (err) {
@@ -128,11 +137,13 @@ export const Athletes = () => {
 
   useEffect(() => {
     setFilteredAthletes(
-      athletesList.filter((athlete) =>
-        athlete.name?.toLowerCase().includes(filterName.toLowerCase())
+      athletesList.filter(
+        (athlete) =>
+          athlete.name?.toLowerCase().includes(filterName.toLowerCase()) &&
+          athlete.teamName?.toLowerCase().includes(filterTeam.toLowerCase())
       )
     );
-  }, [filterName, athletesList]);
+  }, [filterName, filterTeam, athletesList]);
 
   const putData = async () => {
     const schema = Yup.object().shape({
@@ -306,14 +317,22 @@ export const Athletes = () => {
       </Drawer>
       <EventImage src={EventLogo} width={318} alt="event logo" />
       <Content>
-        <TextField
-          size="small"
-          label="Buscar Atleta"
-          variant="outlined"
-          value={filterName}
-          onChange={(e) => setFilterName(e.target.value)}
-          sx={{ marginBottom: 2, alignSelf: 'flex-start' }}
-        />
+        <Box sx={{ display: 'flex', gap: 2, mb: 2, alignSelf: 'flex-start' }}>
+          <TextField
+            size="small"
+            label="Buscar Atleta"
+            variant="outlined"
+            value={filterName}
+            onChange={(e) => setFilterName(e.target.value)}
+          />
+          <TextField
+            size="small"
+            label="Buscar Time"
+            variant="outlined"
+            value={filterTeam}
+            onChange={(e) => setFilterTeam(e.target.value)}
+          />
+        </Box>
         <TableContainer>
           <Table>
             <Thead>
@@ -321,6 +340,7 @@ export const Athletes = () => {
                 <Th>Atleta</Th>
                 <Th>CPF</Th>
                 <Th>Contato</Th>
+                <Th>Time</Th>
                 <Th>Ações</Th>
               </Tr>
             </Thead>
@@ -337,6 +357,7 @@ export const Athletes = () => {
                   <Td>
                     <PairName>{athlete?.cpf}</PairName>
                   </Td>
+
                   <Td>
                     <a
                       href={`https://wa.me/55${athlete.phone_number}`}
@@ -347,7 +368,9 @@ export const Athletes = () => {
                       {athlete?.phone_number}
                     </a>
                   </Td>
-
+                  <Td>
+                    <PairName>{athlete?.teamName}</PairName>
+                  </Td>
                   <Td>
                     <Edit
                       onClick={() => {
