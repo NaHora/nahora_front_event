@@ -131,7 +131,7 @@ export const Teams = () => {
       const { id, name, box, category_id } = values;
 
       const body = {
-        id,
+        teamId: id,
         name,
         box,
         category_id,
