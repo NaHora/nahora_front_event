@@ -66,6 +66,7 @@ type CategoryDTO = {
   id: string;
   name: string;
   event_id?: string;
+  athlete_number: number;
 };
 
 interface StateProps {
@@ -84,6 +85,7 @@ export const Category = () => {
     id: '',
     name: '',
     event_id: '',
+    athlete_number: 1,
   });
   const [drawerType, setDrawerType] = useState('');
   const { currentEvent } = useEvent();
@@ -93,6 +95,7 @@ export const Category = () => {
       setValues({
         id: item?.id,
         name: item?.name,
+        athlete_number: item?.athlete_number,
       });
       setDrawerType(drawerType);
       setIsDrawerOpen(true);
@@ -108,7 +111,7 @@ export const Category = () => {
 
   const getCategories = async () => {
     setLoading(true);
-    console.log(currentEvent);
+
     try {
       const response = await api.get(`/category/event/${currentEvent}`);
 
@@ -131,6 +134,9 @@ export const Category = () => {
     try {
       const schema = Yup.object().shape({
         name: Yup.string().required('Nome da categoria obrigatória'),
+        athlete_number: Yup.number().required(
+          'Número de atletas da categoria obrigatório'
+        ),
       });
 
       await schema.validate(values, {
@@ -140,6 +146,7 @@ export const Category = () => {
       const body = {
         name: values?.name,
         event_id: currentEvent,
+        athlete_number: values?.athlete_number,
       };
 
       const response = await api.post(`/category`, body);
@@ -166,6 +173,9 @@ export const Category = () => {
   const putData = async () => {
     const schema = Yup.object().shape({
       name: Yup.string().required('Nome da categoria obrigatória'),
+      athlete_number: Yup.number().required(
+        'Número de atletas da categoria obrigatório'
+      ),
     });
 
     await schema.validate(values, {
@@ -174,11 +184,12 @@ export const Category = () => {
 
     setLoading(true);
     try {
-      const { name, id } = values;
+      const { name, id, athlete_number } = values;
 
       const body = {
         name: name,
         categoryId: id,
+        athlete_number,
       };
 
       await api.put('/category', body);
@@ -284,6 +295,30 @@ export const Category = () => {
               error={errors.name}
               variant="outlined"
               helperText={errors.name}
+              sx={{
+                width: '100%',
+                borderRadius: '10px',
+              }}
+              InputProps={{
+                style: {
+                  borderRadius: '10px',
+                  backgroundColor: '#121214',
+                },
+              }}
+            />
+            <InputLabel>Número de atletas</InputLabel>
+            <TextField
+              id="outlined-basic"
+              label=""
+              size="small"
+              onChange={(e) =>
+                setValues({ ...values, athlete_number: e.target.value })
+              }
+              type="number"
+              value={values.athlete_number}
+              error={errors.athlete_number}
+              variant="outlined"
+              helperText={errors.athlete_number}
               sx={{
                 width: '100%',
                 borderRadius: '10px',

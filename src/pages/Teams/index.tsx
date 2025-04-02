@@ -20,7 +20,13 @@ import EventLogo from '../../assets/event-logo.png';
 import { toast } from 'react-toastify';
 import * as Yup from 'yup';
 
-import { Drawer, MenuItem, TextField, useMediaQuery } from '@mui/material';
+import {
+  Drawer,
+  MenuItem,
+  TextField,
+  Typography,
+  useMediaQuery,
+} from '@mui/material';
 
 import EditIcon from '@mui/icons-material/Edit';
 import getValidationErrors from '../../utils';
@@ -29,6 +35,8 @@ import { LoadingButton } from '@mui/lab';
 import Navbar from '../../components/navbar';
 import api from '../../services/api';
 import { useEvent } from '../../contexts/EventContext';
+import { Box } from '@mui/system';
+import { AthleteDto } from '../../dtos';
 
 interface TeamDTO {
   id: string;
@@ -37,6 +45,7 @@ interface TeamDTO {
   box: string;
   category_id: string;
   categoryName?: string;
+  athletes: AthleteDto[];
 }
 
 interface CategoryDTO {
@@ -60,6 +69,7 @@ export const Teams = () => {
     box: '',
     category_id: '',
     categoryName: '',
+    athletes: [],
   });
   const { currentEvent } = useEvent();
   const [filterTeam, setFilterTeam] = useState('');
@@ -67,12 +77,14 @@ export const Teams = () => {
   const [categories, setCategories] = useState<CategoryDTO[]>([]);
 
   const openDrawer = (drawerType: string, item: TeamDTO) => {
+    console.log('item', item);
     setValues({
       id: item?.id,
       name: item?.name,
       box: item?.box,
       category_id: item?.category_id,
       categoryName: item?.categoryName,
+      athletes: item?.athletes,
     });
     setIsDrawerOpen(true);
   };
@@ -81,7 +93,7 @@ export const Teams = () => {
     setLoading(true);
     try {
       const [teamsRes, categoriesRes] = await Promise.all([
-        api.get('/teams'),
+        api.get(`/teams/event/${currentEvent}`),
         api.get(`/category/event/${currentEvent}`),
       ]);
 
@@ -106,7 +118,7 @@ export const Teams = () => {
   };
 
   useEffect(() => {
-    getTeamsAndCategories();
+    if (currentEvent) getTeamsAndCategories();
   }, [currentEvent]);
 
   useEffect(() => {
@@ -213,6 +225,14 @@ export const Teams = () => {
           >
             Salvar
           </LoadingButton>
+          <Box flexDirection={'column'} mt={4}>
+            <Typography mb={2}>Atletas:</Typography>
+            {values?.athletes?.map((athlete, index) => (
+              <Typography>
+                {index + 1} - {athlete?.name}
+              </Typography>
+            ))}
+          </Box>
         </DrawerContainer>
       </Drawer>
       <EventImage src={EventLogo} width={318} alt="event logo" />

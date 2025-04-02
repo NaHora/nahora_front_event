@@ -154,7 +154,6 @@ export const CreateAccount = () => {
       const response = await api.get(`/lots/event/${eventId}`);
       setLot(response.data);
       if (!response.data) {
-        console.log('nada', response.data);
         setCurrentStep(4);
       } else {
         setCurrentStep(0);
@@ -209,7 +208,6 @@ export const CreateAccount = () => {
           .required('Email é obrigatório'),
         phone_number: Yup.string().required('Contato é obrigatório'),
         birth_date: Yup.string().required('Data de nascimento é obrigatória'),
-        shirt_size: Yup.string().required('Tamanho da camisa é obrigatório'),
         gender: Yup.string().required('Gênero é obrigatório'),
       })
     ),
@@ -596,24 +594,26 @@ export const CreateAccount = () => {
                     },
                   }}
                 />
-                <TextField
-                  select
-                  label="Tamanho da Camisa"
-                  value={athlete.shirt_size || ''}
-                  onChange={(e) =>
-                    handleAthleteChange(index, 'shirt_size', e.target.value)
-                  }
-                  fullWidth
-                  margin="normal"
-                  error={!!errors[`athletes[${index}].shirt_size`]}
-                  helperText={errors[`athletes[${index}].shirt_size`]}
-                >
-                  {['P', 'M', 'G', 'GG'].map((size) => (
-                    <MenuItem key={size} value={size}>
-                      {size}
-                    </MenuItem>
-                  ))}
-                </TextField>
+                {lot?.has_shirt && (
+                  <TextField
+                    select
+                    label="Tamanho da Camisa"
+                    value={athlete.shirt_size || ''}
+                    onChange={(e) =>
+                      handleAthleteChange(index, 'shirt_size', e.target.value)
+                    }
+                    fullWidth
+                    margin="normal"
+                    error={!!errors[`athletes[${index}].shirt_size`]}
+                    helperText={errors[`athletes[${index}].shirt_size`]}
+                  >
+                    {['P', 'M', 'G', 'GG'].map((size) => (
+                      <MenuItem key={size} value={size}>
+                        {size}
+                      </MenuItem>
+                    ))}
+                  </TextField>
+                )}
 
                 <div style={{ margin: '16px 0' }}>
                   <Label>Gênero</Label>
@@ -694,16 +694,34 @@ export const CreateAccount = () => {
                 {!pix.qrCode ? (
                   <>
                     <RegisterPayment>
-                      Valor da inscrição: R${' '}
-                      {(lot?.amount * formData.athletes.length) / 100}{' '}
+                      Valor da inscrição:
+                      {(
+                        (lot?.amount * formData.athletes.length) /
+                        100
+                      ).toLocaleString('pt-BR', {
+                        style: 'currency',
+                        currency: 'BRL',
+                      })}{' '}
                     </RegisterPayment>
                     <RegisterPayment>
                       Taxa de serviço: R${' '}
-                      {(lot?.amount * formData.athletes.length * 0.08) / 100}{' '}
+                      {(
+                        (lot?.amount * formData.athletes.length * 0.08) /
+                        100
+                      ).toLocaleString('pt-BR', {
+                        style: 'currency',
+                        currency: 'BRL',
+                      })}{' '}
                     </RegisterPayment>
                     <RegisterPayment>
                       Valor total: R${' '}
-                      {(lot?.amount * formData.athletes.length * 1.08) / 100}{' '}
+                      {(
+                        (lot?.amount * formData.athletes.length * 1.08) /
+                        100
+                      ).toLocaleString('pt-BR', {
+                        style: 'currency',
+                        currency: 'BRL',
+                      })}{' '}
                     </RegisterPayment>
                     <Button
                       variant="contained"

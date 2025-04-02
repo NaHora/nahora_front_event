@@ -33,12 +33,14 @@ import * as Yup from 'yup';
 
 import {
   Button,
+  Checkbox,
   Dialog,
   DialogActions,
   DialogContent,
   DialogContentText,
   DialogTitle,
   Drawer,
+  FormControlLabel,
   MenuItem,
   TextField,
   useMediaQuery,
@@ -79,6 +81,7 @@ export const Lots = () => {
     event_id: '',
     start_time: '',
     end_time: '',
+    has_shirt: true,
   });
   const [drawerType, setDrawerType] = useState('');
   const { userEnterprise } = useAuth();
@@ -118,6 +121,7 @@ export const Lots = () => {
         end_time: adjustToLocalTime(item?.end_date),
         max_sales: item?.max_sales,
         lotId: lotSelected,
+        has_shirt: item?.has_shirt ?? true,
       });
       setDrawerType(drawerType);
       setIsDrawerOpen(true);
@@ -191,6 +195,7 @@ export const Lots = () => {
         event_id: currentEvent,
         start_date: combineDateAndTime(values.start_date, values.start_time),
         end_date: combineDateAndTime(values.end_date, values.end_time),
+        has_shirt: values?.has_shirt,
       };
 
       const response = await api.post(`/lots`, body);
@@ -252,6 +257,7 @@ export const Lots = () => {
         end_date: combineDateAndTime(values.end_date, values.end_time),
         event_id: currentEvent,
         lotId: lotSelected,
+        has_shirt: values?.has_shirt,
       };
 
       await api.put('/lots', body);
@@ -470,6 +476,19 @@ export const Lots = () => {
                 },
               }}
             />
+            <FormControlLabel
+              control={
+                <Checkbox
+                  checked={values.has_shirt}
+                  onChange={(e) =>
+                    setValues({ ...values, has_shirt: e.target.checked })
+                  }
+                  sx={{ color: '#fff' }}
+                />
+              }
+              label="Inclui camiseta?"
+              sx={{ color: '#fff' }}
+            />
             <LoadingButton
               variant="contained"
               color="primary"
@@ -524,6 +543,7 @@ export const Lots = () => {
                 <Th>Valor</Th>
                 <Th>Início</Th>
                 <Th>Término</Th>
+                <Th>Inclui Camisa</Th>
                 <Th style={{ textAlign: 'center' }}>Ações</Th>
               </Tr>
             </Thead>
@@ -550,6 +570,9 @@ export const Lots = () => {
                   </Td>
                   <Td>
                     <PairName>{formatDateTime(lot?.end_date)}</PairName>
+                  </Td>
+                  <Td>
+                    <PairName>{lot?.has_shirt ? 'Sim' : 'Não'}</PairName>
                   </Td>
                   <Td>
                     <FlexRow>

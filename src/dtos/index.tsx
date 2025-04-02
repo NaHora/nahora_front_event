@@ -22,6 +22,7 @@ export interface LotsDTO {
   event_id: string;
   start_time: string;
   end_time: string;
+  has_shirt: boolean;
 }
 
 export interface User {
@@ -66,7 +67,7 @@ export interface TeamsDTO {
   box: string;
   athletes: AthleteDto[];
 }
-type AthleteDto = {
+export type AthleteDto = {
   id: string;
   name: string;
 };
