@@ -319,7 +319,7 @@ export const Category = () => {
               label=""
               size="small"
               onChange={(e) =>
-                setValues({ ...values, athlete_number: e.target.value })
+                setValues({ ...values, athlete_number: Number(e.target.value) })
               }
               type="number"
               value={values.athlete_number}
@@ -383,6 +383,8 @@ export const Category = () => {
               openDrawer('create', {
                 id: '',
                 name: '',
+                athlete_number: 1,
+                active: true,
               })
             }
           >

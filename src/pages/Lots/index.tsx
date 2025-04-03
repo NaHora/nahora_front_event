@@ -528,6 +528,7 @@ export const Lots = () => {
                 event_id: '',
                 start_time: '',
                 end_time: '',
+                has_shirt: true,
               })
             }
           >

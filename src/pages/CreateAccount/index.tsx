@@ -29,6 +29,7 @@ import { LoadingButton } from '@mui/lab';
 import * as animationData from '../../assets/lottie.json';
 import api from '../../services/api';
 import { useParams } from 'react-router-dom';
+import { LotsDTO } from '../../dtos';
 
 const steps = ['Tipo de inscrição', 'Cadastro dos Atletas', 'Pagamento'];
 
@@ -106,7 +107,7 @@ export const CreateAccount = () => {
 
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [installments, setInstallments] = useState(1);
-  const [lot, setLot] = useState({ id: 0, amount: 0 });
+  const [lot, setLot] = useState({ id: '0', amount: 0, has_shirt: true });
   const [paymentMethod, setPaymentMethod] = useState<'pix' | 'card' | ''>('');
   const [cardData, setCardData] = useState<CardData>({
     number: '',
