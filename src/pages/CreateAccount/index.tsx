@@ -139,7 +139,7 @@ export const CreateAccount = () => {
   const getCategories = async () => {
     setLoadingCategory(true);
     try {
-      const response = await api.get(`/category/event/${eventId}`);
+      const response = await api.get(`/category/active/event/${eventId}`);
       setCategories(response.data);
     } catch (error) {
       console.error('Erro ao buscar categorias:', error);

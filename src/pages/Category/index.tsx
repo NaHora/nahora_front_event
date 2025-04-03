@@ -33,12 +33,14 @@ import * as Yup from 'yup';
 
 import {
   Button,
+  Checkbox,
   Dialog,
   DialogActions,
   DialogContent,
   DialogContentText,
   DialogTitle,
   Drawer,
+  FormControlLabel,
   MenuItem,
   TextField,
   useMediaQuery,
@@ -67,6 +69,7 @@ type CategoryDTO = {
   name: string;
   event_id?: string;
   athlete_number: number;
+  active: boolean;
 };
 
 interface StateProps {
@@ -86,6 +89,7 @@ export const Category = () => {
     name: '',
     event_id: '',
     athlete_number: 1,
+    active: true,
   });
   const [drawerType, setDrawerType] = useState('');
   const { currentEvent } = useEvent();
@@ -96,6 +100,7 @@ export const Category = () => {
         id: item?.id,
         name: item?.name,
         athlete_number: item?.athlete_number,
+        active: item?.active,
       });
       setDrawerType(drawerType);
       setIsDrawerOpen(true);
@@ -147,6 +152,7 @@ export const Category = () => {
         name: values?.name,
         event_id: currentEvent,
         athlete_number: values?.athlete_number,
+        active: values?.active,
       };
 
       const response = await api.post(`/category`, body);
@@ -184,12 +190,13 @@ export const Category = () => {
 
     setLoading(true);
     try {
-      const { name, id, athlete_number } = values;
+      const { name, id, athlete_number, active } = values;
 
       const body = {
         name: name,
         categoryId: id,
         athlete_number,
+        active,
       };
 
       await api.put('/category', body);
@@ -330,7 +337,19 @@ export const Category = () => {
                 },
               }}
             />
-
+            <FormControlLabel
+              control={
+                <Checkbox
+                  checked={values.active}
+                  onChange={(e) =>
+                    setValues({ ...values, active: e.target.checked })
+                  }
+                  sx={{ color: '#fff' }}
+                />
+              }
+              label="Inscrição aberta"
+              sx={{ color: '#fff' }}
+            />
             <LoadingButton
               variant="contained"
               color="primary"
@@ -376,6 +395,8 @@ export const Category = () => {
             <Thead>
               <Tr>
                 <Th>Categoria</Th>
+                <Th>Atletas</Th>
+                <Th>Inscricão</Th>
                 <Th style={{ textAlign: 'center' }}>Ações</Th>
               </Tr>
             </Thead>
@@ -388,6 +409,14 @@ export const Category = () => {
                 <Tr key={category.id}>
                   <Td>
                     <PairName>{category?.name}</PairName>
+                  </Td>
+                  <Td>
+                    <PairName>{category?.athlete_number}</PairName>
+                  </Td>
+                  <Td>
+                    <PairName>
+                      {category?.active ? 'Aberta' : 'Fechada'}
+                    </PairName>
                   </Td>
 
                   <Td>
