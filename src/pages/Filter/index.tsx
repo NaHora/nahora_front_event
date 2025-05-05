@@ -41,6 +41,7 @@ import {
 } from './styles';
 import { secondToTimeFormater } from '../../utils/time';
 import { useParams } from 'react-router-dom';
+import { Athletes } from '../Athletes';
 
 type Category = {
   id: string;
@@ -311,12 +312,12 @@ export const Filter = () => {
                     </Td>
                     <Td>
                       <FlexColumnAlignStart>
-                        <PairName>{row.pair.name}</PairName>
-                        {row.pair.first_member && row.pair.second_member && (
+                        <PairName>{row.team.name}</PairName>
+                        {row.team.athletes && (
                           <CompetitorsName>
-                            {row.pair.first_member +
-                              '/' +
-                              row.pair.second_member}
+                            {row.team.athletes.map((athlete, index) =>
+                              index > 0 ? '/' + athlete.name : athlete.name
+                            )}
                           </CompetitorsName>
                         )}
                       </FlexColumnAlignStart>

@@ -67,6 +67,7 @@ export const Ranking = () => {
   async function getRankGeral() {
     const response = await api.get(`/score/rank/total/event/${eventId}`);
     setRankGeral(response.data);
+    console.log('rankGeral', response.data);
     setCurrentRankGeral(response.data[0]);
     const rankSize = response.data[0].length;
 
@@ -156,7 +157,7 @@ export const Ranking = () => {
         return '0';
     }
   }
-
+  console.log('currentRankGeral', currentRankGeral);
   return (
     <Container>
       <EventImage src={EventLogo} width={320} alt="event logo" />
