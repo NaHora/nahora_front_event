@@ -340,6 +340,7 @@ export const Athletes = () => {
                 <Th>Atleta</Th>
                 <Th>CPF</Th>
                 <Th>Contato</Th>
+                <Th>Camisa</Th>
                 <Th>Time</Th>
                 <Th>Ações</Th>
               </Tr>
@@ -367,6 +368,9 @@ export const Athletes = () => {
                     >
                       {athlete?.phone_number}
                     </a>
+                  </Td>
+                  <Td>
+                    <PairName>{athlete?.shirt_size}</PairName>
                   </Td>
                   <Td>
                     <PairName>{athlete?.teamName}</PairName>
