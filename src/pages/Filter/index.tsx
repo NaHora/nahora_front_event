@@ -42,6 +42,7 @@ import {
 import { secondToTimeFormater } from '../../utils/time';
 import { useParams } from 'react-router-dom';
 import { Athletes } from '../Athletes';
+import { TeamsDTO } from '../../dtos';
 
 type Category = {
   id: string;
@@ -78,10 +79,12 @@ type Rank = {
   score: number;
   tieBreak: number;
   pair_id: string;
+  team_id: string;
   workout_id: string;
   point: number;
   position: number;
   pair: Pair;
+  team: TeamsDTO;
 };
 
 type WorkoutDescription = {
