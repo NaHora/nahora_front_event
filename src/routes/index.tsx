@@ -17,7 +17,7 @@ import SortTeam from '../pages/SortTeam';
 import { Dashboard } from '../pages/Dashboard';
 import { Athletes } from '../pages/Athletes';
 import { Teams } from '../pages/Teams';
-import Kit from '../pages/Teams/Kits';
+import Kit from '../pages/Kits';
 
 export default function AppRoutes() {
   return (

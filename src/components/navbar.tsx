@@ -19,6 +19,7 @@ import MenuIcon from '@mui/icons-material/Menu';
 import FitnessCenterIcon from '@mui/icons-material/FitnessCenter';
 import ScoreboardIcon from '@mui/icons-material/Scoreboard';
 import FormatListNumberedIcon from '@mui/icons-material/FormatListNumbered';
+import KitIcon from '@mui/icons-material/AssignmentTurnedIn';
 import CategoryIcon from '@mui/icons-material/Category';
 import PeopleAltIcon from '@mui/icons-material/PeopleAlt';
 import { useNavigate } from 'react-router-dom';
@@ -128,6 +129,11 @@ const Navbar: React.FC = () => {
                 name: 'Lotes',
                 page: '/lotes',
                 icon: <ConfirmationNumberIcon />,
+              },
+              {
+                name: 'Kits',
+                page: '/kits',
+                icon: <KitIcon />,
               },
               { name: 'Wod', page: '/wod', icon: <FormatListNumberedIcon /> },
               {

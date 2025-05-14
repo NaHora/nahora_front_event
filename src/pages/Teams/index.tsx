@@ -245,6 +245,7 @@ export const Teams = () => {
           onChange={(e) => setFilterTeam(e.target.value)}
           sx={{ marginBottom: 2, alignSelf: 'flex-start' }}
         />
+
         <TableContainer>
           <Table>
             <Thead>
