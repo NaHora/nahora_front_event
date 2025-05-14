@@ -70,6 +70,7 @@ export interface TeamsDTO {
 export type AthleteDto = {
   id: string;
   name: string;
+  shirt_size: string;
 };
 export interface LotsByValueDTO {
   id: string;

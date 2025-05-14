@@ -17,6 +17,7 @@ import SortTeam from '../pages/SortTeam';
 import { Dashboard } from '../pages/Dashboard';
 import { Athletes } from '../pages/Athletes';
 import { Teams } from '../pages/Teams';
+import Kit from '../pages/Teams/Kits';
 
 export default function AppRoutes() {
   return (
@@ -127,6 +128,14 @@ export default function AppRoutes() {
         element={
           <ProtectedRoute type="private" redirectTo="/">
             <Teams />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/kits"
+        element={
+          <ProtectedRoute type="private" redirectTo="/">
+            <Kit />
           </ProtectedRoute>
         }
       />
