@@ -176,7 +176,6 @@ export default function Kit() {
                   handleQRResult(result.getText());
                 }
               }}
-              style={{ width: '100%' }}
             />
           </Box>
         )}
