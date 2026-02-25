@@ -9,7 +9,7 @@ import {
   Button,
   Stack,
 } from '@mui/material';
-import { QrReader } from 'react-qr-reader';
+import { Scanner } from '@yudiel/react-qr-scanner';
 import api from '../../services/api';
 import { useEvent } from '../../contexts/EventContext';
 import { toast } from 'react-toastify';
@@ -37,6 +37,10 @@ type TeamDTO = {
 type CategoryDTO = {
   id: string;
   name: string;
+};
+
+type ScanCode = {
+  rawValue?: string;
 };
 
 export default function Kit() {
@@ -167,13 +171,14 @@ export default function Kit() {
 
         {showQR && (
           <Box sx={{ mt: 2, maxWidth: 320 }}>
-            <QrReader
+            <Scanner
               key={String(showQR)} // força desmontagem quando muda
               constraints={{ facingMode: 'environment' }}
               scanDelay={500}
-              onResult={(result, error) => {
-                if (result?.getText()) {
-                  handleQRResult(result.getText());
+              onScan={(detectedCodes: ScanCode[]) => {
+                const result = detectedCodes?.[0]?.rawValue;
+                if (result) {
+                  handleQRResult(result);
                 }
               }}
             />

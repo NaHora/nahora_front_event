@@ -1,0 +1,15 @@
+{
+  "name": "NaHora Campeonatos",
+  "short_name": "NaHora",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#121214",
+  "theme_color": "#f04c12",
+  "icons": [
+    {
+      "src": "/vite.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}

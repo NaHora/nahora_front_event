@@ -34,6 +34,7 @@ import DashboardIcon from '@mui/icons-material/Dashboard';
 import GroupIcon from '@mui/icons-material/Group';
 import AccessibilityNewIcon from '@mui/icons-material/AccessibilityNew';
 import Diversity3Icon from '@mui/icons-material/Diversity3';
+import SavingsIcon from '@mui/icons-material/Savings';
 const Navbar: React.FC = () => {
   const [open, setOpen] = useState(false);
   const navigate = useNavigate();
@@ -145,6 +146,11 @@ const Navbar: React.FC = () => {
                 name: 'Pagamentos',
                 page: '/pagamentos',
                 icon: <AttachMoneyIcon />,
+              },
+              {
+                name: 'Extrato / Saque',
+                page: '/extrato-recebedor',
+                icon: <SavingsIcon />,
               },
               // {
               //   name: 'Inscritos',

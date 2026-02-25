@@ -50,6 +50,7 @@ export interface EnterpriseDTO {
   open_hour: string;
   owner_id: string;
   phone: string;
+  recipient_id: string;
   primary_color: string;
   secondary_color: string;
 }

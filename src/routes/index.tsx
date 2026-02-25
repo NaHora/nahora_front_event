@@ -18,6 +18,7 @@ import { Dashboard } from '../pages/Dashboard';
 import { Athletes } from '../pages/Athletes';
 import { Teams } from '../pages/Teams';
 import Kit from '../pages/Kits';
+import { RecipientStatement } from '../pages/RecipientStatement';
 
 export default function AppRoutes() {
   return (
@@ -103,6 +104,14 @@ export default function AppRoutes() {
         element={
           <ProtectedRoute type="private" redirectTo="/">
             <Payments />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/extrato-recebedor"
+        element={
+          <ProtectedRoute type="private" redirectTo="/">
+            <RecipientStatement />
           </ProtectedRoute>
         }
       />
