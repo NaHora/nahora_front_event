@@ -57,7 +57,9 @@ type AthleteDTO = {
 
 interface TeamDTO {
   id: string;
+  name: string;
   active: boolean;
+  athletes: AthleteDTO[];
 }
 
 interface StateProps {
@@ -67,7 +69,6 @@ interface StateProps {
 export const Athletes = () => {
   const [loading, setLoading] = useState(false);
   const [athletesList, setAthletesList] = useState<AthleteDTO[]>([]);
-  const [teams, setTeams] = useState<TeamDTO[]>([]);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [errors, setErrors] = useState<StateProps>({} as StateProps);
   const [athleteSelected, setAthleteSelected] = useState('');
@@ -100,32 +101,28 @@ export const Athletes = () => {
   };
 
   const fetchAthletesAndTeams = async () => {
+    if (!currentEvent) {
+      setAthletesList([]);
+      setFilteredAthletes([]);
+      return;
+    }
+
     setLoading(true);
     try {
-      const [athletesRes, teamsRes] = await Promise.all([
-        api.get('/athletes'),
-        api.get('/teams'),
-      ]);
-
+      const teamsRes = await api.get(`/teams/event/${currentEvent}`);
       const activeTeams = teamsRes.data.filter((team: TeamDTO) => team.active);
-      const activeTeamIds = activeTeams.map((team: TeamDTO) => team.id);
 
-      const filtered = athletesRes.data
-        .filter((athlete: AthleteDTO) =>
-          activeTeamIds.includes(athlete.team_id)
-        )
-        .map((athlete: AthleteDTO) => ({
+      const filtered = activeTeams.flatMap((team: TeamDTO) =>
+        (team.athletes || []).map((athlete: AthleteDTO) => ({
           ...athlete,
-          teamName:
-            activeTeams.find((team: TeamDTO) => team.id === athlete.team_id)
-              ?.name || 'Sem Time',
-        }));
+          teamName: team.name || 'Sem Time',
+        }))
+      );
 
-      setTeams(activeTeams);
       setAthletesList(filtered);
       setFilteredAthletes(filtered);
     } catch (err) {
-      toast.error('Erro ao buscar atletas ou equipes');
+      toast.error('Erro ao buscar atletas do evento');
     } finally {
       setLoading(false);
     }
