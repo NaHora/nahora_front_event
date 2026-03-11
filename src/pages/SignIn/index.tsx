@@ -12,7 +12,6 @@ import {
   LoginEmail,
   LoginPassword,
 } from './styles';
-import EventLogo from '../../assets/event-logo.png';
 import EmailSharpIcon from '@mui/icons-material/EmailSharp';
 import LockSharpIcon from '@mui/icons-material/LockSharp';
 import * as Yup from 'yup';
@@ -21,6 +20,7 @@ import { useState } from 'react';
 import getValidationErrors from '../../utils';
 import { toast } from 'react-toastify';
 import { LoadingButton } from '@mui/lab';
+import { useResolvedEventLogo } from '../../hooks/useResolvedEventLogo';
 export interface StateProps {
   [key: string]: any;
 }
@@ -29,6 +29,7 @@ type SignInFormData = {
   password: string;
 };
 export const SignIn = () => {
+  const eventLogo = useResolvedEventLogo();
   const { signIn } = useAuth();
   const [errors, setErrors] = useState<StateProps>({} as StateProps);
   const [loading, setLoading] = useState(false);
@@ -74,7 +75,7 @@ export const SignIn = () => {
 
   return (
     <Container>
-      <EventImage src={EventLogo} width={320} alt="event logo" />
+      <EventImage src={eventLogo} width={320} alt="event logo" />
       <Content>
         <LoginTitle>Login</LoginTitle>
         <LoginEmail>E-mail</LoginEmail>

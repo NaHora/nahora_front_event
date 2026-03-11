@@ -20,7 +20,7 @@ import {
   FlexColumnAlignStart,
   Total,
 } from './styles';
-import EventLogo from '../../assets/event-logo.png';
+import { useResolvedEventLogo } from '../../hooks/useResolvedEventLogo';
 import React, { useEffect, useState } from 'react';
 import MilitaryTechIcon from '@mui/icons-material/MilitaryTech';
 import { CircularProgress, useMediaQuery } from '@mui/material';
@@ -39,6 +39,7 @@ type Rank = {
 };
 
 export const Ranking = () => {
+  const eventLogo = useResolvedEventLogo();
   const [rankGeral, setRankGeral] = useState<Rank[][]>();
   const [currentRankGeral, setCurrentRankGeral] = useState<Rank[]>();
   const [currentCategory, setCurrentCategory] = useState(0);
@@ -160,7 +161,7 @@ export const Ranking = () => {
   console.log('currentRankGeral', currentRankGeral);
   return (
     <Container>
-      <EventImage src={EventLogo} width={320} alt="event logo" />
+      <EventImage src={eventLogo} width={320} alt="event logo" />
       {Array.isArray(currentRankGeral) && currentRankGeral.length > 0 ? (
         <Content>
           <CategoryTitle className={!currentItems.includes(1) ? 'hide' : ''}>

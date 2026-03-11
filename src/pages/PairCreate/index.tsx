@@ -27,7 +27,6 @@ import {
   ResultForm,
   TableContainer,
 } from './styles';
-import EventLogo from '../../assets/event-logo.png';
 import { toast } from 'react-toastify';
 import * as Yup from 'yup';
 
@@ -53,6 +52,7 @@ import { theme } from '../../styles/global';
 import { LoadingButton } from '@mui/lab';
 import Navbar from '../../components/navbar';
 import api from '../../services/api';
+import { useResolvedEventLogo } from '../../hooks/useResolvedEventLogo';
 
 type SelectPropsDTO = {
   id: string;
@@ -100,6 +100,7 @@ interface StateProps {
 }
 
 export const PairCreate = () => {
+  const eventLogo = useResolvedEventLogo();
   const [categorySelected, setCategorySelected] = useState('');
   const [loading, setLoading] = useState(false);
   const [categoryList, setCategoryList] = useState<SelectPropsDTO[]>([]);
@@ -469,7 +470,7 @@ export const PairCreate = () => {
         </DrawerContainer>
       </Drawer>
 
-      <EventImage src={EventLogo} width={318} alt="event logo" />
+      <EventImage src={eventLogo} width={318} alt="event logo" />
       <Content>
         <ContentHeader>
           <FilteredContainer>

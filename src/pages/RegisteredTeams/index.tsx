@@ -13,7 +13,6 @@ import {
   TableContainer,
   Edit,
 } from './styles';
-import EventLogo from '../../assets/event-logo.png';
 import api from '../../services/api';
 import { useEvent } from '../../contexts/EventContext';
 import Navbar from '../../components/navbar';
@@ -21,6 +20,7 @@ import { toast } from 'react-toastify';
 import CopyIcon from '@mui/icons-material/CopyAll';
 import { useMediaQuery } from '@mui/material';
 import { theme } from '../../styles/global';
+import { useResolvedEventLogo } from '../../hooks/useResolvedEventLogo';
 
 type CategoryDTO = {
   id: string;
@@ -52,6 +52,7 @@ interface StateProps {
 }
 
 export const RegisteredTeams = () => {
+  const eventLogo = useResolvedEventLogo();
   const [loading, setLoading] = useState(false);
   const [teamList, setTeamsList] = useState<TeamsDTO[]>([]);
   const [teamFiltered, setteamFiltered] = useState('');
@@ -91,7 +92,7 @@ export const RegisteredTeams = () => {
   return (
     <Container>
       <Navbar />
-      <EventImage src={EventLogo} width={318} alt="event logo" />
+      <EventImage src={eventLogo} width={318} alt="event logo" />
       <Content>
         <TableContainer>
           <Edit onClick={handleCopy}>

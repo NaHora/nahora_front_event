@@ -11,6 +11,8 @@ export interface EventDTO {
   address: string;
   start_time: string;
   end_time: string;
+  logo?: string;
+  logo_url?: string | null;
 }
 
 export interface LotsDTO {

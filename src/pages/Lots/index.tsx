@@ -27,7 +27,6 @@ import {
   ResultForm,
   TableContainer,
 } from './styles';
-import EventLogo from '../../assets/event-logo.png';
 import { toast } from 'react-toastify';
 import * as Yup from 'yup';
 
@@ -58,6 +57,7 @@ import api from '../../services/api';
 import { EventDTO, LotsDTO } from '../../dtos';
 import { useAuth } from '../../hooks/auth';
 import { getFormatDate } from '../../utils/date';
+import { useResolvedEventLogo } from '../../hooks/useResolvedEventLogo';
 import { useEvent } from '../../contexts/EventContext';
 
 interface StateProps {
@@ -65,6 +65,7 @@ interface StateProps {
 }
 
 export const Lots = () => {
+  const eventLogo = useResolvedEventLogo();
   const [loading, setLoading] = useState(false);
   const [lotList, setLotList] = useState<LotsDTO[]>([]);
   const [categoryFiltered, setCategoryFiltered] = useState('');
@@ -507,7 +508,7 @@ export const Lots = () => {
         </DrawerContainer>
       </Drawer>
 
-      <EventImage src={EventLogo} width={318} alt="event logo" />
+      <EventImage src={eventLogo} width={318} alt="event logo" />
       <Content>
         <ContentHeader>
           <FilteredContainer>

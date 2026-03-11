@@ -16,7 +16,6 @@ import {
   InputLabel,
   TableContainer,
 } from './styles';
-import EventLogo from '../../assets/event-logo.png';
 import { toast } from 'react-toastify';
 import * as Yup from 'yup';
 
@@ -37,6 +36,7 @@ import api from '../../services/api';
 import { useEvent } from '../../contexts/EventContext';
 import { Box } from '@mui/system';
 import { AthleteDto } from '../../dtos';
+import { useResolvedEventLogo } from '../../hooks/useResolvedEventLogo';
 
 interface TeamDTO {
   id: string;
@@ -58,6 +58,7 @@ interface StateProps {
 }
 
 export const Teams = () => {
+  const eventLogo = useResolvedEventLogo();
   const [loading, setLoading] = useState(false);
   const [teamsList, setTeamsList] = useState<TeamDTO[]>([]);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
@@ -235,7 +236,7 @@ export const Teams = () => {
           </Box>
         </DrawerContainer>
       </Drawer>
-      <EventImage src={EventLogo} width={318} alt="event logo" />
+      <EventImage src={eventLogo} width={318} alt="event logo" />
       <Content>
         <TextField
           size="small"

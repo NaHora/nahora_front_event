@@ -17,7 +17,6 @@ import {
   ResultForm,
   TableContainer,
 } from './styles';
-import EventLogo from '../../assets/event-logo.png';
 import { toast } from 'react-toastify';
 import * as Yup from 'yup';
 import InputMask from 'react-input-mask';
@@ -41,6 +40,7 @@ import Navbar from '../../components/navbar';
 import api from '../../services/api';
 import { useEvent } from '../../contexts/EventContext';
 import React from 'react';
+import { useResolvedEventLogo } from '../../hooks/useResolvedEventLogo';
 
 type AthleteDTO = {
   id: string;
@@ -67,6 +67,7 @@ interface StateProps {
 }
 
 export const Athletes = () => {
+  const eventLogo = useResolvedEventLogo();
   const [loading, setLoading] = useState(false);
   const [athletesList, setAthletesList] = useState<AthleteDTO[]>([]);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
@@ -312,7 +313,7 @@ export const Athletes = () => {
           </LoadingButton>
         </DrawerContainer>
       </Drawer>
-      <EventImage src={EventLogo} width={318} alt="event logo" />
+      <EventImage src={eventLogo} width={318} alt="event logo" />
       <Content>
         <Box sx={{ display: 'flex', gap: 2, mb: 2, alignSelf: 'flex-start' }}>
           <TextField

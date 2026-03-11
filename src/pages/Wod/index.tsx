@@ -27,7 +27,6 @@ import {
   ResultForm,
   TableContainer,
 } from './styles';
-import EventLogo from '../../assets/event-logo.png';
 import { toast } from 'react-toastify';
 import * as Yup from 'yup';
 
@@ -55,6 +54,7 @@ import { LoadingButton } from '@mui/lab';
 import Navbar from '../../components/navbar';
 import api from '../../services/api';
 import { useEvent } from '../../contexts/EventContext';
+import { useResolvedEventLogo } from '../../hooks/useResolvedEventLogo';
 
 type SelectPropsDTO = {
   id: string;
@@ -92,6 +92,7 @@ interface StateProps {
 }
 
 export const Wod = () => {
+  const eventLogo = useResolvedEventLogo();
   const { currentEvent } = useEvent();
   const [workoutFiltered, setWorkoutFiltered] = useState('');
   const [categoryFiltered, setCategoryFiltered] = useState('');
@@ -371,7 +372,7 @@ export const Wod = () => {
         </DrawerContainer>
       </Drawer>
 
-      <EventImage src={EventLogo} width={318} alt="event logo" />
+      <EventImage src={eventLogo} width={318} alt="event logo" />
       <Content>
         <ContentHeader>
           <FilteredContainer></FilteredContainer>

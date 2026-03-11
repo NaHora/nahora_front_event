@@ -12,7 +12,6 @@ import {
   TableContainer,
   HeaderContainer,
 } from './styles';
-import EventLogo from '../../assets/event-logo.png';
 import api from '../../services/api';
 import { useEvent } from '../../contexts/EventContext';
 import Navbar from '../../components/navbar';

@@ -27,7 +27,6 @@ import {
   ResultForm,
   TableContainer,
 } from './styles';
-import EventLogo from '../../assets/event-logo.png';
 import { toast } from 'react-toastify';
 import * as Yup from 'yup';
 
@@ -39,6 +38,7 @@ import {
   DialogContentText,
   DialogTitle,
   Drawer,
+  Input,
   MenuItem,
   TextField,
   useMediaQuery,
@@ -58,6 +58,7 @@ import { useAuth } from '../../hooks/auth';
 import { getFormatDate } from '../../utils/date';
 import { useNavigate } from 'react-router-dom';
 import { useEvent } from '../../contexts/EventContext';
+import { useResolvedEventLogo } from '../../hooks/useResolvedEventLogo';
 
 type SelectPropsDTO = {
   id: string;
@@ -91,10 +92,15 @@ export const Events = () => {
     start_time: '',
     end_time: '',
     address: '',
+    logo: '',
+    logo_url: '',
   });
+  const [logoFile, setLogoFile] = useState<File | null>(null);
+  const [logoPreview, setLogoPreview] = useState('');
   const [drawerType, setDrawerType] = useState('');
   const { userEnterprise } = useAuth();
   const { setCurrentEvent, events, getMyEvents } = useEvent();
+  const eventLogo = useResolvedEventLogo();
 
   const adjustToLocalTime = (isoString: string): string => {
     const date = new Date(isoString);
@@ -106,6 +112,7 @@ export const Events = () => {
 
   const openDrawer = (drawerType: string, item: EventDTO) => {
     if (drawerType === 'edit') {
+      setEventSelected(item?.id || '');
       setValues({
         id: item?.id,
         name: item?.name,
@@ -114,12 +121,16 @@ export const Events = () => {
         start_time: adjustToLocalTime(item?.start_date),
         end_time: adjustToLocalTime(item?.end_date),
         address: item?.address,
+        logo: item?.logo,
+        logo_url: item?.logo_url,
       });
+      setLogoFile(null);
+      setLogoPreview(item?.logo_url || '');
       setDrawerType(drawerType);
       setIsDrawerOpen(true);
     } else {
+      setEventSelected('');
       setValues({
-        ...values,
         id: '',
         name: '',
         start_date: '',
@@ -127,7 +138,11 @@ export const Events = () => {
         start_time: '',
         end_time: '',
         address: '',
+        logo: '',
+        logo_url: '',
       });
+      setLogoFile(null);
+      setLogoPreview('');
       setDrawerType(drawerType);
       setIsDrawerOpen(true);
     }
@@ -146,6 +161,32 @@ export const Events = () => {
       minute: '2-digit',
     });
     return `${formattedDate} - ${formattedTime}h`;
+  };
+
+  const buildEventFormData = () => {
+    const formData = new FormData();
+
+    formData.append('name', values.name);
+    formData.append('address', values.address);
+    formData.append('enterprise_id', userEnterprise.id);
+    formData.append(
+      'start_date',
+      combineDateAndTime(values.start_date, values.start_time)
+    );
+    formData.append(
+      'end_date',
+      combineDateAndTime(values.end_date, values.end_time)
+    );
+
+    if (eventSelected) {
+      formData.append('eventId', eventSelected);
+    }
+
+    if (logoFile) {
+      formData.append('logo', logoFile);
+    }
+
+    return formData;
   };
 
   const postEvent = async () => {
@@ -177,15 +218,7 @@ export const Events = () => {
         abortEarly: false,
       });
 
-      const body = {
-        name: values?.name,
-        address: values?.address,
-        enterprise_id: userEnterprise.id,
-        start_date: combineDateAndTime(values.start_date, values.start_time),
-        end_date: combineDateAndTime(values.end_date, values.end_time),
-      };
-
-      await api.post(`/event`, body);
+      await api.post(`/event`, buildEventFormData());
       setErrors({});
       toast.success('Evento criado com sucesso!');
       getMyEvents();
@@ -217,17 +250,7 @@ export const Events = () => {
 
     setLoading(true);
     try {
-      const body = {
-        id: values.id,
-        name: values.name,
-        address: values.address,
-        start_date: combineDateAndTime(values.start_date, values.start_time),
-        end_date: combineDateAndTime(values.end_date, values.end_time),
-        enterprise_id: userEnterprise.id,
-        eventId: eventSelected,
-      };
-
-      await api.put('/event', body);
+      await api.put('/event', buildEventFormData());
       setErrors({});
       toast.success('Evento atualizado com sucesso!');
       getMyEvents();
@@ -273,6 +296,11 @@ export const Events = () => {
   const openDialog = (item_id: string) => {
     setEventSelected(item_id);
     setOpenDeleteDialog(true);
+  };
+
+  const handleLogoChange = (file?: File) => {
+    setLogoFile(file || null);
+    setLogoPreview(file ? URL.createObjectURL(file) : values.logo_url || '');
   };
 
   return (
@@ -439,6 +467,21 @@ export const Events = () => {
               }}
             />
 
+            <InputLabel>Logo do evento</InputLabel>
+            <Input
+              type="file"
+              inputProps={{ accept: 'image/*' }}
+              onChange={(e) => handleLogoChange(e.target.files?.[0])}
+              sx={{ color: '#fff' }}
+            />
+            {logoPreview ? (
+              <EventImage
+                src={logoPreview}
+                width={180}
+                alt="preview da logo do evento"
+              />
+            ) : null}
+
             <LoadingButton
               variant="contained"
               color="primary"
@@ -457,7 +500,7 @@ export const Events = () => {
         </DrawerContainer>
       </Drawer>
 
-      <EventImage src={EventLogo} width={318} alt="event logo" />
+      <EventImage src={eventLogo} width={318} alt="event logo" />
       <Content>
         <ContentHeader>
           <FilteredContainer>
@@ -477,6 +520,8 @@ export const Events = () => {
                 address: '',
                 start_time: '',
                 end_time: '',
+                logo: '',
+                logo_url: '',
               })
             }
           >

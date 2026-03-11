@@ -19,7 +19,6 @@ import {
   StepTitle,
 } from './styles';
 import Lottie from 'react-lottie';
-import EventLogo from '../../assets/event-logo.png';
 import InputMask from 'react-input-mask';
 import * as Yup from 'yup';
 import { CreditCard, QrCode } from '@mui/icons-material';
@@ -30,6 +29,7 @@ import * as animationData from '../../assets/lottie.json';
 import api from '../../services/api';
 import { useParams } from 'react-router-dom';
 import { LotsDTO } from '../../dtos';
+import { useResolvedEventLogo } from '../../hooks/useResolvedEventLogo';
 
 const steps = ['Tipo de inscrição', 'Cadastro dos Atletas', 'Pagamento'];
 
@@ -84,6 +84,7 @@ type CategoryDTO = {
 };
 
 export const CreateAccount = () => {
+  const eventLogo = useResolvedEventLogo();
   const { eventId } = useParams<{ eventId: string }>();
 
   const [currentStep, setCurrentStep] = useState(4);
@@ -451,7 +452,7 @@ export const CreateAccount = () => {
 
   return (
     <Container>
-      <EventImage src={EventLogo} alt="Event Logo" />
+      <EventImage src={eventLogo} alt="Event Logo" />
 
       <Content>
         <StepperWrapper>

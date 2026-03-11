@@ -5,7 +5,6 @@ import {
   useMediaQuery,
 } from '@mui/material';
 import { useEffect, useState } from 'react';
-import EventLogo from '../../assets/event-logo.png';
 import api from '../../services/api';
 import { theme } from '../../styles/global';
 import MilitaryTechIcon from '@mui/icons-material/MilitaryTech';
@@ -43,6 +42,7 @@ import { secondToTimeFormater } from '../../utils/time';
 import { useParams } from 'react-router-dom';
 import { Athletes } from '../Athletes';
 import { TeamsDTO } from '../../dtos';
+import { useResolvedEventLogo } from '../../hooks/useResolvedEventLogo';
 
 type Category = {
   id: string;
@@ -96,6 +96,7 @@ type WorkoutDescription = {
 };
 
 export const Filter = () => {
+  const eventLogo = useResolvedEventLogo();
   const { eventId } = useParams<{ eventId: string }>();
 
   const [categories, setCategories] = useState<Category[]>([]);
@@ -196,7 +197,7 @@ export const Filter = () => {
 
   return (
     <Container>
-      <EventImage src={EventLogo} width={320} alt="event logo" />
+      <EventImage src={eventLogo} width={320} alt="event logo" />
       <Content>
         <SelectContent>
           <SelectContainer>
