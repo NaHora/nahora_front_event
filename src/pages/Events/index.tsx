@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import type { ChangeEvent } from 'react';
 import { NumericFormat, PatternFormat } from 'react-number-format';
 import {
   Container,
@@ -471,7 +472,9 @@ export const Events = () => {
             <Input
               type="file"
               inputProps={{ accept: 'image/*' }}
-              onChange={(e) => handleLogoChange(e.target.files?.[0])}
+              onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                handleLogoChange(e.target.files?.[0])
+              }
               sx={{ color: '#fff' }}
             />
             {logoPreview ? (

@@ -196,7 +196,7 @@ export const Dashboard = () => {
             <HeroMeta>
               <MetaPill>
                 {getCurrentEventsData?.start_date
-                  ? `Inicio ${getFormatDate(getCurrentEventsData.start_date)}`
+                  ? `Inicio ${getFormatDate(new Date(getCurrentEventsData.start_date))}`
                   : 'Inicio nao definido'}
               </MetaPill>
               <MetaPill>
