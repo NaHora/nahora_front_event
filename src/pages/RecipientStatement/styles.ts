@@ -1,26 +1,31 @@
 import styled from 'styled-components';
 
+const surface = `
+  background:
+    linear-gradient(180deg, rgba(13, 21, 33, 0.9), rgba(9, 14, 23, 0.94));
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 28px 80px rgba(0, 0, 0, 0.34);
+  backdrop-filter: blur(14px);
+`;
+
 export const Container = styled.div`
-  padding: 0 16px;
+  min-height: 100vh;
+  padding: 24px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  color: #f5f5f5;
+  gap: 24px;
+  color: var(--text-primary);
 `;
 
 export const Content = styled.div`
-  background: #29282e;
-  padding: 32px;
-  border-radius: 8px;
-  max-width: 1120px;
-  width: 100%;
+  ${surface};
+  width: min(1240px, 100%);
+  border-radius: 30px;
+  padding: 24px;
   display: flex;
   flex-direction: column;
-  margin-top: -40px;
-
-  @media only screen and (max-width: 768px) {
-    padding: 12px;
-  }
+  gap: 18px;
 `;
 
 export const Header = styled.div`
@@ -28,49 +33,50 @@ export const Header = styled.div`
   justify-content: space-between;
   align-items: center;
   gap: 12px;
-  margin-bottom: 16px;
-
-  @media only screen and (max-width: 768px) {
-    flex-direction: column;
-    align-items: flex-start;
-  }
+  flex-wrap: wrap;
 `;
 
 export const WithdrawForm = styled.form`
   display: flex;
   align-items: center;
   gap: 12px;
-  margin-bottom: 24px;
   flex-wrap: wrap;
 `;
 
 export const TableContainer = styled.div`
   width: 100%;
   overflow-x: auto;
+  border-radius: 22px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
 `;
 
 export const Table = styled.table`
   width: 100%;
+  min-width: 760px;
   border-collapse: collapse;
-  border: 2px solid #f04c12;
 `;
 
-export const Thead = styled.thead``;
+export const Thead = styled.thead`
+  background: rgba(255, 255, 255, 0.03);
+`;
 
 export const Tr = styled.tr`
-  background-color: #121214;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
 `;
 
 export const Th = styled.th`
-  padding: 12px 8px;
+  padding: 16px 12px;
   text-align: left;
-  font-size: 14px;
+  font-size: 0.78rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-muted);
   white-space: nowrap;
 `;
 
 export const Td = styled.td`
-  padding: 10px 8px;
-  border-top: 1px solid rgba(240, 76, 18, 0.2);
-  font-size: 14px;
+  padding: 14px 12px;
+  font-size: 0.92rem;
   white-space: nowrap;
 `;

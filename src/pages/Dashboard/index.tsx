@@ -1,32 +1,12 @@
-import { useEffect, useState } from 'react';
-import CopyIcon from '@mui/icons-material/CopyAll';
-import {
-  Container,
-  Board,
-  BoardTitle,
-  Edit,
-  Content,
-  CardContainer,
-  Card,
-  CardTitle,
-  CardDetail,
-  Highlight,
-  EventInformationsBoard,
-  LotsBoard,
-  CardsGroup,
-  CardsCountainer,
-  TimeContainer,
-  TimeTitle,
-  TimeResult,
-  TimeContainerTitle,
-  TimeDiv,
-  CategoryAndShirtsContainer,
-  CategoryContainer,
-  ShirtsContainer,
-  CategoryCard,
-  CardTime,
-  ShirtsInformationsBoard,
-} from './styles';
+import { useEffect, useMemo, useState } from 'react';
+import ContentCopyRoundedIcon from '@mui/icons-material/ContentCopyRounded';
+import EventAvailableRoundedIcon from '@mui/icons-material/EventAvailableRounded';
+import Groups2RoundedIcon from '@mui/icons-material/Groups2Rounded';
+import PaidRoundedIcon from '@mui/icons-material/PaidRounded';
+import PaletteRoundedIcon from '@mui/icons-material/PaletteRounded';
+import QueryStatsRoundedIcon from '@mui/icons-material/QueryStatsRounded';
+import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip } from 'recharts';
+import { toast } from 'react-toastify';
 import api from '../../services/api';
 import { useEvent } from '../../contexts/EventContext';
 import Navbar from '../../components/navbar';
@@ -37,490 +17,363 @@ import {
   ShirtSizeDTO,
 } from '../../dtos';
 import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  Tooltip,
-  PieChart,
-  Pie,
-  Cell,
-  Legend,
-  ResponsiveContainer,
-} from 'recharts';
+  ActionCard,
+  ActionText,
+  ActionTitle,
+  ActionsGrid,
+  Container,
+  Content,
+  DashboardGrid,
+  EmptyState,
+  Eyebrow,
+  Hero,
+  HeroCopy,
+  HeroMeta,
+  HeroStats,
+  HeroSubtitle,
+  HeroTitle,
+  List,
+  ListItem,
+  ListItemMeta,
+  ListItemTitle,
+  MetaPill,
+  MiniCard,
+  MiniGrid,
+  MiniLabel,
+  MiniValue,
+  Panel,
+  PanelSubTitle,
+  PanelTitle,
+  StatCard,
+  StatLabel,
+  StatNote,
+  StatValue,
+} from './styles';
 import { getFormatDate } from '../../utils/date';
-import PersonIcon from '@mui/icons-material/Person';
-import GroupsIcon from '@mui/icons-material/Groups';
-import CategoryIcon from '@mui/icons-material/Category';
-import CheckroomIcon from '@mui/icons-material/Checkroom';
-import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
-import AccessTimeIcon from '@mui/icons-material/AccessTime';
-import BoyIcon from '@mui/icons-material/Boy';
-import WomanIcon from '@mui/icons-material/Woman';
-import { toast } from 'react-toastify';
-import { useMediaQuery } from '@mui/material';
-import { theme } from '../../styles/global';
-import { Box } from '@mui/system';
+
 export const Dashboard = () => {
-  const [loading, setLoading] = useState(false);
   const [lots, setLots] = useState<LotsByValueDTO[]>([]);
-  const [eventsCategory, setEventsCategory] = useState<CategoryByEventDTO[]>(
-    []
-  );
+  const [eventsCategory, setEventsCategory] = useState<CategoryByEventDTO[]>([]);
   const [shirts, setShirts] = useState<ShirtSizeDTO[]>([]);
-  const { currentEvent } = useEvent();
   const [startDate, setStartDate] = useState<Date | null>(null);
-  const [remainingTime, setRemainingTime] = useState<string>('');
-
-  const getCategoryByEvent = async () => {
-    setLoading(true);
-    try {
-      const response = await api.get(`/category/event/${currentEvent}`);
-      setEventsCategory(response.data);
-    } catch (err) {
-      console.error('Erro ao buscar as categorias:', err);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const getShirtsByAthletes = async () => {
-    setLoading(true);
-    try {
-      const response = await api.get(
-        `/athletes/shirt-size/event/${currentEvent}`
-      );
-      setShirts(response.data);
-    } catch (err) {
-      console.error('Erro ao buscar os tamanhos de camisas:', err);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const getLotsByValue = async () => {
-    setLoading(true);
-    try {
-      const response = await api.get(`/lots/list/${currentEvent}`);
-      setLots(response.data);
-    } catch (err) {
-      console.error('Erro ao buscar os lotes:', err);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const lotsWithTotal = lots.map((lot, index) => {
-    const totalValue =
-      lot.payments.reduce(
-        (sum: number, payment: PaymentsDTO) => sum + payment.amount,
-        0
-      ) / 100;
-    const totalSold = lot.payments.length;
-    return { ...lot, totalValue, totalSold, lotNumber: index + 1 };
-  });
+  const [remainingTime, setRemainingTime] = useState<string>('Sem data definida');
+  const { currentEvent, events, getCurrentEventsData } = useEvent();
 
   useEffect(() => {
-    if (currentEvent) {
-      getCategoryByEvent();
-      getShirtsByAthletes();
-      getLotsByValue();
-      getEventStartDate();
-    }
-  }, [currentEvent]);
-
-  const generateColors = (baseColor: any, numColors: number) => {
-    const colors = [];
-    for (let i = 0; i < numColors; i++) {
-      const opacity = 1 - i * 0.2;
-      colors.push(`rgba(240,76,18,${opacity.toFixed(2)})`);
-    }
-    return colors;
-  };
-
-  const pieColors = generateColors('#f04c12', lotsWithTotal.length);
-  const shirtSizeOrder = ['P', 'M', 'G', 'GG'];
-  const totalShirts = shirts.reduce(
-    (total, shirt) => total + (Number(shirt.count) || 0),
-    0
-  );
-
-  const getEventStartDate = async () => {
-    try {
-      const response = await api.get(`/event`);
-      const events = response.data;
-      const event = events.find((ev: any) => ev.id === currentEvent);
-      if (event) {
-        setStartDate(new Date(event.start_date));
+    async function loadDashboard() {
+      if (!currentEvent) {
+        return;
       }
-    } catch (err) {
-      console.error('Erro ao buscar a data de início do evento:', err);
+
+      try {
+        const [categoriesResponse, shirtsResponse, lotsResponse] = await Promise.all([
+          api.get(`/category/event/${currentEvent}`),
+          api.get(`/athletes/shirt-size/event/${currentEvent}`),
+          api.get(`/lots/list/${currentEvent}`),
+        ]);
+
+        setEventsCategory(categoriesResponse.data);
+        setShirts(shirtsResponse.data);
+        setLots(lotsResponse.data);
+
+        const current = events.find((event) => event.id === currentEvent);
+        setStartDate(current?.start_date ? new Date(current.start_date) : null);
+      } catch (error) {
+        toast.error('Nao foi possivel carregar o dashboard deste evento.');
+      }
     }
-  };
+
+    loadDashboard();
+  }, [currentEvent, events]);
 
   useEffect(() => {
-    if (startDate) {
-      const interval = setInterval(() => {
-        const now = new Date();
-        const diff = Math.max(0, (startDate.getTime() - now.getTime()) / 1000);
-
-        const days = Math.floor(diff / (3600 * 24));
-        const hours = Math.floor((diff % (3600 * 24)) / 3600);
-        const minutes = Math.floor((diff % 3600) / 60);
-        const seconds = Math.floor(diff % 60);
-
-        setRemainingTime(`${days}d ${hours}h ${minutes}m ${seconds}s`);
-      }, 60);
-
-      return () => clearInterval(interval);
+    if (!startDate) {
+      setRemainingTime('Sem data definida');
+      return;
     }
+
+    const interval = setInterval(() => {
+      const now = new Date();
+      const diff = Math.max(0, startDate.getTime() - now.getTime());
+
+      if (diff === 0) {
+        setRemainingTime('Evento em andamento ou iniciado');
+        return;
+      }
+
+      const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+      const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
+      const minutes = Math.floor((diff / (1000 * 60)) % 60);
+
+      setRemainingTime(`${days}d ${hours}h ${minutes}m`);
+    }, 1000);
+
+    return () => clearInterval(interval);
   }, [startDate]);
 
+  const lotsWithTotal = useMemo(
+    () =>
+      lots.map((lot, index) => {
+        const totalValue =
+          lot.payments.reduce(
+            (sum: number, payment: PaymentsDTO) => sum + payment.amount,
+            0
+          ) / 100;
+
+        return {
+          ...lot,
+          label: `Lote ${index + 1}`,
+          totalValue,
+          totalSold: lot.payments.length,
+          occupancy:
+            lot.max_sales > 0 ? Math.round((lot.payments.length / lot.max_sales) * 100) : 0,
+        };
+      }),
+    [lots]
+  );
+
+  const categoryInsights = useMemo(
+    () =>
+      eventsCategory.map((category) => {
+        const teamsCount = category.teams?.length || 0;
+        const athletesCount =
+          category.teams?.reduce((teamTotal, team) => teamTotal + team.athletes.length, 0) || 0;
+
+        return {
+          name: category.name,
+          teamsCount,
+          athletesCount,
+          athlete_number: category.athlete_number,
+        };
+      }),
+    [eventsCategory]
+  );
+
+  const shirtInsights = useMemo(
+    () =>
+      ['P', 'M', 'G', 'GG'].map((size) => ({
+        name: size,
+        count: shirts
+          .filter((shirt) => shirt.shirt_size === size)
+          .reduce((total, shirt) => total + Number(shirt.count || 0), 0),
+      })),
+    [shirts]
+  );
+
   const totalSales = lotsWithTotal.reduce((sum, lot) => sum + lot.totalSold, 0);
+  const grossRevenue = lotsWithTotal.reduce((sum, lot) => sum + lot.totalValue, 0);
+  const totalTeams = categoryInsights.reduce((sum, item) => sum + item.teamsCount, 0);
+  const totalAthletes = categoryInsights.reduce((sum, item) => sum + item.athletesCount, 0);
+  const totalCategories = categoryInsights.length;
+  const topCategory = [...categoryInsights].sort((a, b) => b.athletesCount - a.athletesCount)[0];
+  const strongestLot = [...lotsWithTotal].sort((a, b) => b.totalSold - a.totalSold)[0];
+  const mostRequestedShirt = [...shirtInsights].sort((a, b) => b.count - a.count)[0];
 
-  const totalMaleShirts = shirts
-    .filter((shirt) => shirt.gender === 'm')
-    .reduce((total, shirt) => total + (Number(shirt.count) || 0), 0);
-
-  const totalFemaleShirts = shirts
-    .filter((shirt) => shirt.gender === 'f')
-    .reduce((total, shirt) => total + (Number(shirt.count) || 0), 0);
-
-  const totalAthletes = eventsCategory.reduce((categoryTotal, category) => {
-    return (
-      categoryTotal +
-      category?.teams.reduce((teamTotal, team) => {
-        return teamTotal + team?.athletes.length;
-      }, 0)
-    );
-  }, 0);
   const handleCopy = async (link: string) => {
     try {
       await navigator.clipboard.writeText(
-        'https://' + window.location.hostname + link + currentEvent
+        `https://${window.location.hostname}${link}${currentEvent}`
       );
-      toast.success('Copiado com sucesso!');
-    } catch (err) {
-      console.error('Erro ao copiar o texto: ', err);
-      toast.error('Falha ao copiar o texto.');
+      toast.success('Link copiado.');
+    } catch (error) {
+      toast.error('Falha ao copiar o link.');
     }
   };
-  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
   return (
     <Container>
       <Navbar />
 
       <Content>
-        <Box
-          sx={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            width: '100%',
-          }}
-        >
-          <Edit onClick={() => handleCopy('/inscricoes/')}>
-            <CopyIcon
-              fontSize={isMobile ? 'small' : 'medium'}
-              sx={{ marginRight: '4px' }}
-            />
-            {!isMobile && 'Link de inscrição'}
-          </Edit>
-          <Edit onClick={() => handleCopy('/resultados/')}>
-            <CopyIcon
-              fontSize={isMobile ? 'small' : 'medium'}
-              sx={{ marginRight: '4px' }}
-            />
-            {!isMobile && 'Link dos resultados'}
-          </Edit>
-          <Edit onClick={() => handleCopy('/rank/')}>
-            <CopyIcon
-              fontSize={isMobile ? 'small' : 'medium'}
-              sx={{ marginRight: '4px' }}
-            />
-            {!isMobile && 'Link do rank'}
-          </Edit>
-        </Box>
+        <Hero>
+          <HeroCopy>
+            <Eyebrow>Visao geral do evento</Eyebrow>
+            <HeroTitle>{getCurrentEventsData?.name || 'Seu evento em foco'}</HeroTitle>
+            <HeroSubtitle>
+              Uma leitura rapida do ritmo comercial, adesao das categorias e distribuicao
+              operacional para guiar as proximas decisoes.
+            </HeroSubtitle>
+            <HeroMeta>
+              <MetaPill>
+                {getCurrentEventsData?.start_date
+                  ? `Inicio ${getFormatDate(getCurrentEventsData.start_date)}`
+                  : 'Inicio nao definido'}
+              </MetaPill>
+              <MetaPill>
+                {getCurrentEventsData?.address || 'Endereco nao definido'}
+              </MetaPill>
+            </HeroMeta>
+          </HeroCopy>
 
-        <br />
-        <LotsBoard>
-          <CardsCountainer>
-            <CardsGroup>
-              <Card>
-                <AccountBalanceWalletIcon color="primary" />
-                <CardDetail>
-                  <Highlight>{totalSales}</Highlight>
-                  <span>Vendas</span>
-                </CardDetail>
-                <CardDetail>
-                  <Highlight>
-                    R${' '}
-                    {lotsWithTotal
-                      .reduce((total, lot) => total + lot.totalValue, 0)
-                      .toLocaleString('pt-BR', {
-                        minimumFractionDigits: 2,
-                        maximumFractionDigits: 2,
-                      })}
-                  </Highlight>
-                  <span>Faturamento</span>
-                </CardDetail>
+          <HeroStats>
+            <StatCard>
+              <StatLabel>Contagem regressiva</StatLabel>
+              <StatValue>{remainingTime}</StatValue>
+              <StatNote>Tempo restante para a abertura do evento.</StatNote>
+            </StatCard>
+            <StatCard>
+              <StatLabel>Receita bruta</StatLabel>
+              <StatValue>
+                {grossRevenue.toLocaleString('pt-BR', {
+                  style: 'currency',
+                  currency: 'BRL',
+                })}
+              </StatValue>
+              <StatNote>{totalSales} vendas distribuidas entre os lotes.</StatNote>
+            </StatCard>
+            <StatCard>
+              <StatLabel>Participacao</StatLabel>
+              <StatValue>{totalAthletes}</StatValue>
+              <StatNote>{totalTeams} times ativos em {totalCategories} categorias.</StatNote>
+            </StatCard>
+            <StatCard>
+              <StatLabel>Maior demanda</StatLabel>
+              <StatValue>{topCategory?.name || 'Sem dados'}</StatValue>
+              <StatNote>
+                {topCategory
+                  ? `${topCategory.athletesCount} atletas concentrados nessa categoria.`
+                  : 'Sem movimentacao suficiente para leitura.'}
+              </StatNote>
+            </StatCard>
+          </HeroStats>
+        </Hero>
 
-                <PieChart width={300} height={350}>
-                  <Pie
-                    data={lotsWithTotal.map((lot) => ({
-                      name: `Lote ${lot.lotNumber} - ${lot.totalSold} vendas - R$ ${lot.totalValue}`,
-                      vendas: lot.totalSold,
-                      percentage: ((lot.totalSold / totalSales) * 100).toFixed(
-                        2
-                      ),
-                    }))}
-                    dataKey="vendas"
-                    nameKey="name"
-                    cx="50%"
-                    cy="50%"
-                    outerRadius={80}
-                    fill="#82ca9d"
-                    label={({ percentage }) => `${percentage}%`}
-                    labelLine={false}
-                  >
-                    {lots.map((_, index) => (
-                      <Cell
-                        key={`cell-${index}`}
-                        fill={pieColors[index % pieColors.length]}
-                      />
-                    ))}
-                  </Pie>
-                  <Legend layout="vertical" />
-                </PieChart>
-              </Card>
-              <CardContainer>
-                {lotsWithTotal.map((lot) => (
-                  <Card key={lot.id}>
-                    <CardTitle>Lote {lot.lotNumber} </CardTitle>
-                    <CardDetail>
-                      <span>Início: </span>
-                      <Highlight>{getFormatDate(lot.start_date)}</Highlight>
-                    </CardDetail>
-                    <CardDetail>
-                      <span>Término:</span>
-                      <Highlight>{getFormatDate(lot.end_date)}</Highlight>
-                    </CardDetail>
-                    <CardDetail>
-                      <span>Faturamento:</span>
-                      <Highlight>
-                        R${' '}
-                        {lot.totalValue.toLocaleString('pt-BR', {
-                          minimumFractionDigits: 2,
-                          maximumFractionDigits: 2,
-                        })}
-                      </Highlight>
-                    </CardDetail>
-                    <CardDetail>
-                      <span>Vendas:</span>
-                      <Highlight>{lot.totalSold}</Highlight>
-                    </CardDetail>
-                  </Card>
-                ))}
-              </CardContainer>
-            </CardsGroup>
-          </CardsCountainer>
-          <CardTime>
-            <AccessTimeIcon color="primary" />
-            <TimeContainer>
-              <TimeContainerTitle>Faltam</TimeContainerTitle>
-              <TimeDiv>
-                <TimeResult>
-                  {remainingTime
-                    ? remainingTime.split(' ')[0].replace('d', '')
-                    : '--'}
-                </TimeResult>
-                <TimeTitle>Dias</TimeTitle>
-              </TimeDiv>
-              <TimeDiv>
-                <TimeResult>
-                  {remainingTime
-                    ? remainingTime.split(' ')[1].replace('h', '')
-                    : '--'}
-                </TimeResult>
-                <TimeTitle>Horas</TimeTitle>
-              </TimeDiv>
-              <TimeDiv>
-                <TimeResult>
-                  {remainingTime
-                    ? remainingTime.split(' ')[2].replace('m', '')
-                    : '--'}
-                </TimeResult>
-                <TimeTitle>Minutos</TimeTitle>
-              </TimeDiv>
-              <TimeDiv>
-                <TimeResult>
-                  {remainingTime
-                    ? remainingTime.split(' ')[3].replace('s', '')
-                    : '--'}
-                </TimeResult>
-                <TimeTitle>Segundos</TimeTitle>
-              </TimeDiv>
-              {/* <TimeContainerFooter>Para o evento começar!</TimeContainerFooter> */}
-            </TimeContainer>
-          </CardTime>
-        </LotsBoard>
+        <ActionsGrid>
+          <ActionCard onClick={() => handleCopy('/inscricoes/')}>
+            <ContentCopyRoundedIcon />
+            <ActionTitle>Link de inscricao</ActionTitle>
+            <ActionText>
+              Compartilhe a entrada publica do evento para acelerar conversao.
+            </ActionText>
+          </ActionCard>
+          <ActionCard onClick={() => handleCopy('/resultados/')}>
+            <QueryStatsRoundedIcon />
+            <ActionTitle>Resultados ao vivo</ActionTitle>
+            <ActionText>
+              Entregue um acesso direto ao painel publico de resultados por bateria.
+            </ActionText>
+          </ActionCard>
+          <ActionCard onClick={() => handleCopy('/rank/')}>
+            <EventAvailableRoundedIcon />
+            <ActionTitle>Ranking geral</ActionTitle>
+            <ActionText>
+              Gere o link do ranking consolidado para atletas, boxes e audiencia.
+            </ActionText>
+          </ActionCard>
+        </ActionsGrid>
 
-        <CategoryAndShirtsContainer>
-          <CategoryContainer>
-            <EventInformationsBoard>
-              <Card>
-                <PersonIcon color="primary" />
-                <CardDetail>
-                  <Highlight>{totalAthletes}</Highlight>
-                  <span>Atletas</span>
-                </CardDetail>
-              </Card>
-              <Card>
-                <GroupsIcon color="primary" />
-                <CardDetail>
-                  <Highlight>
-                    {eventsCategory.reduce(
-                      (total, category) => total + category.teams.length,
-                      0
-                    )}
-                  </Highlight>
-                  <span>Equipes</span>
-                </CardDetail>
-              </Card>
-              <Card>
-                <CategoryIcon color="primary" />
-                <CardDetail>
-                  <Highlight>{eventsCategory.length}</Highlight>
-                  <span>Categorias</span>
-                </CardDetail>
-              </Card>
-            </EventInformationsBoard>
-            <CardContainer>
-              {eventsCategory.map((category) => (
-                <CategoryCard key={category.id}>
-                  <CardDetail>
-                    <Highlight>{category.name} -</Highlight>
-
-                    <Highlight>{category.teams.length}</Highlight>
-                    <span>
-                      {category.teams.length > 1 ? 'Equipes' : 'Equipe'} -
-                    </span>
-                    <Highlight>
-                      {category.teams.reduce(
-                        (total, team) => total + team.athletes.length,
-                        0
-                      )}
-                    </Highlight>
-                    <span>Atletas</span>
-                  </CardDetail>
-
-                  {/* <CardDetail>
-                  <Highlight>{category.teams.length}</Highlight>
-                  <span>
-                    {category.teams.length > 1 ? 'Equipes' : 'Equipe'} -
-                  </span>
-                  <Highlight>{category.athlete_number}</Highlight>
-                  <span>Atletas</span>
-                </CardDetail> */}
-                </CategoryCard>
-              ))}
-            </CardContainer>
-          </CategoryContainer>
-          <ShirtsContainer>
-            <ShirtsInformationsBoard>
-              <Card>
-                <CheckroomIcon color="primary" />
-                <CardDetail>
-                  <Highlight>{totalShirts}</Highlight>
-                  <span>Camisas</span>
-                </CardDetail>
-              </Card>
-              <Card>
-                <BoyIcon color="primary" />
-                <CardDetail>
-                  <Highlight>{totalMaleShirts}</Highlight>
-                  <span>Masculinas</span>
-                </CardDetail>
-              </Card>
-              <Card>
-                <WomanIcon color="primary" />
-                <CardDetail>
-                  <Highlight>{totalFemaleShirts}</Highlight>
-                  <span>Femininas</span>
-                </CardDetail>
-              </Card>
-            </ShirtsInformationsBoard>
-
-            <Board>
-              <BoardTitle>Masculinas</BoardTitle>
-              <ResponsiveContainer width="100%" height={240}>
-                <BarChart
-                  width={400}
-                  height={200}
-                  data={shirts
-                    .filter((shirt) => shirt.gender === 'm')
-                    .map((shirt) => ({
-                      tamanho: shirt.shirt_size.toUpperCase(),
-                      quantidade: shirt.count,
-                    }))
-                    .sort(
-                      (a, b) =>
-                        shirtSizeOrder.indexOf(a.tamanho) -
-                        shirtSizeOrder.indexOf(b.tamanho)
-                    )}
-                >
-                  <XAxis dataKey="tamanho" />
-                  <YAxis
-                    allowDecimals={false}
-                    tickCount={
-                      Math.max(
-                        ...shirts
-                          .filter((shirt) => shirt.gender === 'f')
-                          .map((shirt) => shirt.count)
-                      ) + 1
-                    }
+        <DashboardGrid>
+          <Panel>
+            <PanelTitle>Performance comercial por lote</PanelTitle>
+            <PanelSubTitle>
+              Compare receita e volume para enxergar onde o evento ganhou tracao.
+            </PanelSubTitle>
+            {lotsWithTotal.length > 0 ? (
+              <ResponsiveContainer width="100%" height={320}>
+                <BarChart data={lotsWithTotal}>
+                  <XAxis dataKey="label" stroke="#9fb0c8" />
+                  <YAxis stroke="#9fb0c8" />
+                  <Tooltip
+                    contentStyle={{
+                      background: '#101826',
+                      border: '1px solid rgba(255,255,255,0.08)',
+                      borderRadius: 18,
+                    }}
                   />
-                  <Tooltip />
-                  <Bar dataKey="quantidade" fill="#f04c12" barSize={40} />
+                  <Bar dataKey="totalSold" fill="#f3722c" radius={[10, 10, 0, 0]} />
+                  <Bar dataKey="occupancy" fill="#f9c74f" radius={[10, 10, 0, 0]} />
                 </BarChart>
               </ResponsiveContainer>
-            </Board>
-            <Board>
-              <BoardTitle>Femininas</BoardTitle>
-              <ResponsiveContainer width="100%" height={240}>
-                <BarChart
-                  width={400}
-                  height={200}
-                  data={shirts
-                    .filter((shirt) => shirt.gender === 'f')
-                    .map((shirt) => ({
-                      tamanho: shirt.shirt_size.toUpperCase(),
-                      quantidade: shirt.count,
-                    }))
-                    .sort(
-                      (a, b) =>
-                        shirtSizeOrder.indexOf(a.tamanho) -
-                        shirtSizeOrder.indexOf(b.tamanho)
-                    )}
-                >
-                  <XAxis dataKey="tamanho" />
-                  <YAxis
-                    allowDecimals={false}
-                    tickCount={
-                      Math.max(
-                        ...shirts
-                          .filter((shirt) => shirt.gender === 'f')
-                          .map((shirt) => shirt.count)
-                      ) + 1
-                    }
+            ) : (
+              <EmptyState>Nenhum lote com movimentacao ainda.</EmptyState>
+            )}
+          </Panel>
+
+          <Panel>
+            <PanelTitle>Sinais rapidos</PanelTitle>
+            <PanelSubTitle>
+              Indicadores sinteticos para leitura operacional sem abrir outras telas.
+            </PanelSubTitle>
+            <MiniGrid>
+              <MiniCard>
+                <PaidRoundedIcon />
+                <MiniLabel>Melhor lote</MiniLabel>
+                <MiniValue>{strongestLot?.label || 'Sem dados'}</MiniValue>
+              </MiniCard>
+              <MiniCard>
+                <Groups2RoundedIcon />
+                <MiniLabel>Media por categoria</MiniLabel>
+                <MiniValue>
+                  {totalCategories > 0 ? Math.round(totalAthletes / totalCategories) : 0} atletas
+                </MiniValue>
+              </MiniCard>
+              <MiniCard>
+                <PaletteRoundedIcon />
+                <MiniLabel>Tamanho dominante</MiniLabel>
+                <MiniValue>{mostRequestedShirt?.name || 'Sem dados'}</MiniValue>
+              </MiniCard>
+              <MiniCard>
+                <QueryStatsRoundedIcon />
+                <MiniLabel>Conversao por lote</MiniLabel>
+                <MiniValue>{strongestLot?.occupancy || 0}%</MiniValue>
+              </MiniCard>
+            </MiniGrid>
+          </Panel>
+        </DashboardGrid>
+
+        <DashboardGrid>
+          <Panel>
+            <PanelTitle>Categorias com mais densidade</PanelTitle>
+            <PanelSubTitle>
+              Onde estao seus atletas e como isso se distribui entre os times.
+            </PanelSubTitle>
+            <List>
+              {categoryInsights.length > 0 ? (
+                categoryInsights
+                  .sort((a, b) => b.athletesCount - a.athletesCount)
+                  .slice(0, 5)
+                  .map((item) => (
+                    <ListItem key={item.name}>
+                      <div>
+                        <ListItemTitle>{item.name}</ListItemTitle>
+                        <ListItemMeta>
+                          {item.teamsCount} times • {item.athletesCount} atletas
+                        </ListItemMeta>
+                      </div>
+                      <ListItemMeta>{item.athlete_number} por equipe</ListItemMeta>
+                    </ListItem>
+                  ))
+              ) : (
+                <EmptyState>Sem categorias cadastradas para leitura.</EmptyState>
+              )}
+            </List>
+          </Panel>
+
+          <Panel>
+            <PanelTitle>Distribuicao de camisetas</PanelTitle>
+            <PanelSubTitle>
+              Antecipe estoque e producao com base nas preferencias atuais.
+            </PanelSubTitle>
+            {shirtInsights.some((item) => item.count > 0) ? (
+              <ResponsiveContainer width="100%" height={280}>
+                <BarChart data={shirtInsights} layout="vertical">
+                  <XAxis type="number" stroke="#9fb0c8" />
+                  <YAxis dataKey="name" type="category" stroke="#9fb0c8" />
+                  <Tooltip
+                    contentStyle={{
+                      background: '#101826',
+                      border: '1px solid rgba(255,255,255,0.08)',
+                      borderRadius: 18,
+                    }}
                   />
-                  <Tooltip />
-                  <Bar dataKey="quantidade" fill="#f04c12" barSize={40} />
+                  <Bar dataKey="count" fill="#90be6d" radius={[0, 10, 10, 0]} />
                 </BarChart>
               </ResponsiveContainer>
-            </Board>
-          </ShirtsContainer>
-        </CategoryAndShirtsContainer>
+            ) : (
+              <EmptyState>Sem pedidos de camiseta o suficiente para leitura.</EmptyState>
+            )}
+          </Panel>
+        </DashboardGrid>
       </Content>
     </Container>
   );

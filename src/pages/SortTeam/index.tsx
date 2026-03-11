@@ -1,4 +1,13 @@
 import React, { useState, useEffect } from 'react';
+import {
+  Box,
+  Button,
+  Chip,
+  Paper,
+  Stack,
+  TextField,
+  Typography,
+} from '@mui/material';
 
 // Define the types for Player and Team
 type Player = {
@@ -118,78 +127,190 @@ const SortTeam: React.FC = () => {
   };
 
   return (
-    <div
-      style={{
-        padding: '20px',
-        fontFamily: 'Arial, sans-serif',
-        backgroundColor: '#FFFFFF',
+    <Box
+      sx={{
         minHeight: '100vh',
-        margin: '0',
+        p: { xs: 2, md: 3 },
+        color: 'var(--text-primary)',
       }}
     >
-      <h1>SortTeam</h1>
-      <div>
-        <input
-          type="text"
-          placeholder="Add Player Name"
-          value={playerName}
-          onChange={(e) => setPlayerName(e.target.value)}
-        />
-        <button onClick={addPlayer}>Add Player</button>
-      </div>
-      <div>
-        <textarea
-          placeholder="Paste your player list here"
-          value={bulkNames}
-          onChange={(e) => setBulkNames(e.target.value)}
-          style={{ width: '100%', height: '100px', marginTop: '10px' }}
-        />
-        <button onClick={addPlayersInBulk} style={{ marginTop: '10px' }}>
-          Add Players from List
-        </button>
-      </div>
-      <h2>Players</h2>
-      <ul>
-        {players.map((player, index) => (
-          <li key={player.id}>
-            {index + 1}- {player.name}:
-            <button onClick={() => updateRating(player.id, -1)}>-</button>
-            {player.rating}
-            <button onClick={() => updateRating(player.id, 1)}>+</button>
-            {' => '}
-            <button onClick={() => deletePlayer(player.id)}>Delete</button>
-          </li>
-        ))}
-      </ul>
-      <button onClick={resetPlayers}>Reset Players</button>
-      <h2>Sort Teams</h2>
-      <div>
-        <input
-          type="number"
-          min="2"
-          value={numTeams}
-          onChange={(e) => setNumTeams(Number(e.target.value))}
-        />
-        <button onClick={sortTeams}>Sort Teams</button>
-      </div>
-      <h2>Teams</h2>
-      {teams.map((team, index) => (
-        <div key={index}>
-          <h3>Team {index + 1}</h3>
-          <ul>
-            {team.map((player) => (
-              <li key={player.id}>
-                {player.name} - Rating: {player.rating}
-              </li>
-            ))}
-          </ul>
-          <p>
-            <strong>Total Rating:</strong>{' '}
-            {team.reduce((sum, player) => sum + player.rating, 0)}
-          </p>
-        </div>
-      ))}
-    </div>
+      <Box
+        sx={{
+          width: 'min(1100px, 100%)',
+          mx: 'auto',
+          display: 'grid',
+          gap: 2,
+        }}
+      >
+        <Paper
+          sx={{
+            p: { xs: 2, md: 3 },
+            borderRadius: '28px',
+            background:
+              'linear-gradient(180deg, rgba(13,21,33,0.92), rgba(9,14,23,0.96))',
+            border: '1px solid rgba(255,255,255,0.08)',
+            boxShadow: '0 28px 80px rgba(0,0,0,0.34)',
+          }}
+        >
+          <Typography variant="overline" sx={{ color: 'var(--text-muted)' }}>
+            Pelada tools
+          </Typography>
+          <Typography variant="h3">Montador de times equilibrados</Typography>
+          <Typography sx={{ color: 'var(--text-secondary)', mt: 1.5 }}>
+            Adicione atletas, ajuste a forca de cada um e distribua em equipes
+            com equilibrio de rating.
+          </Typography>
+
+          <Stack direction={{ xs: 'column', md: 'row' }} spacing={2} mt={3}>
+            <TextField
+              fullWidth
+              label="Nome do jogador"
+              value={playerName}
+              onChange={(e) => setPlayerName(e.target.value)}
+            />
+            <Button variant="contained" onClick={addPlayer}>
+              Adicionar jogador
+            </Button>
+          </Stack>
+
+          <TextField
+            fullWidth
+            multiline
+            minRows={6}
+            label="Lista em bloco"
+            value={bulkNames}
+            onChange={(e) => setBulkNames(e.target.value)}
+            sx={{ mt: 2 }}
+          />
+
+          <Stack direction={{ xs: 'column', md: 'row' }} spacing={2} mt={2}>
+            <TextField
+              type="number"
+              label="Numero de times"
+              inputProps={{ min: 2 }}
+              value={numTeams}
+              onChange={(e) => setNumTeams(Number(e.target.value))}
+              sx={{ maxWidth: 200 }}
+            />
+            <Button variant="outlined" onClick={addPlayersInBulk}>
+              Importar lista
+            </Button>
+            <Button variant="contained" onClick={sortTeams}>
+              Sortear equipes
+            </Button>
+            <Button variant="text" onClick={resetPlayers}>
+              Limpar tudo
+            </Button>
+          </Stack>
+        </Paper>
+
+        <Stack direction={{ xs: 'column', lg: 'row' }} spacing={2}>
+          <Paper
+            sx={{
+              flex: 1,
+              p: 2.5,
+              borderRadius: '24px',
+              background: 'rgba(13,21,33,0.9)',
+              border: '1px solid rgba(255,255,255,0.08)',
+            }}
+          >
+            <Typography variant="h5" mb={2}>
+              Jogadores
+            </Typography>
+            <Stack spacing={1.2}>
+              {players.map((player, index) => (
+                <Stack
+                  key={player.id}
+                  direction={{ xs: 'column', md: 'row' }}
+                  spacing={1}
+                  alignItems={{ xs: 'flex-start', md: 'center' }}
+                  justifyContent="space-between"
+                  sx={{
+                    p: 1.5,
+                    borderRadius: '18px',
+                    background: 'rgba(255,255,255,0.04)',
+                    border: '1px solid rgba(255,255,255,0.06)',
+                  }}
+                >
+                  <Box>
+                    <Typography fontWeight={700}>
+                      {index + 1}. {player.name}
+                    </Typography>
+                    <Typography variant="body2" sx={{ color: 'var(--text-secondary)' }}>
+                      Rating atual: {player.rating}
+                    </Typography>
+                  </Box>
+                  <Stack direction="row" spacing={1} alignItems="center">
+                    <Button size="small" variant="outlined" onClick={() => updateRating(player.id, -1)}>
+                      -
+                    </Button>
+                    <Chip label={player.rating} />
+                    <Button size="small" variant="outlined" onClick={() => updateRating(player.id, 1)}>
+                      +
+                    </Button>
+                    <Button size="small" color="error" onClick={() => deletePlayer(player.id)}>
+                      Excluir
+                    </Button>
+                  </Stack>
+                </Stack>
+              ))}
+              {players.length === 0 && (
+                <Typography sx={{ color: 'var(--text-secondary)' }}>
+                  Nenhum jogador adicionado ainda.
+                </Typography>
+              )}
+            </Stack>
+          </Paper>
+
+          <Paper
+            sx={{
+              flex: 1,
+              p: 2.5,
+              borderRadius: '24px',
+              background: 'rgba(13,21,33,0.9)',
+              border: '1px solid rgba(255,255,255,0.08)',
+            }}
+          >
+            <Typography variant="h5" mb={2}>
+              Times sorteados
+            </Typography>
+            <Stack spacing={1.5}>
+              {teams.map((team, index) => (
+                <Box
+                  key={index}
+                  sx={{
+                    p: 2,
+                    borderRadius: '20px',
+                    background:
+                      'linear-gradient(135deg, rgba(243,114,44,0.14), rgba(255,255,255,0.04))',
+                    border: '1px solid rgba(255,255,255,0.08)',
+                  }}
+                >
+                  <Typography variant="h6">Time {index + 1}</Typography>
+                  <Typography sx={{ color: 'var(--text-secondary)', mb: 1 }}>
+                    Rating total: {team.reduce((sum, player) => sum + player.rating, 0)}
+                  </Typography>
+                  <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>
+                    {team.map((player) => (
+                      <Chip
+                        key={player.id}
+                        label={`${player.name} · ${player.rating}`}
+                        sx={{ background: 'rgba(255,255,255,0.08)', color: '#fff' }}
+                      />
+                    ))}
+                  </Stack>
+                </Box>
+              ))}
+              {teams.length === 0 && (
+                <Typography sx={{ color: 'var(--text-secondary)' }}>
+                  Gere os times para visualizar a distribuicao.
+                </Typography>
+              )}
+            </Stack>
+          </Paper>
+        </Stack>
+      </Box>
+    </Box>
   );
 };
 
