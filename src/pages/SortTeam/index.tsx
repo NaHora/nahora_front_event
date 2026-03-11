@@ -290,7 +290,13 @@ const SortTeam: React.FC = () => {
                   <Typography sx={{ color: 'var(--text-secondary)', mb: 1 }}>
                     Rating total: {team.reduce((sum, player) => sum + player.rating, 0)}
                   </Typography>
-                  <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>
+                  <Box
+                    sx={{
+                      display: 'flex',
+                      flexWrap: 'wrap',
+                      gap: 1,
+                    }}
+                  >
                     {team.map((player) => (
                       <Chip
                         key={player.id}
@@ -298,7 +304,7 @@ const SortTeam: React.FC = () => {
                         sx={{ background: 'rgba(255,255,255,0.08)', color: '#fff' }}
                       />
                     ))}
-                  </Stack>
+                  </Box>
                 </Box>
               ))}
               {teams.length === 0 && (
