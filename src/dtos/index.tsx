@@ -59,6 +59,7 @@ export interface CategoryByEventDTO {
   id: string;
   athlete_number: number;
   name: string;
+  teams_limit?: number | null;
   teams: TeamsDTO[];
 }
 export interface TeamsDTO {

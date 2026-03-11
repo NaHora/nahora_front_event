@@ -70,6 +70,8 @@ type CategoryDTO = {
   event_id?: string;
   athlete_number: number;
   active: boolean;
+  teams_limit?: number | null;
+  teams?: { id: string }[];
 };
 
 interface StateProps {
@@ -90,6 +92,7 @@ export const Category = () => {
     event_id: '',
     athlete_number: 1,
     active: true,
+    teams_limit: null,
   });
   const [drawerType, setDrawerType] = useState('');
   const { currentEvent } = useEvent();
@@ -101,6 +104,7 @@ export const Category = () => {
         name: item?.name,
         athlete_number: item?.athlete_number,
         active: item?.active,
+        teams_limit: item?.teams_limit ?? null,
       });
       setDrawerType(drawerType);
       setIsDrawerOpen(true);
@@ -108,6 +112,9 @@ export const Category = () => {
       setValues({
         ...values,
         name: '',
+        athlete_number: 1,
+        active: true,
+        teams_limit: null,
       });
       setDrawerType(drawerType);
       setIsDrawerOpen(true);
@@ -142,6 +149,12 @@ export const Category = () => {
         athlete_number: Yup.number().required(
           'Número de atletas da categoria obrigatório'
         ),
+        teams_limit: Yup.number()
+          .nullable()
+          .transform((value, originalValue) =>
+            originalValue === '' || originalValue === null ? null : value
+          )
+          .min(1, 'O limite deve ser maior que zero'),
       });
 
       await schema.validate(values, {
@@ -153,6 +166,7 @@ export const Category = () => {
         event_id: currentEvent,
         athlete_number: values?.athlete_number,
         active: values?.active,
+        teams_limit: values?.teams_limit,
       };
 
       const response = await api.post(`/category`, body);
@@ -182,6 +196,12 @@ export const Category = () => {
       athlete_number: Yup.number().required(
         'Número de atletas da categoria obrigatório'
       ),
+      teams_limit: Yup.number()
+        .nullable()
+        .transform((value, originalValue) =>
+          originalValue === '' || originalValue === null ? null : value
+        )
+        .min(1, 'O limite deve ser maior que zero'),
     });
 
     await schema.validate(values, {
@@ -190,13 +210,14 @@ export const Category = () => {
 
     setLoading(true);
     try {
-      const { name, id, athlete_number, active } = values;
+      const { name, id, athlete_number, active, teams_limit } = values;
 
       const body = {
         name: name,
         categoryId: id,
         athlete_number,
         active,
+        teams_limit,
       };
 
       await api.put('/category', body);
@@ -337,6 +358,33 @@ export const Category = () => {
                 },
               }}
             />
+            <InputLabel>Limite de inscrições</InputLabel>
+            <TextField
+              id="outlined-basic"
+              label=""
+              size="small"
+              onChange={(e) =>
+                setValues({
+                  ...values,
+                  teams_limit: e.target.value === '' ? null : Number(e.target.value),
+                })
+              }
+              type="number"
+              value={values.teams_limit ?? ''}
+              error={errors.teams_limit}
+              variant="outlined"
+              helperText={errors.teams_limit || 'Deixe em branco para ilimitado'}
+              sx={{
+                width: '100%',
+                borderRadius: '10px',
+              }}
+              InputProps={{
+                style: {
+                  borderRadius: '10px',
+                  backgroundColor: '#121214',
+                },
+              }}
+            />
             <FormControlLabel
               control={
                 <Checkbox
@@ -385,6 +433,7 @@ export const Category = () => {
                 name: '',
                 athlete_number: 1,
                 active: true,
+                teams_limit: null,
               })
             }
           >
@@ -398,6 +447,7 @@ export const Category = () => {
               <Tr>
                 <Th>Categoria</Th>
                 <Th>Atletas</Th>
+                <Th>Limite</Th>
                 <Th>Inscricão</Th>
                 <Th style={{ textAlign: 'center' }}>Ações</Th>
               </Tr>
@@ -414,6 +464,9 @@ export const Category = () => {
                   </Td>
                   <Td>
                     <PairName>{category?.athlete_number}</PairName>
+                  </Td>
+                  <Td>
+                    <PairName>{category?.teams_limit ?? 'Ilimitado'}</PairName>
                   </Td>
                   <Td>
                     <PairName>

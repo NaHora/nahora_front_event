@@ -75,6 +75,14 @@ type FormData = {
   athletes: Athlete[];
 };
 
+type CategoryDTO = {
+  id: string;
+  name: string;
+  athlete_number: number;
+  teams_limit?: number | null;
+  teams?: { id: string }[];
+};
+
 export const CreateAccount = () => {
   const { eventId } = useParams<{ eventId: string }>();
 
@@ -82,7 +90,7 @@ export const CreateAccount = () => {
   const [loading, setLoading] = useState(false);
   const [loadingCategory, setLoadingCategory] = useState(false);
   const [pix, setPix] = useState({ qrCode: '', qrCodeUrl: '' });
-  const [categories, setCategories] = useState([] as any);
+  const [categories, setCategories] = useState<CategoryDTO[]>([]);
   const [formData, setFormData] = useState<FormData>(() => {
     const savedData = localStorage.getItem('athleteData');
     return savedData
@@ -171,7 +179,7 @@ export const CreateAccount = () => {
   }, []);
 
   const handleCategoryChange = (categoryId: string) => {
-    const category_id = categories.find((cat: any) => cat.id === categoryId);
+    const category_id = categories.find((cat) => cat.id === categoryId);
 
     if (category_id) {
       const athleteNumber = category_id.athlete_number;
@@ -192,6 +200,14 @@ export const CreateAccount = () => {
         athletes,
       }));
     }
+  };
+
+  const isCategoryFull = (category: CategoryDTO) => {
+    if (!category.teams_limit) {
+      return false;
+    }
+
+    return (category.teams?.length || 0) >= category.teams_limit;
   };
 
   const validationSchemas: Record<number, Yup.AnySchema> = {
@@ -463,9 +479,14 @@ export const CreateAccount = () => {
                   error={!!errors.category_id}
                   helperText={errors.category_id}
                 >
-                  {categories.map((category: any) => (
-                    <MenuItem key={category.id} value={category.id}>
+                  {categories.map((category) => (
+                    <MenuItem
+                      key={category.id}
+                      value={category.id}
+                      disabled={isCategoryFull(category)}
+                    >
                       {category.name}
+                      {isCategoryFull(category) ? ' (Esgotada)' : ''}
                     </MenuItem>
                   ))}
                 </TextField>
