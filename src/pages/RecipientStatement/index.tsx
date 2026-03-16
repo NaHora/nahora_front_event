@@ -27,29 +27,39 @@ interface StatementOperation {
   created_at?: string;
 }
 
+interface RecipientBalance {
+  available?: { amount?: number };
+}
+
 export const RecipientStatement = () => {
   const [loading, setLoading] = useState(false);
   const [withdrawing, setWithdrawing] = useState(false);
   const [amount, setAmount] = useState('');
+  const [availableBalance, setAvailableBalance] = useState(0);
   const [operations, setOperations] = useState<StatementOperation[]>([]);
 
-  const getStatement = async () => {
+  const loadRecipientData = async () => {
     setLoading(true);
     try {
-      const response = await api.get('/enterprises/recipient/statement', {
-        params: { page: 1, size: 100 },
-      });
+      const [balanceResponse, withdrawalsResponse] = await Promise.all([
+        api.get<RecipientBalance>('/enterprises/recipient/balance'),
+        api.get('/enterprises/recipient/withdrawals', {
+          params: { page: 1, size: 100 },
+        }),
+      ]);
 
-      if (Array.isArray(response.data?.data)) {
-        setOperations(response.data.data);
-      } else if (Array.isArray(response.data)) {
-        setOperations(response.data);
+      setAvailableBalance(Number(balanceResponse.data?.available?.amount || 0));
+
+      if (Array.isArray(withdrawalsResponse.data?.data)) {
+        setOperations(withdrawalsResponse.data.data);
+      } else if (Array.isArray(withdrawalsResponse.data)) {
+        setOperations(withdrawalsResponse.data);
       } else {
         setOperations([]);
       }
     } catch (error: any) {
       toast.error(
-        error?.response?.data?.message || 'Erro ao carregar extrato do recebedor.',
+        error?.response?.data?.message || 'Erro ao carregar dados do recebedor.',
       );
     } finally {
       setLoading(false);
@@ -57,7 +67,7 @@ export const RecipientStatement = () => {
   };
 
   useEffect(() => {
-    getStatement();
+    loadRecipientData();
   }, []);
 
   const handleWithdraw = async (event: React.FormEvent<HTMLFormElement>) => {
@@ -78,7 +88,7 @@ export const RecipientStatement = () => {
 
       toast.success('Solicitação de saque criada com sucesso.');
       setAmount('');
-      getStatement();
+      loadRecipientData();
     } catch (error: any) {
       toast.error(error?.response?.data?.message || 'Erro ao solicitar saque.');
     } finally {
@@ -113,7 +123,7 @@ export const RecipientStatement = () => {
             Extrato do recebedor
           </Typography>
           <Typography variant="body1">
-            Total no período carregado: {formatCurrencyFromCents(totalAmount)}
+            Saldo disponível: {formatCurrencyFromCents(availableBalance)} | Total de saques carregados: {formatCurrencyFromCents(totalAmount)}
           </Typography>
         </Header>
 
@@ -140,10 +150,10 @@ export const RecipientStatement = () => {
           <Button
             variant="outlined"
             color="primary"
-            onClick={getStatement}
+            onClick={loadRecipientData}
             disabled={loading}
           >
-            Atualizar extrato
+            Atualizar dados
           </Button>
         </WithdrawForm>
 
