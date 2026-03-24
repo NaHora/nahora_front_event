@@ -35,8 +35,8 @@ export const Container = styled.div`
 `;
 
 export const EventImage = styled.img`
-  width: min(100%, 320px);
-  max-height: 120px;
+  width: min(100%, 420px);
+  max-height: 160px;
   object-fit: contain;
 `;
 

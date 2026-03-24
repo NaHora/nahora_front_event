@@ -26,8 +26,8 @@ export const Container = styled.div`
 `;
 
 export const EventImage = styled.img`
-  width: min(100%, 280px);
-  max-height: 108px;
+  width: min(100%, 380px);
+  max-height: 140px;
   object-fit: contain;
   filter: drop-shadow(0 18px 35px rgba(0, 0, 0, 0.35));
 `;

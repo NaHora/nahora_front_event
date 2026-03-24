@@ -110,8 +110,8 @@ const Navbar: React.FC = () => {
           </IconButton>
           <Box
             sx={{
-              width: 42,
-              height: 42,
+              width: 60,
+              height: 60,
               borderRadius: '14px',
               overflow: 'hidden',
               background: 'rgba(255,255,255,0.05)',
@@ -123,7 +123,7 @@ const Navbar: React.FC = () => {
               component="img"
               src={eventLogo}
               alt="Evento"
-              sx={{ width: '100%', height: '100%', objectFit: 'contain', p: 0.5 }}
+              sx={{ width: '100%', height: '100%', objectFit: 'contain', p: 0.75 }}
             />
           </Box>
           <Box>
