@@ -52,7 +52,7 @@ interface RecipientBalance {
   waiting_funds?: { amount?: number };
 }
 
-const WITHDRAWAL_FEE_CENTS = 357;
+const WITHDRAWAL_FEE_CENTS = 367;
 
 export const RecipientStatement = () => {
   const [loading, setLoading] = useState(false);
