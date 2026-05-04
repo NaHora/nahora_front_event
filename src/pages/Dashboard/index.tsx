@@ -5,7 +5,15 @@ import Groups2RoundedIcon from '@mui/icons-material/Groups2Rounded';
 import PaidRoundedIcon from '@mui/icons-material/PaidRounded';
 import PaletteRoundedIcon from '@mui/icons-material/PaletteRounded';
 import QueryStatsRoundedIcon from '@mui/icons-material/QueryStatsRounded';
-import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip } from 'recharts';
+import {
+  ResponsiveContainer,
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  Tooltip,
+  Legend,
+} from 'recharts';
 import { toast } from 'react-toastify';
 import api from '../../services/api';
 import { useEvent } from '../../contexts/EventContext';
@@ -149,15 +157,48 @@ export const Dashboard = () => {
     [eventsCategory]
   );
 
+  const shirtSizes = ['P', 'M', 'G', 'GG'];
+
   const shirtInsights = useMemo(
     () =>
-      ['P', 'M', 'G', 'GG'].map((size) => ({
-        name: size,
-        count: shirts
-          .filter((shirt) => shirt.shirt_size === size)
-          .reduce((total, shirt) => total + Number(shirt.count || 0), 0),
-      })),
+      shirtSizes.map((size) => {
+        const masculino = shirts
+          .filter(
+            (shirt) =>
+              shirt.shirt_size === size &&
+              (shirt.gender === 'm' || shirt.gender === 'M')
+          )
+          .reduce((total, shirt) => total + Number(shirt.count || 0), 0);
+        const feminino = shirts
+          .filter(
+            (shirt) =>
+              shirt.shirt_size === size &&
+              (shirt.gender === 'f' || shirt.gender === 'F')
+          )
+          .reduce((total, shirt) => total + Number(shirt.count || 0), 0);
+
+        return {
+          name: size,
+          masculino,
+          feminino,
+          count: masculino + feminino,
+        };
+      }),
     [shirts]
+  );
+
+  const shirtTotals = useMemo(
+    () =>
+      shirtInsights.reduce(
+        (acc, item) => {
+          acc.masculino += item.masculino;
+          acc.feminino += item.feminino;
+          acc.total += item.count;
+          return acc;
+        },
+        { masculino: 0, feminino: 0, total: 0 }
+      ),
+    [shirtInsights]
   );
 
   const totalSales = lotsWithTotal.reduce((sum, lot) => sum + lot.totalSold, 0);
@@ -168,6 +209,9 @@ export const Dashboard = () => {
   const topCategory = [...categoryInsights].sort((a, b) => b.athletesCount - a.athletesCount)[0];
   const strongestLot = [...lotsWithTotal].sort((a, b) => b.totalSold - a.totalSold)[0];
   const mostRequestedShirt = [...shirtInsights].sort((a, b) => b.count - a.count)[0];
+  const mostRequestedShirtLabel = mostRequestedShirt
+    ? `${mostRequestedShirt.name} (M ${mostRequestedShirt.masculino} / F ${mostRequestedShirt.feminino})`
+    : 'Sem dados';
 
   const handleCopy = async (link: string) => {
     try {
@@ -310,7 +354,7 @@ export const Dashboard = () => {
               <MiniCard>
                 <PaletteRoundedIcon />
                 <MiniLabel>Tamanho dominante</MiniLabel>
-                <MiniValue>{mostRequestedShirt?.name || 'Sem dados'}</MiniValue>
+                <MiniValue>{mostRequestedShirtLabel}</MiniValue>
               </MiniCard>
               <MiniCard>
                 <QueryStatsRoundedIcon />
@@ -352,23 +396,63 @@ export const Dashboard = () => {
           <Panel>
             <PanelTitle>Distribuicao de camisetas</PanelTitle>
             <PanelSubTitle>
-              Antecipe estoque e producao com base nas preferencias atuais.
+              Antecipe estoque e producao com base nas preferencias atuais por
+              genero e tamanho.
             </PanelSubTitle>
             {shirtInsights.some((item) => item.count > 0) ? (
-              <ResponsiveContainer width="100%" height={280}>
-                <BarChart data={shirtInsights} layout="vertical">
-                  <XAxis type="number" stroke="#9fb0c8" />
-                  <YAxis dataKey="name" type="category" stroke="#9fb0c8" />
-                  <Tooltip
-                    contentStyle={{
-                      background: '#101826',
-                      border: '1px solid rgba(255,255,255,0.08)',
-                      borderRadius: 18,
-                    }}
-                  />
-                  <Bar dataKey="count" fill="#90be6d" radius={[0, 10, 10, 0]} />
-                </BarChart>
-              </ResponsiveContainer>
+              <>
+                <ResponsiveContainer width="100%" height={280}>
+                  <BarChart data={shirtInsights} layout="vertical">
+                    <XAxis type="number" stroke="#9fb0c8" allowDecimals={false} />
+                    <YAxis dataKey="name" type="category" stroke="#9fb0c8" />
+                    <Tooltip
+                      contentStyle={{
+                        background: '#101826',
+                        border: '1px solid rgba(255,255,255,0.08)',
+                        borderRadius: 18,
+                      }}
+                    />
+                    <Legend />
+                    <Bar
+                      dataKey="masculino"
+                      name="Masculino"
+                      fill="#4cc9f0"
+                      radius={[0, 10, 10, 0]}
+                    />
+                    <Bar
+                      dataKey="feminino"
+                      name="Feminino"
+                      fill="#f72585"
+                      radius={[0, 10, 10, 0]}
+                    />
+                  </BarChart>
+                </ResponsiveContainer>
+                <List>
+                  {shirtInsights
+                    .filter((item) => item.count > 0)
+                    .map((item) => (
+                      <ListItem key={item.name}>
+                        <div>
+                          <ListItemTitle>Tamanho {item.name}</ListItemTitle>
+                          <ListItemMeta>
+                            Masculino {item.masculino} • Feminino {item.feminino}
+                          </ListItemMeta>
+                        </div>
+                        <ListItemMeta>{item.count} no total</ListItemMeta>
+                      </ListItem>
+                    ))}
+                  <ListItem>
+                    <div>
+                      <ListItemTitle>Total geral</ListItemTitle>
+                      <ListItemMeta>
+                        Masculino {shirtTotals.masculino} • Feminino{' '}
+                        {shirtTotals.feminino}
+                      </ListItemMeta>
+                    </div>
+                    <ListItemMeta>{shirtTotals.total} pedidos</ListItemMeta>
+                  </ListItem>
+                </List>
+              </>
             ) : (
               <EmptyState>Sem pedidos de camiseta o suficiente para leitura.</EmptyState>
             )}

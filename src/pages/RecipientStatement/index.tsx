@@ -1,5 +1,13 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Box, Button, CircularProgress, TextField, Typography } from '@mui/material';
+import {
+  Box,
+  Button,
+  Checkbox,
+  CircularProgress,
+  FormControlLabel,
+  TextField,
+  Typography,
+} from '@mui/material';
 import { NumericFormat } from 'react-number-format';
 import { toast } from 'react-toastify';
 
@@ -10,6 +18,7 @@ import {
   Container,
   Content,
   DisclaimerBox,
+  FilterBar,
   Header,
   HeaderEyebrow,
   HeaderSubtitle,
@@ -61,6 +70,9 @@ export const RecipientStatement = () => {
   const [availableBalance, setAvailableBalance] = useState(0);
   const [waitingFundsBalance, setWaitingFundsBalance] = useState(0);
   const [operations, setOperations] = useState<StatementOperation[]>([]);
+  const [startDate, setStartDate] = useState('');
+  const [endDate, setEndDate] = useState('');
+  const [onlySuccess, setOnlySuccess] = useState(false);
 
   const formatCurrencyFromCents = (value?: number): string => {
     const raw = Number(value || 0);
@@ -116,12 +128,44 @@ export const RecipientStatement = () => {
     loadRecipientData();
   }, []);
 
+  const isSuccessStatus = (value?: string) => {
+    const normalized = (value || '').toLowerCase();
+    return (
+      normalized === 'paid' ||
+      normalized === 'processed' ||
+      normalized === 'success'
+    );
+  };
+
+  const filteredOperations = useMemo(() => {
+    const startBoundary = startDate ? new Date(`${startDate}T00:00:00`) : null;
+    const endBoundary = endDate ? new Date(`${endDate}T23:59:59.999`) : null;
+
+    return operations.filter((operation) => {
+      if (onlySuccess && !isSuccessStatus(operation.status)) return false;
+
+      if (startBoundary || endBoundary) {
+        if (!operation.created_at) return false;
+        const operationDate = new Date(operation.created_at);
+        if (startBoundary && operationDate < startBoundary) return false;
+        if (endBoundary && operationDate > endBoundary) return false;
+      }
+
+      return true;
+    });
+  }, [operations, startDate, endDate, onlySuccess]);
+
   const totalAmount = useMemo(() => {
-    return operations.reduce((sum, operation) => {
+    return filteredOperations.reduce((sum, operation) => {
       const current = Number(operation.amount || 0);
       return sum + (Number.isNaN(current) ? 0 : current);
     }, 0);
-  }, [operations]);
+  }, [filteredOperations]);
+
+  const isInvalidRange = useMemo(
+    () => Boolean(startDate && endDate && new Date(endDate) < new Date(startDate)),
+    [startDate, endDate],
+  );
 
   const totalMappedBalance = useMemo(() => {
     return availableBalance + waitingFundsBalance;
@@ -270,7 +314,8 @@ export const RecipientStatement = () => {
             <SummaryLabel>Saques carregados</SummaryLabel>
             <SummaryValue>{formatCurrencyFromCents(totalAmount)}</SummaryValue>
             <SummaryDescription>
-              Total das movimentações listadas no extrato atual.
+              Total das movimentações filtradas ({filteredOperations.length}{' '}
+              {filteredOperations.length === 1 ? 'registro' : 'registros'}).
             </SummaryDescription>
           </SummaryCard>
         </SummaryGrid>
@@ -364,6 +409,56 @@ export const RecipientStatement = () => {
           </DisclaimerBox>
         </WithdrawForm>
 
+        <FilterBar>
+          <TextField
+            label="Data inicial"
+            type="date"
+            size="small"
+            InputLabelProps={{ shrink: true }}
+            value={startDate}
+            onChange={(event) => setStartDate(event.target.value)}
+            error={isInvalidRange}
+            helperText={isInvalidRange ? 'Intervalo inválido' : ' '}
+          />
+          <TextField
+            label="Data final"
+            type="date"
+            size="small"
+            InputLabelProps={{ shrink: true }}
+            value={endDate}
+            onChange={(event) => setEndDate(event.target.value)}
+            error={isInvalidRange}
+            helperText={isInvalidRange ? 'Intervalo inválido' : ' '}
+          />
+          <FormControlLabel
+            control={
+              <Checkbox
+                checked={onlySuccess}
+                onChange={(event) => setOnlySuccess(event.target.checked)}
+                sx={{ color: 'rgba(255,255,255,0.6)' }}
+              />
+            }
+            label="Apenas saques com sucesso"
+            sx={{ color: 'var(--text-secondary)' }}
+          />
+          <Box sx={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>
+            {filteredOperations.length} de {operations.length}{' '}
+            {operations.length === 1 ? 'movimento' : 'movimentos'}
+          </Box>
+          <Button
+            variant="outlined"
+            color="primary"
+            onClick={() => {
+              setStartDate('');
+              setEndDate('');
+              setOnlySuccess(false);
+            }}
+            disabled={!startDate && !endDate && !onlySuccess}
+          >
+            Limpar filtros
+          </Button>
+        </FilterBar>
+
         {loading ? (
           <Box sx={{ display: 'flex', justifyContent: 'center', py: 6 }}>
             <CircularProgress />
@@ -381,13 +476,17 @@ export const RecipientStatement = () => {
                 </Tr>
               </Thead>
               <tbody>
-                {operations.length === 0 && (
+                {filteredOperations.length === 0 && (
                   <Tr>
-                    <Td colSpan={5}>Nenhuma movimentação encontrada.</Td>
+                    <Td colSpan={5}>
+                      {operations.length === 0
+                        ? 'Nenhuma movimentação encontrada.'
+                        : 'Nenhuma movimentação corresponde aos filtros aplicados.'}
+                    </Td>
                   </Tr>
                 )}
 
-                {operations.map(operation => (
+                {filteredOperations.map(operation => (
                   <Tr key={operation.id || `${operation.type}-${operation.created_at}`}>
                     <Td>{getOperationTypeLabel(operation.type)}</Td>
                     <Td>

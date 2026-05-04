@@ -117,14 +117,7 @@ export const Payments = () => {
   };
 
   const getTotalPayments = () => {
-    return teamList
-      .filter(
-        (team) =>
-          team.active &&
-          (categoryFiltered !== 'all'
-            ? team.category_id === categoryFiltered
-            : true)
-      )
+    return filteredTeams
       .reduce((total, team) => {
         const paymentAmount = getPaymentAmount(team);
         return total + paymentAmount;
@@ -164,8 +157,14 @@ export const Payments = () => {
           : null;
         if (!teamPaymentDate) return false;
 
-        if (startDate && teamPaymentDate < new Date(startDate)) return false;
-        if (endDate && teamPaymentDate > new Date(endDate)) return false;
+        if (startDate) {
+          const startBoundary = new Date(`${startDate}T00:00:00`);
+          if (teamPaymentDate < startBoundary) return false;
+        }
+        if (endDate) {
+          const endBoundary = new Date(`${endDate}T23:59:59.999`);
+          if (teamPaymentDate > endBoundary) return false;
+        }
       }
 
       return true;

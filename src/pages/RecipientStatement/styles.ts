@@ -232,6 +232,24 @@ export const DisclaimerBox = styled.div`
   line-height: 1.6;
 `;
 
+export const FilterBar = styled.div`
+  ${surface};
+  border-radius: 22px;
+  padding: 16px;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr)) auto;
+  gap: 12px;
+  align-items: end;
+
+  @media only screen and (max-width: 1080px) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  @media only screen and (max-width: 640px) {
+    grid-template-columns: 1fr;
+  }
+`;
+
 export const TableContainer = styled.div`
   width: 100%;
   overflow-x: auto;
