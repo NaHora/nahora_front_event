@@ -309,7 +309,8 @@ export const StatusBadge = styled.span<{ $status?: string }>`
   ${({ $status }) =>
     ($status || '').toLowerCase() === 'paid' ||
     ($status || '').toLowerCase() === 'success' ||
-    ($status || '').toLowerCase() === 'processed'
+    ($status || '').toLowerCase() === 'processed' ||
+    ($status || '').toLowerCase() === 'transferred'
       ? `
         color: #8ff0b3;
         background: rgba(43, 214, 123, 0.12);

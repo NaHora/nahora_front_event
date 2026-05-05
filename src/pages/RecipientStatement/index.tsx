@@ -133,7 +133,8 @@ export const RecipientStatement = () => {
     return (
       normalized === 'paid' ||
       normalized === 'processed' ||
-      normalized === 'success'
+      normalized === 'success' ||
+      normalized === 'transferred'
     );
   };
 
@@ -217,6 +218,7 @@ export const RecipientStatement = () => {
     if (normalized === 'paid') return 'Pago';
     if (normalized === 'processed') return 'Processado';
     if (normalized === 'success') return 'Sucesso';
+    if (normalized === 'transferred') return 'Transferido';
     if (normalized === 'failed') return 'Falhou';
     if (normalized === 'canceled') return 'Cancelado';
 
