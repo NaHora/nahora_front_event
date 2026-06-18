@@ -200,7 +200,9 @@ export const Teams = () => {
     setRefunding(true);
     try {
       await api.post(`/teams/${team.id}/refund`);
-      toast.success('Time desativado e pagamento estornado.');
+      toast.success(
+        'Time desativado. Lembre de fazer o estorno no painel da Pagar.me.'
+      );
       setRefundDialog({ open: false, team: null });
       getTeamsAndCategories();
     } catch (err: any) {
@@ -353,13 +355,13 @@ export const Teams = () => {
         aria-describedby="refund-dialog-description"
       >
         <DialogTitle id="refund-dialog-title">
-          Desativar time e estornar pagamento?
+          Desativar time?
         </DialogTitle>
         <DialogContent>
           <DialogContentText id="refund-dialog-description">
             O time <strong>{refundDialog.team?.name}</strong> será desativado e o
-            valor pago será estornado ao cliente via Pagar.me. Essa ação não pode
-            ser desfeita.
+            pagamento marcado como estornado. O estorno em si precisa ser feito
+            manualmente no painel da Pagar.me. Essa ação não pode ser desfeita.
           </DialogContentText>
         </DialogContent>
         <DialogActions>
@@ -377,7 +379,7 @@ export const Teams = () => {
             onClick={confirmRefund}
             autoFocus
           >
-            Confirmar estorno
+            Confirmar
           </LoadingButton>
         </DialogActions>
       </Dialog>
