@@ -20,14 +20,22 @@ import { toast } from 'react-toastify';
 import * as Yup from 'yup';
 
 import {
+  Button,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
   Drawer,
   MenuItem,
+  Stack,
   TextField,
   Typography,
   useMediaQuery,
 } from '@mui/material';
 
 import EditIcon from '@mui/icons-material/Edit';
+import CancelIcon from '@mui/icons-material/CancelOutlined';
 import getValidationErrors from '../../utils';
 import { theme } from '../../styles/global';
 import { LoadingButton } from '@mui/lab';
@@ -76,6 +84,11 @@ export const Teams = () => {
   const [filterTeam, setFilterTeam] = useState('');
   const [filteredTeams, setFilteredTeams] = useState<TeamDTO[]>([]);
   const [categories, setCategories] = useState<CategoryDTO[]>([]);
+  const [refundDialog, setRefundDialog] = useState<{
+    open: boolean;
+    team: TeamDTO | null;
+  }>({ open: false, team: null });
+  const [refunding, setRefunding] = useState(false);
 
   const openDrawer = (drawerType: string, item: TeamDTO) => {
     console.log('item', item);
@@ -168,6 +181,35 @@ export const Teams = () => {
       }
     } finally {
       setLoading(false);
+    }
+  };
+
+  const openRefundDialog = (team: TeamDTO) => {
+    setRefundDialog({ open: true, team });
+  };
+
+  const closeRefundDialog = () => {
+    if (refunding) return;
+    setRefundDialog({ open: false, team: null });
+  };
+
+  const confirmRefund = async () => {
+    const team = refundDialog.team;
+    if (!team) return;
+
+    setRefunding(true);
+    try {
+      await api.post(`/teams/${team.id}/refund`);
+      toast.success('Time desativado e pagamento estornado.');
+      setRefundDialog({ open: false, team: null });
+      getTeamsAndCategories();
+    } catch (err: any) {
+      toast.error(
+        err?.response?.data?.message ||
+          'Erro ao desativar o time e estornar o pagamento.'
+      );
+    } finally {
+      setRefunding(false);
     }
   };
 
@@ -275,18 +317,27 @@ export const Teams = () => {
                   </Td>
 
                   <Td>
-                    <Edit
-                      onClick={() => {
-                        openDrawer('edit', team);
-                        setTeamselected(team.id);
-                      }}
-                    >
-                      <EditIcon
-                        fontSize={isMobile ? 'small' : 'medium'}
-                        sx={{ marginRight: '4px' }}
-                      />
-                      {!isMobile && 'Editar'}
-                    </Edit>
+                    <Stack direction="row" spacing={1} alignItems="center">
+                      <Edit
+                        onClick={() => {
+                          openDrawer('edit', team);
+                          setTeamselected(team.id);
+                        }}
+                      >
+                        <EditIcon
+                          fontSize={isMobile ? 'small' : 'medium'}
+                          sx={{ marginRight: '4px' }}
+                        />
+                        {!isMobile && 'Editar'}
+                      </Edit>
+                      <Edit onClick={() => openRefundDialog(team)}>
+                        <CancelIcon
+                          fontSize={isMobile ? 'small' : 'medium'}
+                          sx={{ marginRight: '4px' }}
+                        />
+                        {!isMobile && 'Desistir'}
+                      </Edit>
+                    </Stack>
                   </Td>
                 </Tr>
               ))}
@@ -294,6 +345,42 @@ export const Teams = () => {
           </Table>
         </TableContainer>
       </Content>
+
+      <Dialog
+        open={refundDialog.open}
+        onClose={closeRefundDialog}
+        aria-labelledby="refund-dialog-title"
+        aria-describedby="refund-dialog-description"
+      >
+        <DialogTitle id="refund-dialog-title">
+          Desativar time e estornar pagamento?
+        </DialogTitle>
+        <DialogContent>
+          <DialogContentText id="refund-dialog-description">
+            O time <strong>{refundDialog.team?.name}</strong> será desativado e o
+            valor pago será estornado ao cliente via Pagar.me. Essa ação não pode
+            ser desfeita.
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button
+            onClick={closeRefundDialog}
+            disabled={refunding}
+            sx={{ color: '#fff' }}
+          >
+            Cancelar
+          </Button>
+          <LoadingButton
+            loading={refunding}
+            variant="contained"
+            color="error"
+            onClick={confirmRefund}
+            autoFocus
+          >
+            Confirmar estorno
+          </LoadingButton>
+        </DialogActions>
+      </Dialog>
     </Container>
   );
 };
