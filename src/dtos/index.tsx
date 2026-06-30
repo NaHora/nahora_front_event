@@ -13,6 +13,7 @@ export interface EventDTO {
   end_time: string;
   logo?: string;
   logo_url?: string | null;
+  allow_free_registration?: boolean;
 }
 
 export interface LotsDTO {

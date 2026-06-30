@@ -36,6 +36,8 @@ import {
 
 import EditIcon from '@mui/icons-material/Edit';
 import CancelIcon from '@mui/icons-material/CancelOutlined';
+import AddIcon from '@mui/icons-material/Add';
+import InputMask from 'react-input-mask';
 import getValidationErrors from '../../utils';
 import { theme } from '../../styles/global';
 import { LoadingButton } from '@mui/lab';
@@ -59,7 +61,37 @@ interface TeamDTO {
 interface CategoryDTO {
   id: string;
   name: string;
+  athlete_number?: number;
 }
+
+interface NewAthlete {
+  name: string;
+  cpf: string;
+  email: string;
+  phone_number: string;
+  birth_date: string;
+  gender: 'm' | 'f';
+  shirt_size: string;
+}
+
+interface NewTeam {
+  name: string;
+  box: string;
+  category_id: string;
+  athletes: NewAthlete[];
+}
+
+const SHIRT_SIZES = ['P', 'M', 'G', 'GG'];
+
+const emptyAthlete = (): NewAthlete => ({
+  name: '',
+  cpf: '',
+  email: '',
+  phone_number: '',
+  birth_date: '',
+  gender: 'm',
+  shirt_size: 'M',
+});
 
 interface StateProps {
   [key: string]: any;
@@ -80,7 +112,7 @@ export const Teams = () => {
     categoryName: '',
     athletes: [],
   });
-  const { currentEvent } = useEvent();
+  const { currentEvent, getCurrentEventsData } = useEvent();
   const [filterTeam, setFilterTeam] = useState('');
   const [filteredTeams, setFilteredTeams] = useState<TeamDTO[]>([]);
   const [categories, setCategories] = useState<CategoryDTO[]>([]);
@@ -89,6 +121,18 @@ export const Teams = () => {
     team: TeamDTO | null;
   }>({ open: false, team: null });
   const [refunding, setRefunding] = useState(false);
+  const [isCreateDrawerOpen, setIsCreateDrawerOpen] = useState(false);
+  const [creating, setCreating] = useState(false);
+  const [newTeam, setNewTeam] = useState<NewTeam>({
+    name: '',
+    box: '',
+    category_id: '',
+    athletes: [emptyAthlete()],
+  });
+
+  const allowFreeRegistration = Boolean(
+    getCurrentEventsData?.allow_free_registration
+  );
 
   const openDrawer = (drawerType: string, item: TeamDTO) => {
     console.log('item', item);
@@ -181,6 +225,75 @@ export const Teams = () => {
       }
     } finally {
       setLoading(false);
+    }
+  };
+
+  const openCreateDrawer = () => {
+    setNewTeam({
+      name: '',
+      box: '',
+      category_id: '',
+      athletes: [emptyAthlete()],
+    });
+    setIsCreateDrawerOpen(true);
+  };
+
+  const closeCreateDrawer = () => {
+    if (creating) return;
+    setIsCreateDrawerOpen(false);
+  };
+
+  const handleNewTeamCategoryChange = (categoryId: string) => {
+    const category = categories.find((c) => c.id === categoryId);
+    const target = Math.max(Number(category?.athlete_number) || 1, 1);
+    setNewTeam((prev) => {
+      const athletes = [...prev.athletes];
+      while (athletes.length < target) athletes.push(emptyAthlete());
+      while (athletes.length > target) athletes.pop();
+      return { ...prev, category_id: categoryId, athletes };
+    });
+  };
+
+  const handleNewAthleteChange = (
+    index: number,
+    field: keyof NewAthlete,
+    value: string
+  ) => {
+    setNewTeam((prev) => {
+      const athletes = prev.athletes.map((athlete, i) =>
+        i === index ? { ...athlete, [field]: value } : athlete
+      );
+      return { ...prev, athletes };
+    });
+  };
+
+  const createFreeTeam = async () => {
+    if (!newTeam.name?.trim() || !newTeam.box?.trim() || !newTeam.category_id) {
+      toast.error('Preencha nome do time, box e categoria.');
+      return;
+    }
+
+    if (
+      newTeam.athletes.some(
+        (a) => !a.name?.trim() || !a.cpf?.trim() || !a.gender
+      )
+    ) {
+      toast.error('Cada atleta precisa de nome, CPF e gênero.');
+      return;
+    }
+
+    setCreating(true);
+    try {
+      await api.post('/teams/free', newTeam);
+      toast.success('Dupla cadastrada com sucesso.');
+      setIsCreateDrawerOpen(false);
+      getTeamsAndCategories();
+    } catch (err: any) {
+      toast.error(
+        err?.response?.data?.message || 'Erro ao cadastrar dupla.'
+      );
+    } finally {
+      setCreating(false);
     }
   };
 
@@ -282,14 +395,31 @@ export const Teams = () => {
       </Drawer>
       <EventImage src={eventLogo} width={318} alt="event logo" />
       <Content>
-        <TextField
-          size="small"
-          label="Buscar Time"
-          variant="outlined"
-          value={filterTeam}
-          onChange={(e) => setFilterTeam(e.target.value)}
-          sx={{ marginBottom: 2, alignSelf: 'flex-start' }}
-        />
+        <Stack
+          direction={{ xs: 'column', sm: 'row' }}
+          spacing={2}
+          alignItems={{ xs: 'stretch', sm: 'center' }}
+          sx={{ marginBottom: 2, width: '100%' }}
+        >
+          <TextField
+            size="small"
+            label="Buscar Time"
+            variant="outlined"
+            value={filterTeam}
+            onChange={(e) => setFilterTeam(e.target.value)}
+            sx={{ minWidth: 220 }}
+          />
+          {allowFreeRegistration && (
+            <Button
+              variant="contained"
+              color="primary"
+              startIcon={<AddIcon />}
+              onClick={openCreateDrawer}
+            >
+              Cadastrar dupla
+            </Button>
+          )}
+        </Stack>
 
         <TableContainer>
           <Table>
@@ -347,6 +477,189 @@ export const Teams = () => {
           </Table>
         </TableContainer>
       </Content>
+
+      <Drawer
+        anchor="right"
+        open={isCreateDrawerOpen}
+        onClose={closeCreateDrawer}
+      >
+        <DrawerContainer>
+          <DrawerTitle>Cadastrar dupla (sem pagamento)</DrawerTitle>
+
+          <InputLabel>Nome do time</InputLabel>
+          <TextField
+            size="small"
+            value={newTeam.name}
+            onChange={(e) =>
+              setNewTeam((prev) => ({ ...prev, name: e.target.value }))
+            }
+            fullWidth
+          />
+
+          <InputLabel>Box</InputLabel>
+          <TextField
+            size="small"
+            value={newTeam.box}
+            onChange={(e) =>
+              setNewTeam((prev) => ({ ...prev, box: e.target.value }))
+            }
+            fullWidth
+          />
+
+          <InputLabel>Categoria</InputLabel>
+          <TextField
+            select
+            size="small"
+            value={newTeam.category_id}
+            onChange={(e) => handleNewTeamCategoryChange(e.target.value)}
+            fullWidth
+          >
+            {categories.map((category) => (
+              <MenuItem key={category.id} value={category.id}>
+                {category.name}
+                {category.athlete_number
+                  ? ` (${category.athlete_number} atleta${
+                      category.athlete_number > 1 ? 's' : ''
+                    })`
+                  : ''}
+              </MenuItem>
+            ))}
+          </TextField>
+
+          <Box mt={3}>
+            <Typography variant="subtitle1" mb={1}>
+              Atletas
+            </Typography>
+            {newTeam.athletes.map((athlete, index) => (
+              <Box
+                key={index}
+                sx={{
+                  border: '1px solid rgba(255,255,255,0.12)',
+                  borderRadius: 2,
+                  padding: 2,
+                  marginBottom: 2,
+                }}
+              >
+                <Typography variant="subtitle2" mb={1}>
+                  Atleta {index + 1}
+                </Typography>
+
+                <InputLabel>Nome</InputLabel>
+                <TextField
+                  size="small"
+                  fullWidth
+                  value={athlete.name}
+                  onChange={(e) =>
+                    handleNewAthleteChange(index, 'name', e.target.value)
+                  }
+                />
+
+                <InputLabel>CPF</InputLabel>
+                <InputMask
+                  mask="999.999.999-99"
+                  value={athlete.cpf}
+                  onChange={(e) =>
+                    handleNewAthleteChange(index, 'cpf', e.target.value)
+                  }
+                >
+                  {(inputProps: any) => (
+                    <TextField {...inputProps} size="small" fullWidth />
+                  )}
+                </InputMask>
+
+                <InputLabel>E-mail</InputLabel>
+                <TextField
+                  size="small"
+                  fullWidth
+                  type="email"
+                  value={athlete.email}
+                  onChange={(e) =>
+                    handleNewAthleteChange(index, 'email', e.target.value)
+                  }
+                />
+
+                <InputLabel>Telefone</InputLabel>
+                <InputMask
+                  mask="(99) 99999-9999"
+                  value={athlete.phone_number}
+                  onChange={(e) =>
+                    handleNewAthleteChange(
+                      index,
+                      'phone_number',
+                      e.target.value
+                    )
+                  }
+                >
+                  {(inputProps: any) => (
+                    <TextField {...inputProps} size="small" fullWidth />
+                  )}
+                </InputMask>
+
+                <InputLabel>Data de nascimento</InputLabel>
+                <TextField
+                  size="small"
+                  fullWidth
+                  type="date"
+                  InputLabelProps={{ shrink: true }}
+                  value={athlete.birth_date}
+                  onChange={(e) =>
+                    handleNewAthleteChange(
+                      index,
+                      'birth_date',
+                      e.target.value
+                    )
+                  }
+                />
+
+                <InputLabel>Gênero</InputLabel>
+                <TextField
+                  select
+                  size="small"
+                  fullWidth
+                  value={athlete.gender}
+                  onChange={(e) =>
+                    handleNewAthleteChange(index, 'gender', e.target.value)
+                  }
+                >
+                  <MenuItem value="m">Masculino</MenuItem>
+                  <MenuItem value="f">Feminino</MenuItem>
+                </TextField>
+
+                <InputLabel>Tamanho da camisa</InputLabel>
+                <TextField
+                  select
+                  size="small"
+                  fullWidth
+                  value={athlete.shirt_size}
+                  onChange={(e) =>
+                    handleNewAthleteChange(
+                      index,
+                      'shirt_size',
+                      e.target.value
+                    )
+                  }
+                >
+                  {SHIRT_SIZES.map((size) => (
+                    <MenuItem key={size} value={size}>
+                      {size}
+                    </MenuItem>
+                  ))}
+                </TextField>
+              </Box>
+            ))}
+          </Box>
+
+          <LoadingButton
+            variant="contained"
+            color="primary"
+            loading={creating}
+            onClick={createFreeTeam}
+            sx={{ marginTop: 2 }}
+          >
+            Salvar dupla
+          </LoadingButton>
+        </DrawerContainer>
+      </Drawer>
 
       <Dialog
         open={refundDialog.open}
