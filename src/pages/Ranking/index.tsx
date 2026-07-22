@@ -167,67 +167,71 @@ export const Ranking = () => {
           <CategoryTitle className={!currentItems.includes(1) ? 'hide' : ''}>
             {currentRankGeral[0]?.category}
           </CategoryTitle>
-          <Table>
-            <Thead>
-              <Tr>
-                <Th>Posição</Th>
-                <Th style={{ textAlign: 'left' }}>Equipe</Th>
-                <Th>Workouts</Th>
-                <Th>Pontuação</Th>
-              </Tr>
-            </Thead>
-
-            <Tbody>
-              {currentRankGeral.map((row, index) => (
-                <Tr
-                  className={!currentItems.includes(index) ? 'hide' : ''}
-                  style={{ transform: 'skew(-10deg)' }}
-                  key={row.pairName}
-                >
-                  <Td style={{ textAlign: 'center' }}>
-                    {row.position === 1 && (
-                      <MilitaryTechIcon
-                        style={{
-                          color: '#f04c12',
-                          fontSize: 60,
-                          position: 'absolute',
-                          left: isMobile ? -20 : 0,
-                          top: 0,
-                        }}
-                      />
-                    )}
-
-                    <Position>{row.position}</Position>
-                  </Td>
-                  <Td>
-                    <FlexColumnAlignStart>
-                      <PairName>{row.pairName}</PairName>
-                      {row.competitors !== ' / ' && (
-                        <CompetitorsName>{row.competitors}</CompetitorsName>
-                      )}
-                    </FlexColumnAlignStart>
-                  </Td>
-                  <Td>
-                    <FlexRow>
-                      {row.workouts.map((workoutPoint, index) => {
-                        return (
-                          <FlexColumn key={getWorkoutPoint(index)}>
-                            <WorkoutName>{workouts[index].number}</WorkoutName>
-                            <Point>{workoutPoint}</Point>
-                          </FlexColumn>
-                        );
-                      })}
-                    </FlexRow>
-                  </Td>
-                  <Td>
-                    <FlexRow>
-                      <Total>{row.total}</Total>
-                    </FlexRow>
-                  </Td>
+          <TableContainer>
+            <Table>
+              <Thead>
+                <Tr>
+                  <Th>Posição</Th>
+                  <Th style={{ textAlign: 'left' }}>Equipe</Th>
+                  <Th>Workouts</Th>
+                  <Th>Pontuação</Th>
                 </Tr>
-              ))}
-            </Tbody>
-          </Table>
+              </Thead>
+
+              <Tbody>
+                {currentRankGeral.map((row, index) => (
+                  <Tr
+                    className={!currentItems.includes(index) ? 'hide' : ''}
+                    style={{ transform: 'skew(-10deg)' }}
+                    key={row.pairName}
+                  >
+                    <Td style={{ textAlign: 'center' }}>
+                      {row.position === 1 && (
+                        <MilitaryTechIcon
+                          style={{
+                            color: '#f04c12',
+                            fontSize: 60,
+                            position: 'absolute',
+                            left: isMobile ? -20 : 0,
+                            top: 0,
+                          }}
+                        />
+                      )}
+
+                      <Position>{row.position}</Position>
+                    </Td>
+                    <Td>
+                      <FlexColumnAlignStart>
+                        <PairName>{row.pairName}</PairName>
+                        {row.competitors !== ' / ' && (
+                          <CompetitorsName>{row.competitors}</CompetitorsName>
+                        )}
+                      </FlexColumnAlignStart>
+                    </Td>
+                    <Td>
+                      <FlexRow>
+                        {row.workouts.map((workoutPoint, index) => {
+                          return (
+                            <FlexColumn key={getWorkoutPoint(index)}>
+                              <WorkoutName>
+                                {workouts[index]?.number}
+                              </WorkoutName>
+                              <Point>{workoutPoint}</Point>
+                            </FlexColumn>
+                          );
+                        })}
+                      </FlexRow>
+                    </Td>
+                    <Td>
+                      <FlexRow>
+                        <Total>{row.total}</Total>
+                      </FlexRow>
+                    </Td>
+                  </Tr>
+                ))}
+              </Tbody>
+            </Table>
+          </TableContainer>
         </Content>
       ) : (
         <CircularProgress />

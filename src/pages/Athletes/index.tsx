@@ -315,7 +315,15 @@ export const Athletes = () => {
       </Drawer>
       <EventImage src={eventLogo} width={318} alt="event logo" />
       <Content>
-        <Box sx={{ display: 'flex', gap: 2, mb: 2, alignSelf: 'flex-start' }}>
+        <Box
+          sx={{
+            display: 'flex',
+            flexWrap: 'wrap',
+            gap: 2,
+            mb: 2,
+            width: '100%',
+          }}
+        >
           <TextField
             size="small"
             label="Buscar Atleta"

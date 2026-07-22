@@ -540,7 +540,8 @@ export const WodDescription = () => {
                 variant="outlined"
                 select
                 sx={{
-                  width: '250px',
+                  width: '100%',
+                  maxWidth: 250,
                   borderRadius: '10px',
                 }}
                 InputProps={{
@@ -571,7 +572,8 @@ export const WodDescription = () => {
                 variant="outlined"
                 select
                 sx={{
-                  width: '250px',
+                  width: '100%',
+                  maxWidth: 250,
                   borderRadius: '10px',
                 }}
                 InputProps={{

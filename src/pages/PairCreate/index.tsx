@@ -485,7 +485,8 @@ export const PairCreate = () => {
                 variant="outlined"
                 select
                 sx={{
-                  width: '250px',
+                  width: '100%',
+                  maxWidth: 250,
                   borderRadius: '10px',
                 }}
                 InputProps={{

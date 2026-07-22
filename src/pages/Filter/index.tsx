@@ -27,6 +27,7 @@ import {
   WorkoutDiv,
   WorkoutDescription,
   Table,
+  TableContainer,
   Tbody,
   Td,
   Th,
@@ -278,28 +279,93 @@ export const Filter = () => {
           </WorkoutDiv>
         )}
 
-        {currentWorkout !== 'todos' ? (
-          <Table>
-            <Thead>
-              <Tr>
-                <Th>Posição</Th>
-                <Th style={{ textAlign: 'left' }}>Equipe</Th>
-                <Th>Score</Th>
-                <Th>Tie-Break</Th>
-                <Th>Pontuação</Th>
-              </Tr>
-            </Thead>
-
-            <Tbody>
-              {rank.length === 0 ? (
-                <Tr style={{ transform: 'skew(-10deg)' }}>
-                  <Td colSpan={5} style={{ textAlign: 'center' }}>
-                    Scores ainda não cadastrados
-                  </Td>
+        <TableContainer>
+          {currentWorkout !== 'todos' ? (
+            <Table>
+              <Thead>
+                <Tr>
+                  <Th>Posição</Th>
+                  <Th style={{ textAlign: 'left' }}>Equipe</Th>
+                  <Th>Score</Th>
+                  <Th>Tie-Break</Th>
+                  <Th>Pontuação</Th>
                 </Tr>
-              ) : (
-                rank?.map((row) => (
-                  <Tr style={{ transform: 'skew(-10deg)' }} key={row.id}>
+              </Thead>
+
+              <Tbody>
+                {rank.length === 0 ? (
+                  <Tr style={{ transform: 'skew(-10deg)' }}>
+                    <Td colSpan={5} style={{ textAlign: 'center' }}>
+                      Scores ainda não cadastrados
+                    </Td>
+                  </Tr>
+                ) : (
+                  rank?.map((row) => (
+                    <Tr style={{ transform: 'skew(-10deg)' }} key={row.id}>
+                      <Td style={{ textAlign: 'center' }}>
+                        {row.position === 1 && (
+                          <MilitaryTechIcon
+                            style={{
+                              color: '#f04c12',
+                              fontSize: 60,
+                              position: 'absolute',
+                              left: isMobile ? -20 : 0,
+                              top: 0,
+                            }}
+                          />
+                        )}
+                        <Position>{row.position}</Position>
+                      </Td>
+                      <Td>
+                        <FlexColumnAlignStart>
+                          <PairName>{row.team.name}</PairName>
+                          {row.team.athletes && (
+                            <CompetitorsName>
+                              {row.team.athletes.map((athlete, index) =>
+                                index > 0 ? '/' + athlete.name : athlete.name
+                              )}
+                            </CompetitorsName>
+                          )}
+                        </FlexColumnAlignStart>
+                      </Td>
+                      <Td>
+                        <FlexRow>
+                          <Score style={{ color: '#f04c12' }}>
+                            {getWorkoutById(currentWorkout) === 'FORTIME'
+                              ? secondToTimeFormater(row.score)
+                              : row.score}
+                          </Score>
+                        </FlexRow>
+                      </Td>
+                      <Td>
+                        <FlexRow>
+                          <Score>{secondToTimeFormater(row.tieBreak)}</Score>
+                        </FlexRow>
+                      </Td>
+                      <Td>
+                        <FlexRow>
+                          <Total>{row.point}</Total>
+                        </FlexRow>
+                      </Td>
+                    </Tr>
+                  ))
+                )}
+              </Tbody>
+            </Table>
+          ) : (
+            <Table>
+              <Thead>
+                <Tr>
+                  <Th>Posição</Th>
+                  <Th style={{ textAlign: 'left' }}>Equipe</Th>
+                  <Th>Workouts</Th>
+                  <Th>Pontuação</Th>
+                </Tr>
+              </Thead>
+
+              <Tbody>
+                {rankGeral?.map((row, index) => (
+                  <Tr style={{ transform: 'skew(-10deg)' }} key={row.pairName}>
                     <Td style={{ textAlign: 'center' }}>
                       {row.position === 1 && (
                         <MilitaryTechIcon
@@ -316,84 +382,19 @@ export const Filter = () => {
                     </Td>
                     <Td>
                       <FlexColumnAlignStart>
-                        <PairName>{row.team.name}</PairName>
-                        {row.team.athletes && (
-                          <CompetitorsName>
-                            {row.team.athletes.map((athlete, index) =>
-                              index > 0 ? '/' + athlete.name : athlete.name
-                            )}
-                          </CompetitorsName>
+                        <PairName>{row.pairName}</PairName>
+                        {row.competitors !== ' / ' && (
+                          <CompetitorsName>{row.competitors}</CompetitorsName>
                         )}
                       </FlexColumnAlignStart>
                     </Td>
-                    <Td>
-                      <FlexRow>
-                        <Score style={{ color: '#f04c12' }}>
-                          {getWorkoutById(currentWorkout) === 'FORTIME'
-                            ? secondToTimeFormater(row.score)
-                            : row.score}
-                        </Score>
-                      </FlexRow>
-                    </Td>
-                    <Td>
-                      <FlexRow>
-                        <Score>{secondToTimeFormater(row.tieBreak)}</Score>
-                      </FlexRow>
-                    </Td>
-                    <Td>
-                      <FlexRow>
-                        <Total>{row.point}</Total>
-                      </FlexRow>
-                    </Td>
-                  </Tr>
-                ))
-              )}
-            </Tbody>
-          </Table>
-        ) : (
-          <Table>
-            <Thead>
-              <Tr>
-                <Th>Posição</Th>
-                <Th style={{ textAlign: 'left' }}>Equipe</Th>
-                {!isMobile && <Th>Workouts</Th>}
-                <Th>Pontuação</Th>
-              </Tr>
-            </Thead>
-
-            <Tbody>
-              {rankGeral?.map((row, index) => (
-                <Tr style={{ transform: 'skew(-10deg)' }} key={row.pairName}>
-                  <Td style={{ textAlign: 'center' }}>
-                    {row.position === 1 && (
-                      <MilitaryTechIcon
-                        style={{
-                          color: '#f04c12',
-                          fontSize: 60,
-                          position: 'absolute',
-                          left: isMobile ? -20 : 0,
-                          top: 0,
-                        }}
-                      />
-                    )}
-                    <Position>{row.position}</Position>
-                  </Td>
-                  <Td>
-                    <FlexColumnAlignStart>
-                      <PairName>{row.pairName}</PairName>
-                      {row.competitors !== ' / ' && (
-                        <CompetitorsName>{row.competitors}</CompetitorsName>
-                      )}
-                    </FlexColumnAlignStart>
-                  </Td>
-                  {!isMobile && (
                     <Td>
                       <FlexRow>
                         {row.workouts.map((workoutPoint, index) => {
                           return (
                             <FlexColumn key={getWorkoutPoint(index)}>
                               <WorkoutName>
-                                {workouts[index].number}
+                                {workouts[index]?.number}
                               </WorkoutName>
                               <Point>{workoutPoint}</Point>
                             </FlexColumn>
@@ -401,17 +402,17 @@ export const Filter = () => {
                         })}
                       </FlexRow>
                     </Td>
-                  )}
-                  <Td>
-                    <FlexRow>
-                      <Total>{row.total}</Total>
-                    </FlexRow>
-                  </Td>
-                </Tr>
-              ))}
-            </Tbody>
-          </Table>
-        )}
+                    <Td>
+                      <FlexRow>
+                        <Total>{row.total}</Total>
+                      </FlexRow>
+                    </Td>
+                  </Tr>
+                ))}
+              </Tbody>
+            </Table>
+          )}
+        </TableContainer>
       </Content>
     </Container>
   );

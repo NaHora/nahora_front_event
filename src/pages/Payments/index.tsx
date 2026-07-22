@@ -192,48 +192,48 @@ export const Payments = () => {
       {/* <EventImage src={EventLogo} width={318} alt="event logo" /> */}
 
       <Content>
+        <HeaderContainer>
+          <Select
+            labelId="select-event-label"
+            value={categoryFiltered}
+            onChange={handleCategoryChange}
+            label="Evento"
+          >
+            {[{ name: 'Todas', id: 'all' }, ...categoryList].map((event) => (
+              <MenuItem key={event.id} value={event.id}>
+                {event.name}
+              </MenuItem>
+            ))}
+          </Select>
+          <TextField
+            label="Data Inicial"
+            type="date"
+            InputLabelProps={{ shrink: true }}
+            value={startDate || ''}
+            onChange={handleStartDateChange}
+            style={{ width: '100%', maxWidth: '200px' }}
+          />
+
+          <TextField
+            label="Data Final"
+            type="date"
+            InputLabelProps={{ shrink: true }}
+            value={endDate || ''}
+            onChange={handleEndDateChange}
+            style={{ width: '100%', maxWidth: '200px' }}
+          />
+
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={applyFilters}
+            style={{ height: '100%' }}
+            disabled={isFilterDisabled}
+          >
+            Filtrar
+          </Button>
+        </HeaderContainer>
         <TableContainer>
-          <HeaderContainer>
-            <Select
-              labelId="select-event-label"
-              value={categoryFiltered}
-              onChange={handleCategoryChange}
-              label="Evento"
-            >
-              {[{ name: 'Todas', id: 'all' }, ...categoryList].map((event) => (
-                <MenuItem key={event.id} value={event.id}>
-                  {event.name}
-                </MenuItem>
-              ))}
-            </Select>
-            <TextField
-              label="Data Inicial"
-              type="date"
-              InputLabelProps={{ shrink: true }}
-              value={startDate || ''}
-              onChange={handleStartDateChange}
-              style={{ width: '100%', maxWidth: '200px' }}
-            />
-
-            <TextField
-              label="Data Final"
-              type="date"
-              InputLabelProps={{ shrink: true }}
-              value={endDate || ''}
-              onChange={handleEndDateChange}
-              style={{ width: '100%', maxWidth: '200px' }}
-            />
-
-            <Button
-              variant="contained"
-              color="primary"
-              onClick={applyFilters}
-              style={{ height: '100%' }}
-              disabled={isFilterDisabled}
-            >
-              Filtrar
-            </Button>
-          </HeaderContainer>
           <Table>
             <Thead>
               <Tr>

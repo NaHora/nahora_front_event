@@ -16,6 +16,10 @@ export const Container = styled.div`
   align-items: center;
   gap: 24px;
   color: var(--text-primary);
+
+  @media only screen and (max-width: 768px) {
+    padding: 16px;
+  }
 `;
 
 export const Content = styled.div`
@@ -26,6 +30,11 @@ export const Content = styled.div`
   display: flex;
   flex-direction: column;
   gap: 18px;
+
+  @media only screen and (max-width: 768px) {
+    padding: 18px;
+    border-radius: 24px;
+  }
 `;
 
 export const Header = styled.div`

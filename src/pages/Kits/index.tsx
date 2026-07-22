@@ -130,7 +130,7 @@ export default function Kit() {
   return (
     <Container>
       <Navbar />
-      <Box p={4}>
+      <Box p={{ xs: 2, md: 4 }}>
         <Typography variant="h5" gutterBottom>
           Validação de Time
         </Typography>

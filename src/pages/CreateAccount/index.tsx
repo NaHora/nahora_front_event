@@ -779,7 +779,11 @@ export const CreateAccount = () => {
                     <img
                       src={pix.qrCodeUrl}
                       alt="QR Code PIX"
-                      style={{ marginBottom: 16 }}
+                      style={{
+                        marginBottom: 16,
+                        maxWidth: '100%',
+                        height: 'auto',
+                      }}
                     />
                     <Typography
                       variant="body2"
